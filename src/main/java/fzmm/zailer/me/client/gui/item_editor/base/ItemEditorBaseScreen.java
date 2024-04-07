@@ -9,6 +9,8 @@ import fzmm.zailer.me.client.gui.item_editor.armor_editor.ArmorEditorScreen;
 import fzmm.zailer.me.client.gui.item_editor.banner_editor.BannerEditorScreen;
 import fzmm.zailer.me.client.gui.item_editor.base.components.*;
 import fzmm.zailer.me.client.gui.item_editor.block_state_editor.BlockStateEditor;
+import fzmm.zailer.me.client.gui.item_editor.can_destroy_editor.can_place_on_editor.CanDestroyEditor;
+import fzmm.zailer.me.client.gui.item_editor.can_place_on_editor.CanPlaceOnEditor;
 import fzmm.zailer.me.client.gui.item_editor.color_editor.ColorEditor;
 import fzmm.zailer.me.client.gui.item_editor.container_editor.ContainerEditor;
 import fzmm.zailer.me.client.gui.item_editor.custom_model_data.CustomModelDataEditor;
@@ -75,6 +77,8 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
         itemEditorScreens.add(new ArmorEditorScreen());
         itemEditorScreens.add(new BannerEditorScreen());
         itemEditorScreens.add(new BlockStateEditor());
+        itemEditorScreens.add(new CanDestroyEditor());
+        itemEditorScreens.add(new CanPlaceOnEditor());
         itemEditorScreens.add(new ColorEditor());
         itemEditorScreens.add(new ContainerEditor());
         itemEditorScreens.add(new CustomModelDataEditor());

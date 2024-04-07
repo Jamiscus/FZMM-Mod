@@ -1,10 +1,9 @@
 package fzmm.zailer.me.client.gui.item_editor.common.levelable;
 
+import fzmm.zailer.me.client.gui.item_editor.common.sort.ISortBuilder;
 import net.minecraft.item.ItemStack;
 
-import java.util.List;
-
-public interface ILevelableBuilder<V, DATA extends ILevelable<V>> {
+public interface ILevelableBuilder<V, DATA extends ILevelable<V>> extends ISortBuilder<DATA> {
 
     ItemStack get();
 
@@ -28,10 +27,6 @@ public interface ILevelableBuilder<V, DATA extends ILevelable<V>> {
     ILevelableBuilder<V, DATA> stack(ItemStack stack);
 
     ItemStack stack();
-
-    List<DATA> values();
-
-    ILevelableBuilder<V, DATA> values(List<DATA> values);
 
     DATA getValue(int index);
 

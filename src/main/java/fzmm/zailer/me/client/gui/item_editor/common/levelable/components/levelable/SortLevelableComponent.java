@@ -3,21 +3,20 @@ package fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levela
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.ILevelable;
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.ILevelableBuilder;
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.LevelableEditor;
-import fzmm.zailer.me.utils.list.IListEntry;
+import fzmm.zailer.me.client.gui.item_editor.common.sort.ISortComponent;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.core.Component;
-import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class SortLevelableComponent<V, D extends ILevelable<V>, B extends ILevelableBuilder<V, D>> extends BaseLevelableComponent<V, D, B>
-        implements IListEntry<SortLevelableComponent<V, D, B>> {
+        implements ISortComponent<V, D> {
 
-    private ButtonComponent upButton;
-    private ButtonComponent downButton;
     private LabelComponent levelLabel;
 
     public SortLevelableComponent(D levelable, LevelableEditor<V, D, B> editor, B builder) {
@@ -33,21 +32,12 @@ public class SortLevelableComponent<V, D extends ILevelable<V>, B extends ILevel
 
     @Override
     protected List<ButtonComponent> getButtons(LevelableEditor<V, D, B> editor, B builder) {
-        this.upButton = (ButtonComponent) Components.button(Text.translatable("fzmm.gui.button.arrow.up"), button -> {})
-                .horizontalSizing(Sizing.fixed(20));
-
-        this.downButton = (ButtonComponent) Components.button(Text.translatable("fzmm.gui.button.arrow.down"), button -> {})
-                .horizontalSizing(Sizing.fixed(20));
-
-        return List.of(this.upButton, this.downButton);
+        return new ArrayList<>();
     }
 
-    public ButtonComponent getUpButton() {
-        return this.upButton;
-    }
-
-    public ButtonComponent getDownButton() {
-        return this.downButton;
+    @Override
+    public D value() {
+        return this.getLevelable();
     }
 
     @Override
@@ -56,11 +46,13 @@ public class SortLevelableComponent<V, D extends ILevelable<V>, B extends ILevel
     }
 
     @Override
-    public void setValue(SortLevelableComponent<V, D, B> value) {
-        this.setDisabled(value.isDisabled);
-        this.setButtonList(value.buttonList);
-        this.setLevelable(value.getLevelable());
-        this.levelLabel.text(value.levelLabel.text());
+    public void setValue(ISortComponent<V, D> value) {
+        SortLevelableComponent<V, D, B> valueCast = (SortLevelableComponent<V, D, B>) value;
+
+        this.setDisabled(valueCast.isDisabled);
+        this.setButtonList(valueCast.buttonList);
+        this.setLevelable(valueCast.getLevelable());
+        this.levelLabel.text(valueCast.levelLabel.text());
 
         if (this.spriteLayout != null) {
             this.spriteLayout.clearChildren();

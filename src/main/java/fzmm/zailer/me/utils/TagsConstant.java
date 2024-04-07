@@ -50,6 +50,8 @@ public class TagsConstant {
 
     public static final String UNBREAKABLE = "Unbreakable"; // ItemStack.UNBREAKABLE_KEY
     public static final String HIDE_FLAGS = "HideFlags"; // ItemStack.HIDE_FLAGS_KEY
+    public static final String CAN_PLACE_ON = "CanPlaceOn"; // ItemStack.CAN_PLACE_ON_KEY
+    public static final String CAN_DESTROY = "CanDestroy"; // ItemStack.CAN_DESTROY_KEY
 
     public static final String EFFECT_ID = "id"; // StatusEffectInstance.ID_NBT_KEY
 

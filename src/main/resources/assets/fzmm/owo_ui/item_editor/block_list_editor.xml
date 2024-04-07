@@ -7,18 +7,9 @@
                     <children>
                         <flow-layout direction="horizontal">
                             <children>
-                                <flow-layout direction="horizontal" id="boolean-buttons">
-                                    <children>
-                                        <button id="allow-duplicates">
-                                        </button>
-                                    </children>
-
-                                    <gap>2</gap>
-                                </flow-layout>
-
                                 <flow-layout direction="horizontal">
                                     <children>
-                                        <button id="sort-levelables">
+                                        <button id="sort-blocks">
                                             <margins>
                                                 <left>4</left>
                                             </margins>
@@ -35,29 +26,6 @@
 
                             <gap>4</gap>
                         </flow-layout>
-
-
-                        <flow-layout direction="horizontal" id="top-options">
-                            <children>
-                                <label>
-                                    <text translate="true">fzmm.gui.itemEditor.levelable.option.setLevelToAll</text>
-                                </label>
-                                <fzmm.text-option id="set-level-to-all">
-                                    <sizing>
-                                        <horizontal method="fixed">40</horizontal>
-                                    </sizing>
-                                </fzmm.text-option>
-                            </children>
-
-                            <vertical-alignment>center</vertical-alignment>
-
-                            <gap>4</gap>
-
-                            <margins>
-                                <vertical>4</vertical>
-                            </margins>
-                        </flow-layout>
-
 
                         <flow-layout direction="horizontal">
                             <children>
@@ -120,7 +88,7 @@
 
                                     <sizing>
                                         <vertical method="fill">100</vertical>
-                                        <horizontal method="fixed">100</horizontal>
+                                        <horizontal method="fixed">150</horizontal>
                                     </sizing>
                                 </flow-layout>
 
@@ -132,7 +100,8 @@
                                                 <children>
                                                     <flow-layout direction="horizontal">
                                                         <children>
-                                                            <label id="applied-label">
+                                                            <label>
+                                                                <text translate="true">fzmm.gui.itemEditor.block_list.label.applied</text>
                                                             </label>
 
                                                             <button id="remove-all">
@@ -146,7 +115,7 @@
                                                             <vertical method="fixed">20</vertical>
                                                         </sizing>
                                                     </flow-layout>
-                                                    <flow-layout direction="ltr-text-flow" id="applied-levelables">
+                                                    <flow-layout direction="ltr-text-flow" id="applied-blocks">
                                                         <children>
                                                         </children>
 
@@ -182,7 +151,8 @@
                                                         <children>
                                                             <flow-layout direction="horizontal">
                                                                 <children>
-                                                                    <label id="available-label">
+                                                                    <label>
+                                                                        <text translate="true">fzmm.gui.itemEditor.block_list.label.available</text>
                                                                     </label>
 
                                                                     <button id="add-all">
@@ -198,7 +168,7 @@
                                                                 </sizing>
                                                             </flow-layout>
 
-                                                            <flow-layout direction="ltr-text-flow" id="add-levelables-layout">
+                                                            <flow-layout direction="ltr-text-flow" id="add-blocks-layout">
                                                                 <children>
                                                                 </children>
 

@@ -10,10 +10,12 @@ import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.Levelab
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levelable.BaseLevelableComponent;
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levelable.AddLevelableComponent;
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levelable.AppliedLevelableComponent;
+import fzmm.zailer.me.client.gui.item_editor.common.sort.ISortEditor;
 import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.itemgroup.Icon;
 import io.wispforest.owo.ui.component.ButtonComponent;
+import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
@@ -33,7 +35,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILevelableBuilder<V, D>> implements IItemEditorScreen {
+public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILevelableBuilder<V, D>> implements IItemEditorScreen, ISortEditor {
     private RequestedItem itemRequested = null;
     private List<RequestedItem> requestedItems = null;
     private FlowLayout appliedLevelablesLayout;
@@ -92,7 +94,7 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
             this.selectedCategoryButton.onPress();
             this.updateItemPreview();
         });
-        allowDuplicatesComponent.tooltip(Text.translatable("fzmm.gui.itemEditor.levelable.option.allowDuplicates"));
+        allowDuplicatesComponent.tooltip(Text.translatable("fzmm.gui.itemEditor.common.option.allowDuplicates"));
         this.setBooleanButton(allowDuplicatesComponent, () -> this.allowDuplicates, 80);
 
         // other top buttons
@@ -122,7 +124,7 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
         BaseFzmmScreen.checkNull(this.searchTextBox, "text-box", "search");
         this.searchTextBox.onChanged().subscribe(value -> {
             this.selectedCategoryButton.onPress();
-            this.updateAppliedLevelables();
+            this.updateAppliedValues();
         });
 
         ConfigTextBox setLevelToAllTextBox = editorLayout.childById(ConfigTextBox.class, "set-level-to-all");
@@ -143,6 +145,15 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
         // content
         this.appliedLevelablesLayout = editorLayout.childById(FlowLayout.class, "applied-levelables");
         BaseFzmmScreen.checkNull(this.appliedLevelablesLayout, "flowLayout", "applied-levelables");
+
+        // content labels
+        LabelComponent availableLabel = editorLayout.childById(LabelComponent.class, "available-label");
+        BaseFzmmScreen.checkNull(availableLabel, "label", "available-label");
+        availableLabel.text(Text.translatable("fzmm.gui.itemEditor." + this.getId() + ".label.available"));
+
+        LabelComponent appliedLabel = editorLayout.childById(LabelComponent.class, "applied-label");
+        BaseFzmmScreen.checkNull(appliedLabel, "label", "applied-label");
+        appliedLabel.text(Text.translatable("fzmm.gui.itemEditor." + this.getId() + ".label.applied"));
 
         // add all
         ButtonComponent addAllButton = editorLayout.childById(ButtonComponent.class, "add-all");
@@ -169,7 +180,7 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
 
         this.setLabelSize(levelables);
         this.setupAddLevelables(levelables);
-        this.updateAppliedLevelables();
+        this.updateAppliedValues();
         categoriesLayout.children(this.getCategories());
 
         return editorLayout;
@@ -231,7 +242,7 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
         this.updateParameters(this.levelableBuilder);
 
         this.selectedCategoryButton.onPress();
-        this.updateAppliedLevelables();
+        this.updateAppliedValues();
     }
 
     protected abstract void updateParameters(B builder);
@@ -251,7 +262,7 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
     private void setupAddLevelables(List<D> levelables) {
         ImmutableList.Builder<AddLevelableComponent<V, D, B>> addLevelableComponentBuilder = ImmutableList.builder();
         for (var levelable : levelables) {
-            AddLevelableComponent<V, D, B> levelableComponent = this.getAddLevelableComponent(levelable, this::updateAppliedLevelables);
+            AddLevelableComponent<V, D, B> levelableComponent = this.getAddLevelableComponent(levelable, this::updateAppliedValues);
 
             addLevelableComponentBuilder.add(levelableComponent);
         }
@@ -379,7 +390,8 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
         this.appliedLevelablesLayout.children(appliedLevelables);
     }
 
-    public void updateAppliedLevelables() {
+    @Override
+    public void updateAppliedValues() {
         List<D> levelables = this.levelableBuilder.values();
 
         this.appliedLevelablesComponents.clear();
