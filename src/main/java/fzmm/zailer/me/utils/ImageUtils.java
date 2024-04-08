@@ -11,19 +11,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
-import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
+import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.Optional;
 
 public class ImageUtils {
@@ -54,7 +50,7 @@ public class ImageUtils {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                int color = nativeImage.getColor(x, y);//ABGR (wtff?????)
+                int color = nativeImage.getColor(x, y);//ABGR
 
                 bufferedImage.setRGB(x, y, ((color >> 16) & 0xFF) | ((color & 0xFF) << 16) | (color & 0xFF00FF00));//ARGB
             }
@@ -84,25 +80,39 @@ public class ImageUtils {
         return Optional.ofNullable(ImageIO.read(url));
     }
 
-    public static Optional<NativeImage> toNativeImage(BufferedImage image) {
+    public static NativeImage toNativeImage(BufferedImage image) {
 
-        try {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            ImageWriter writer = ImageIO.getImageWritersByFormatName("png").next();
-            ImageOutputStream ios = ImageIO.createImageOutputStream(stream);
-            writer.setOutput(ios);
-            writer.write(image);
-            ios.close();
-            writer.dispose();
-            byte[] bytes = stream.toByteArray();
+        // """NativeImage.Format.RGBA""" = ABGR
+        NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, image.getWidth(), image.getHeight(), false);
+        ColorModel colorModel = image.getColorModel();
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
 
-            ByteBuffer data = BufferUtils.createByteBuffer(bytes.length).put(bytes);
-            data.flip();
-            return Optional.of(NativeImage.read(data));
-        } catch (IOException ignored) {
-            FzmmClient.LOGGER.error("[ImageUtils]: could not convert BufferedImage to NativeImage");
-            return Optional.empty();
+                // avoid using image.getRGB(x, y) to pack in argb, to unpack it, to pack it in abgr
+                Object elements = image.getRaster().getDataElements(x, y, null);
+
+                int abgr = (colorModel.getAlpha(elements) << 24) |
+                        (colorModel.getBlue(elements) << 16) |
+                        (colorModel.getGreen(elements) << 8) |
+                        colorModel.getRed(elements);
+
+                nativeImage.setColor(x, y, abgr);
+            }
         }
+        return nativeImage;
+    }
+
+    public static boolean isEquals(BufferedImage image1, BufferedImage image2) {
+        if (image1.getWidth() != image2.getWidth() || image1.getHeight() != image2.getHeight())
+            return false;
+
+        for (int y = 0; y < image1.getHeight(); y++) {
+            for (int x = 0; x < image1.getWidth(); x++) {
+                if (image1.getRGB(x, y) != image2.getRGB(x, y))
+                    return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isAlexModel(int scale, BufferedImage skin) {

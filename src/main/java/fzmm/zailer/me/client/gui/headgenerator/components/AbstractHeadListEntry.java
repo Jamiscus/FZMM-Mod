@@ -133,10 +133,10 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
             return;
         }
 
-        ImageUtils.toNativeImage(previewSkin).ifPresent(nativeImage -> {
-            this.previewTexture = new NativeImageBackedTexture(nativeImage);
-            previewEntity.setSkin(textureManager.registerDynamicTexture("fzmm_head", this.previewTexture), isSlim);
-        });
+        NativeImage nativeImage = ImageUtils.toNativeImage(previewSkin);
+        nativeImage.untrack();
+        this.previewTexture = new NativeImageBackedTexture(nativeImage);
+        previewEntity.setSkin(textureManager.registerDynamicTexture("fzmm_head", this.previewTexture), isSlim);
 
         textureManager.bindTexture(previewEntity.getTextures());
     }

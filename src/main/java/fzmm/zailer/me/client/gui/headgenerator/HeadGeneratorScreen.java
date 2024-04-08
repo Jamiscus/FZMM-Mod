@@ -176,6 +176,8 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         if (skinBase == null)
             return;
 
+        if (ImageUtils.isEquals(skinBase, this.baseSkin))
+            return;
 
         if (skinBase.getWidth() == 64 && skinBase.getHeight() == 32) {
             skinBase = ImageUtils.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skinBase);
