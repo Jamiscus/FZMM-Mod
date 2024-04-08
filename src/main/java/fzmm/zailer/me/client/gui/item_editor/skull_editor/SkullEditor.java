@@ -296,7 +296,14 @@ public class SkullEditor implements IItemEditorScreen {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.schedule(() -> {
             this.builder.setUnloadedHead(false);
-            MinecraftClient.getInstance().execute(() -> this.selectItemAndUpdateParameters(this.skullRequested.stack()));
+            MinecraftClient.getInstance().execute(() -> {
+                ItemStack stack = this.skullRequested.stack();
+
+                String noteBlockSound = this.noteBlockSoundTextBox.getText();
+                this.selectItemAndUpdateParameters(stack);
+
+                this.noteBlockSoundTextBox.text(noteBlockSound);
+            });
             loadFromNameButton.active = true;
         }, 2500, TimeUnit.MILLISECONDS);
         scheduler.shutdown();
