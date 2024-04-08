@@ -8,9 +8,11 @@ import net.minecraft.nbt.NbtCompound;
 public class HideFlagsBuilder {
 
     private ItemStack stack;
+    private NbtCompound nbt;
 
     private HideFlagsBuilder() {
         this.stack = Items.STONE.getDefaultStack();
+        this.nbt = new NbtCompound();
     }
 
     public static HideFlagsBuilder builder() {
@@ -19,29 +21,35 @@ public class HideFlagsBuilder {
 
     public HideFlagsBuilder of(ItemStack stack) {
         this.stack = stack.copy();
+        // don't ask me why air can and has nbt (part 2)
+        this.nbt = this.stack.isEmpty() ? new NbtCompound() : this.stack.getOrCreateNbt();
         return this;
     }
 
     public ItemStack get() {
-        NbtCompound nbt = this.stack.getOrCreateNbt();
+        NbtCompound nbtResult = this.nbt;
 
-        if (this.hideFlags() == 0)
-            nbt.remove(TagsConstant.HIDE_FLAGS);
+        if (!this.hasFlags())
+            nbtResult.remove(TagsConstant.HIDE_FLAGS);
 
-        if (nbt.isEmpty())
-            nbt = null;
+        if (nbtResult.isEmpty())
+            nbtResult = null;
 
-        this.stack.setNbt(nbt);
+        this.stack.setNbt(nbtResult);
 
         return this.stack;
     }
 
     public int hideFlags() {
-        return this.stack.getOrCreateNbt().getInt(TagsConstant.HIDE_FLAGS);
+        return this.nbt.getInt(TagsConstant.HIDE_FLAGS);
+    }
+
+    public boolean hasFlags() {
+        return this.hideFlags() != 0;
     }
 
     public HideFlagsBuilder hideFlags(int flags) {
-        this.stack.getOrCreateNbt().putInt(TagsConstant.HIDE_FLAGS, flags);
+        this.nbt.putInt(TagsConstant.HIDE_FLAGS, flags);
         return this;
     }
 

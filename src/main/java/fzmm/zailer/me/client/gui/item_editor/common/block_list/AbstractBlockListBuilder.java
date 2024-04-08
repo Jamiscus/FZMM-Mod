@@ -32,11 +32,10 @@ public abstract class AbstractBlockListBuilder implements ISortBuilder<AbstractB
     public ItemStack get() {
         NbtCompound nbt = this.stack.getOrCreateNbt();
 
-        if (this.blockStringList.isEmpty()) {
-            nbt.remove(TagsConstant.HIDE_FLAGS);
-        } else {
+        if (this.blockStringList.isEmpty())
+            nbt.remove(this.getNbtKey());
+        else
             nbt.put(this.getNbtKey(), this.blockStringList.copy());
-        }
 
         if (nbt.isEmpty())
             nbt = null;

@@ -39,7 +39,10 @@ public class HideFlagsEditor implements IItemEditorScreen {
 
         this.stackRequested = new RequestedItem(
                 itemStack -> {
-                    if (HideFlagsBuilder.builder().of(itemStack).hideFlags() != 0)
+                    if (itemStack.isEmpty())
+                        return false;
+
+                    if (HideFlagsBuilder.builder().of(itemStack).hasFlags())
                         return true;
 
                     return !this.getActiveFlags(itemStack).isEmpty();
