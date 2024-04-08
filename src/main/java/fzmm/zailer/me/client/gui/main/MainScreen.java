@@ -72,7 +72,10 @@ public class MainScreen extends BaseFzmmScreen {
                 if (data.hasHandItem) {
                     ItemStack handStack = this.client.player.getMainHandStack();
                     handStack = handStack.isEmpty() ? Items.DIAMOND_SWORD.getDefaultStack() : handStack;
-                    iconLayout.child(Components.item(handStack).sizing(Sizing.fixed(32), Sizing.fixed(32)));
+                    iconLayout.child(Components.item(handStack)
+                            .sizing(Sizing.fixed(32), Sizing.fixed(32))
+                            .cursorStyle(CursorStyle.HAND)
+                    );
                     iconSize = 16;
                 }
 
