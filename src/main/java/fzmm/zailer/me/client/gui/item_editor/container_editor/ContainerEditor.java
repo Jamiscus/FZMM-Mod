@@ -29,6 +29,7 @@ import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ContainerEditor implements IItemEditorScreen {
@@ -170,7 +171,10 @@ public class ContainerEditor implements IItemEditorScreen {
                 FzmmUtils.updateSlot(inventoryStart + index, slotComponent.getStack());
         });
 
-        this.buildSlots(this.playerArmorLayout, inventory.armor, inventory.armor.size(), this.containerInventoryLayout, (slotComponent, index) -> {
+        // the order of the armor slot ids in the inventory is reversed
+        List<ItemStack> reversedArmor = new ArrayList<>(inventory.armor);
+        Collections.reverse(reversedArmor);
+        this.buildSlots(this.playerArmorLayout, reversedArmor, inventory.armor.size(), this.containerInventoryLayout, (slotComponent, index) -> {
             if (this.updatePlayerInventory)
                 FzmmUtils.updateSlot(craftSlotsSize + index, slotComponent.getStack());
         });
