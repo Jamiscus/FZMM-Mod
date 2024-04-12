@@ -19,6 +19,7 @@ import fzmm.zailer.me.client.gui.item_editor.effect_editor.EffectEditor;
 import fzmm.zailer.me.client.gui.item_editor.enchant_editor.EnchantEditor;
 import fzmm.zailer.me.client.gui.item_editor.filled_map_editor.FilledMapEditor;
 import fzmm.zailer.me.client.gui.item_editor.hide_flags_editor.HideFlagsEditor;
+import fzmm.zailer.me.client.gui.item_editor.item_select.ItemSelectEditor;
 import fzmm.zailer.me.client.gui.item_editor.skull_editor.SkullEditor;
 import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
 import io.wispforest.owo.ui.component.Components;
@@ -87,6 +88,7 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
         itemEditorScreens.add(new EnchantEditor());
         itemEditorScreens.add(new FilledMapEditor());
         itemEditorScreens.add(new HideFlagsEditor());
+        itemEditorScreens.add(new ItemSelectEditor());
         itemEditorScreens.add(new SkullEditor());
 
         return itemEditorScreens;
