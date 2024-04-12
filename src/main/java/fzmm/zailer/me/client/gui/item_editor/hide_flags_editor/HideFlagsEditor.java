@@ -21,9 +21,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class HideFlagsEditor implements IItemEditorScreen {
     private RequestedItem stackRequested = null;
@@ -101,7 +99,12 @@ public class HideFlagsEditor implements IItemEditorScreen {
 
         FlowLayout flagLayout = editorLayout.childById(FlowLayout.class, "flags");
         BaseFzmmScreen.checkNull(flagLayout, "layout", "flags");
-        flagLayout.children(this.flagComponents.values());
+
+        List<CheckboxComponent> sortedFlagComponents = new ArrayList<>(this.flagComponents.values())
+                .stream()
+                .sorted(Comparator.comparing(checkboxComponent -> checkboxComponent.getMessage().getString()))
+                .toList();
+        flagLayout.children(sortedFlagComponents);
 
         return editorLayout;
     }
@@ -132,7 +135,7 @@ public class HideFlagsEditor implements IItemEditorScreen {
         for (var flag : ItemStack.TooltipSection.values()) {
             CheckboxComponent flagComponent = this.flagComponents.get(flag);
             MutableText checkboxText = flagComponent.getMessage().copy();
-            int color = Color.ofFormatting(activeFlags.contains(flag) ? Formatting.GRAY  : Formatting.DARK_GRAY).argb();
+            int color = Color.ofFormatting(activeFlags.contains(flag) ? Formatting.GRAY : Formatting.DARK_GRAY).argb();
             checkboxText.setStyle(Style.EMPTY.withColor(color));
             flagComponent.setMessage(checkboxText);
         }
