@@ -2,8 +2,8 @@ package fzmm.zailer.me.client.gui.imagetext;
 
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.client.gui.imagetext.tabs.ImagetextHologramTab;
-import fzmm.zailer.me.client.gui.utils.autoplacer.AbstractAutoPlacer;
-import fzmm.zailer.me.client.gui.utils.autoplacer.AutoPlacerHud;
+import fzmm.zailer.me.client.gui.utils.auto_placer.AbstractAutoPlacer;
+import fzmm.zailer.me.client.gui.utils.auto_placer.AutoPlacerHud;
 import fzmm.zailer.me.utils.InventoryUtils;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.core.Component;

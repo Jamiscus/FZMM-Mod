@@ -1,7 +1,7 @@
 package fzmm.zailer.me.client.gui.item_editor.base.components;
 
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
-import fzmm.zailer.me.client.gui.utils.selectItem.SelectItemScreen;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
 import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;

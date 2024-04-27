@@ -4,7 +4,7 @@ import fzmm.zailer.me.builders.BlockStateItemBuilder;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.item_editor.IItemEditorScreen;
 import fzmm.zailer.me.client.gui.item_editor.base.ItemEditorBaseScreen;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import fzmm.zailer.me.mixin.block_state_editor.VerticallyAttachableBlockItemAccessor;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;

@@ -11,7 +11,7 @@ import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levelab
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levelable.AddLevelableComponent;
 import fzmm.zailer.me.client.gui.item_editor.common.levelable.components.levelable.AppliedLevelableComponent;
 import fzmm.zailer.me.client.gui.item_editor.common.sort.ISortEditor;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.itemgroup.Icon;
 import io.wispforest.owo.ui.component.ButtonComponent;

@@ -56,8 +56,8 @@
                             <text translate="true">fzmm.gui.encryptbook.button.give</text>
                         </button>
 
-                        <button id="get-decoder-button">
-                            <text translate="true">fzmm.gui.encryptbook.button.getDecoder</text>
+                        <button id="get-decryptor-button">
+                            <text translate="true">fzmm.gui.encryptbook.button.getDecryptor</text>
                         </button>
 
                     </children>

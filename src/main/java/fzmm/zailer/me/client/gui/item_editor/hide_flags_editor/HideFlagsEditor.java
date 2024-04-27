@@ -4,7 +4,7 @@ import fzmm.zailer.me.builders.HideFlagsBuilder;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.item_editor.IItemEditorScreen;
 import fzmm.zailer.me.client.gui.item_editor.base.ItemEditorBaseScreen;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.CheckboxComponent;
 import io.wispforest.owo.ui.component.Components;

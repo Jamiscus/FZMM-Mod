@@ -3,7 +3,7 @@ package fzmm.zailer.me.client.gui.item_editor.can_place_on_editor;
 import fzmm.zailer.me.builders.CanPlaceOnBuilder;
 import fzmm.zailer.me.client.gui.item_editor.common.block_list.BlockListEditor;
 import fzmm.zailer.me.client.gui.item_editor.common.block_list.AbstractBlockListBuilder;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;

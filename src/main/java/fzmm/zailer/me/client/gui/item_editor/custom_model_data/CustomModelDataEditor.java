@@ -6,7 +6,7 @@ import fzmm.zailer.me.client.gui.components.BooleanButton;
 import fzmm.zailer.me.client.gui.item_editor.base.ItemEditorBaseScreen;
 import fzmm.zailer.me.client.gui.item_editor.common.selectable.SelectableEditor;
 import fzmm.zailer.me.client.gui.item_editor.custom_model_data.components.CustomModelItemComponent;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import fzmm.zailer.me.mixin.custom_model_data_editor.BakedOverrideAccessor;
 import fzmm.zailer.me.mixin.custom_model_data_editor.ModelOverrideListAccessor;
 import io.wispforest.owo.ui.component.LabelComponent;

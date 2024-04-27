@@ -17,8 +17,8 @@
     "block_state_editor.VerticallyAttachableBlockItemAccessor",
     "custom_model_data_editor.BakedOverrideAccessor",
     "custom_model_data_editor.ModelOverrideListAccessor",
-    "screenshotHud.ChatHudMixin",
-    "screenshotHud.GameRendererMixin"
+    "screenshot_hud.ChatHudMixin",
+    "screenshot_hud.GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

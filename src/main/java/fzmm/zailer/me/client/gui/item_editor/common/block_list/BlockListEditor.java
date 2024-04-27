@@ -7,7 +7,7 @@ import fzmm.zailer.me.client.gui.item_editor.base.ItemEditorBaseScreen;
 import fzmm.zailer.me.client.gui.item_editor.common.block_list.components.BlockListSortOverlay;
 import fzmm.zailer.me.client.gui.item_editor.common.block_list.components.BlockOrTagComponent;
 import fzmm.zailer.me.client.gui.item_editor.common.sort.ISortEditor;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import io.wispforest.owo.itemgroup.Icon;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;

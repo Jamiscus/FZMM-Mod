@@ -21,7 +21,7 @@ import fzmm.zailer.me.client.gui.item_editor.filled_map_editor.FilledMapEditor;
 import fzmm.zailer.me.client.gui.item_editor.hide_flags_editor.HideFlagsEditor;
 import fzmm.zailer.me.client.gui.item_editor.item_select.ItemSelectEditor;
 import fzmm.zailer.me.client.gui.item_editor.skull_editor.SkullEditor;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.Containers;

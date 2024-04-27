@@ -1,6 +1,6 @@
 package fzmm.zailer.me.mixin;
 
-import fzmm.zailer.me.client.gui.utils.autoplacer.AutoPlacerHud;
+import fzmm.zailer.me.client.gui.utils.auto_placer.AutoPlacerHud;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

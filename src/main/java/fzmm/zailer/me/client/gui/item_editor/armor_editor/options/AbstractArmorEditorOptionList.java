@@ -3,7 +3,7 @@ package fzmm.zailer.me.client.gui.item_editor.armor_editor.options;
 import blue.endless.jankson.annotation.Nullable;
 import fzmm.zailer.me.builders.ArmorBuilder;
 import fzmm.zailer.me.client.gui.item_editor.armor_editor.ArmorEditorScreen;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 

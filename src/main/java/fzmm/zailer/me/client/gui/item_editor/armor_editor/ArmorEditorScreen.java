@@ -7,7 +7,7 @@ import fzmm.zailer.me.client.gui.item_editor.base.ItemEditorBaseScreen;
 import fzmm.zailer.me.client.gui.item_editor.armor_editor.options.ArmorEditorOptionArmorMaterial;
 import fzmm.zailer.me.client.gui.item_editor.armor_editor.options.ArmorEditorOptionTrimMaterial;
 import fzmm.zailer.me.client.gui.item_editor.armor_editor.options.ArmorEditorOptionTrimPattern;
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.EntityComponent;
