@@ -2,7 +2,7 @@ package fzmm.zailer.me.client.gui.components.row;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import fzmm.zailer.me.compat.symbolChat.font.FontTextBoxComponent;
+import fzmm.zailer.me.compat.symbol_chat.font.FontTextBoxComponent;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;

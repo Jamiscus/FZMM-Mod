@@ -7,7 +7,6 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 
 import java.util.*;
 
@@ -102,18 +101,21 @@ public class EncryptbookLogic {
         MinecraftClient mc = MinecraftClient.getInstance();
         String translationKeyPrefix = FzmmClient.CONFIG.encryptbook.translationKeyPrefix();
         StringBuilder decryptorString = new StringBuilder();
+        Formatter formatter = new Formatter(decryptorString);
         List<Short> encryptedKey = encryptKey(getKey(seed), maxMessageLength);
 
         assert mc.player != null;
 
-        for (int i = 0; i < maxMessageLength; i++) {
-            decryptorString.append("%").append(encryptedKey.get(i) + 1).append("$s");
-        }
+        for (int i = 0; i < maxMessageLength; i++)
+            formatter.format("%%%1$s$s", encryptedKey.get(i) + 1);
 
-        MutableText decryptorMessage = Text.literal(Formatting.GREEN + translationKeyPrefix + seed)
+        String decryptorTranslationMessage = String.format("\"%s\": \"%s\"", translationKeyPrefix + seed, decryptorString);
+
+        MutableText decryptorMessage = Text.translatable("fzmm.gui.encryptbook.button.copyDecryptor", translationKeyPrefix + seed)
                 .setStyle(Style.EMPTY
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "\"" + translationKeyPrefix + seed + "\": \"" + decryptorString + "\""))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, decryptorTranslationMessage))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(decryptorString.toString())))
+                        .withColor(FzmmClient.CHAT_BASE_COLOR)
                 );
 
         mc.inGameHud.getChatHud().addMessage(decryptorMessage);

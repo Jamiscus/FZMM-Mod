@@ -2,8 +2,8 @@ package fzmm.zailer.me.utils;
 
 import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.logic.headGenerator.HeadResourcesLoader;
-import fzmm.zailer.me.client.logic.headGenerator.model.HeadModelEntry;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
+import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
 import fzmm.zailer.me.utils.skin.GetSkinFromCache;
 import fzmm.zailer.me.utils.skin.GetSkinFromMojang;

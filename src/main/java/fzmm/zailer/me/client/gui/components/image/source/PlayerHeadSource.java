@@ -1,7 +1,7 @@
 package fzmm.zailer.me.client.gui.components.image.source;
 
-import fzmm.zailer.me.client.gui.utils.selectItem.RequestedItem;
-import fzmm.zailer.me.client.gui.utils.selectItem.SelectItemScreen;
+import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
+import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
 import fzmm.zailer.me.utils.HeadUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;

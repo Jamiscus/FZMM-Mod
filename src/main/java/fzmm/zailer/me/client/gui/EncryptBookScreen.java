@@ -33,7 +33,7 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
     private static final String TITLE_ID = "title";
     private static final String MAX_MESSAGE_LENGTH_ID = "maxMessageLength";
     private static final String GIVE_ID = "give";
-    private static final String GET_DECODER_ID = "get-decoder";
+    private static final String GET_DECRYPTOR_ID = "get-decryptor";
     private static final String FAQ_ID = "faq";
     private static EncryptBookMemento memento = null;
     private ConfigTextBox seedField;
@@ -63,7 +63,7 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
         );
         //bottom buttons
         ButtonRow.setup(rootComponent, ButtonRow.getButtonId(GIVE_ID), true, this::giveBook);
-        ButtonRow.setup(rootComponent, ButtonRow.getButtonId(GET_DECODER_ID), true, this::getDecoder);
+        ButtonRow.setup(rootComponent, ButtonRow.getButtonId(GET_DECRYPTOR_ID), true, this::getDecryptor);
         //other
         ButtonRow.setup(rootComponent, ButtonRow.getButtonId(FAQ_ID), true, this::faqExecute);
     }
@@ -87,7 +87,7 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
         EncryptbookLogic.give(seed, message, author, paddingChars, maxMsgLength, title);
     }
 
-    private void getDecoder(ButtonWidget buttonWidget) {
+    private void getDecryptor(ButtonWidget buttonWidget) {
         int maxMsgLength = (int) this.maxMessageLengthField.parsedValue();
         int seed = (int) this.seedField.parsedValue();
         EncryptbookLogic.showDecryptorInChat(seed, maxMsgLength);
