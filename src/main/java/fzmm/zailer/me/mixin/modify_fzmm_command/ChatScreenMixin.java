@@ -1,5 +1,8 @@
-package fzmm.zailer.me.mixin;
+package fzmm.zailer.me.mixin.modify_fzmm_command;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.spongepowered.asm.mixin.Mixin;
@@ -7,9 +10,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin {
@@ -21,15 +22,18 @@ public abstract class ChatScreenMixin {
         this.fzmm$setFzmmCommandMaxLength(chatText);
     }
 
-    @Redirect(method = "setChatFromHistory", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;setText(Ljava/lang/String;)V"))
-    private void fzmm$setText(TextFieldWidget textField, String text) {
+    @WrapOperation(
+            method = "setChatFromHistory",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/TextFieldWidget;setText(Ljava/lang/String;)V")
+    )
+    private void fzmm$setText(TextFieldWidget instance, String text, Operation<Void> original) {
         this.fzmm$setFzmmCommandMaxLength(text);
-        textField.setText(text);
+        original.call(instance, text);
     }
 
     @Unique
     private void fzmm$setFzmmCommandMaxLength(String message) {
-        if (message.startsWith("/fzmm "))
+        if (this.fzmm$isFzmmCommand(message))
             this.chatField.setMaxLength(200000);
         else {
             if (this.chatField.getCursor() > 256)
@@ -38,9 +42,16 @@ public abstract class ChatScreenMixin {
         }
     }
 
-    @Inject(method = "normalize", at = @At(value = "HEAD"), cancellable = true)
-    private void fzmm$avoidNormalizeWithFzmmCommand(String str, CallbackInfoReturnable<String> cir) {
-        if (str.startsWith("/fzmm "))
-            cir.setReturnValue(str);
+    @Unique
+    private boolean fzmm$isFzmmCommand(String message) {
+        return message.startsWith("/fzmm ");
+    }
+
+    @ModifyReturnValue(method = "normalize", at = @At(value = "RETURN"))
+    private String fzmm$avoidNormalizeWithFzmmCommand(String str) {
+        if (this.fzmm$isFzmmCommand(str))
+            return this.chatField.getText();
+
+        return str;
     }
 }

@@ -1,6 +1,6 @@
 package fzmm.zailer.me.utils;
 
-import fzmm.zailer.me.mixin.HandledScreenAccessor;
+import fzmm.zailer.me.mixin.focused_slot_getter.HandledScreenAccessor;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;

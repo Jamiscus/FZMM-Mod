@@ -1,4 +1,4 @@
-package fzmm.zailer.me.mixin;
+package fzmm.zailer.me.mixin.combined_inventory_getter;
 
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;

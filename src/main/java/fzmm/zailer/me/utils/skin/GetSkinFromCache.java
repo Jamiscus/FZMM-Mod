@@ -1,7 +1,7 @@
 package fzmm.zailer.me.utils.skin;
 
 import fzmm.zailer.me.builders.HeadBuilder;
-import fzmm.zailer.me.mixin.PlayerSkinTextureAccessor;
+import fzmm.zailer.me.mixin.cache_skin_getter.PlayerSkinTextureAccessor;
 import fzmm.zailer.me.utils.ImageUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

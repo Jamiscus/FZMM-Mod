@@ -1,4 +1,4 @@
-package fzmm.zailer.me.mixin;
+package fzmm.zailer.me.mixin.social_interactions_head_button;
 
 import com.google.common.collect.ImmutableList;
 import fzmm.zailer.me.builders.HeadBuilder;

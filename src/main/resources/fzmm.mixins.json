@@ -4,18 +4,18 @@
   "package": "fzmm.zailer.me.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "cache_skin_getter.PlayerSkinTextureAccessor",
+    "combined_inventory_getter.PlayerInventoryAccessor",
+    "entity.force_invisible_item_frame.ItemFrameEntityRendererMixin",
+    "focused_slot_getter.HandledScreenAccessor",
+    "item_group.fix_translations_update.ItemGroupDisplayContextMixin",
+    "item_group.operator_utilities_without_op.ItemGroupMixin",
+    "item_stack.auto_placer.ItemStackMixin",
+    "item_stack.tooltip.ItemStackMixin",
+    "modify_fzmm_command.ChatScreenMixin",
     "screenshot_hud.ChatHudMixin",
     "screenshot_hud.GameRendererMixin",
-    "AutoPlacerMixin",
-    "ChatScreenMixin",
-    "HandledScreenAccessor",
-    "ItemFrameEntityRendererMixin",
-    "ItemGroupDisplayContextMixin",
-    "ItemGroupMixin",
-    "ItemStackMixin",
-    "PlayerInventoryAccessor",
-    "PlayerSkinTextureAccessor",
-    "SocialInteractionsPlayerListEntryMixin"
+    "social_interactions_head_button.SocialInteractionsPlayerListEntryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
