@@ -11,7 +11,6 @@ import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.parsing.UIParsing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
@@ -44,29 +43,28 @@ public class TextBoxRow extends AbstractRow {
     }
 
 
-    public static TextFieldWidget setup(FlowLayout rootComponent, String id, String defaultValue, int maxLength) {
+    public static TextBoxComponent setup(FlowLayout rootComponent, String id, String defaultValue, int maxLength) {
         return setup(rootComponent, id, defaultValue, maxLength, null);
     }
 
-    public static TextFieldWidget setup(FlowLayout rootComponent, String id, String defaultValue, int maxLength, @Nullable Consumer<String> changedListener) {
-        TextFieldWidget textField = rootComponent.childById(TextFieldWidget.class, getTextBoxId(id));
+    public static TextBoxComponent setup(FlowLayout rootComponent, String id, String defaultValue, int maxLength, @Nullable Consumer<String> changedListener) {
+        TextBoxComponent textBox = rootComponent.childById(TextBoxComponent.class, getTextBoxId(id));
         ButtonComponent resetButton = rootComponent.childById(ButtonComponent.class, getResetButtonId(id));
 
-        BaseFzmmScreen.checkNull(textField, "text-box", getTextBoxId(id));
+        BaseFzmmScreen.checkNull(textBox, "text-box", getTextBoxId(id));
 
-        textField.setChangedListener(text -> {
+        textBox.onChanged().subscribe(text -> {
             if (resetButton != null)
-                resetButton.active = !textField.getText().equals(defaultValue);
+                resetButton.active = !textBox.getText().equals(defaultValue);
             if (changedListener != null)
                 changedListener.accept(text);
         });
-        textField.setMaxLength(maxLength);
-        textField.setText(defaultValue);
-        textField.setCursorToStart(false);
+        textBox.setMaxLength(maxLength);
+        textBox.text(defaultValue);
 
         if (resetButton != null)
-            resetButton.onPress(button -> textField.setText(defaultValue));
-        return textField;
+            resetButton.onPress(button -> textBox.text(defaultValue));
+        return textBox;
     }
 
     public static TextBoxRow parse(Element element) {

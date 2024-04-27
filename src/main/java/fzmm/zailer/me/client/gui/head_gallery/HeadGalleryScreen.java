@@ -425,8 +425,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
     public void restoreMemento(IMementoObject mementoObject) {
         HeadGalleryMemento memento = (HeadGalleryMemento) mementoObject;
         this.selectedCategory = memento.category;
-        this.contentSearchField.setText(memento.contentSearch);
-        this.contentSearchField.setCursorToStart(false);
+        this.contentSearchField.text(memento.contentSearch);
 
         if (memento.category != null) {
             List<Component> categoryList = new ArrayList<>(this.categoryButtonList);

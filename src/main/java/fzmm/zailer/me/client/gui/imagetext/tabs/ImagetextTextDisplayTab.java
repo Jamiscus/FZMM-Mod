@@ -123,8 +123,7 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
     public void restoreMemento(IMementoObject mementoTab) {
         TextDisplayMementoTab memento = (TextDisplayMementoTab) mementoTab;
         this.textOpacity.setFromDiscreteValue(memento.textOpacity);
-        this.backgroundColor.setText(memento.backgroundColor);
-        this.backgroundColor.setCursorToStart(false);
+        this.backgroundColor.text(memento.backgroundColor);
         this.textShadow.enabled(memento.textShadow);
         this.textSeeThrough.enabled(memento.textSeeThrough);
         this.textAlignment.setValue(memento.textAlignment);

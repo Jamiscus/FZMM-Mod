@@ -6,8 +6,8 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLine;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
+import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.MutableText;
 
 import java.awt.image.BufferedImage;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     private static final String CHARACTERS_ID = "characters";
-    private TextFieldWidget charactersTextField;
+    private TextBoxComponent charactersTextField;
 
     @Override
     public String getId() {
@@ -63,8 +63,7 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     @Override
     public void restoreMemento(IMementoObject mementoObject) {
         CharactersAlgorithmMementoTab memento = (CharactersAlgorithmMementoTab) mementoObject;
-        this.charactersTextField.setText(memento.characters);
-        this.charactersTextField.setCursorToStart(false);
+        this.charactersTextField.text(memento.characters);
     }
 
     private record CharactersAlgorithmMementoTab(String characters) implements IMementoObject{
