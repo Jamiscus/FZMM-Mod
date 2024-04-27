@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.logic.playerStatue;
 
 import fzmm.zailer.me.builders.ArmorStandBuilder;
 import fzmm.zailer.me.builders.HeadBuilder;
+import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
 import fzmm.zailer.me.client.logic.playerStatue.statueHeadSkin.AbstractStatueSkinManager;
 import fzmm.zailer.me.client.logic.playerStatue.statueHeadSkin.HeadModelSkin;
@@ -187,7 +188,7 @@ public class StatuePart {
                     this.skinGenerated = headUtils.isSkinGenerated();
 
                     if (!this.skinGenerated)
-                        PlayerStatue.LOGGER.error("The statue " + this.name + " had an error generating its skin");
+                        FzmmClient.LOGGER.error("[StatuePart] The statue {} had an error generating its skin", this.name);
 
                     return (int) TimeUnit.MILLISECONDS.toSeconds(headUtils.getDelayForNextInMillis());
                 });

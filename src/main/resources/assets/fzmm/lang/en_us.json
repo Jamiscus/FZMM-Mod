@@ -153,7 +153,7 @@
   "fzmm.gui.headGallery.button.tags": "%s tags selected",
   "fzmm.gui.headGallery.label.category": "Category",
   "fzmm.gui.headGallery.label.category.tooltip": "Category to which the heads must belong.",
-  "fzmm.gui.headGallery.label.error": "Error while fetching category '%s'\nCause: %s",
+  "fzmm.gui.headGallery.label.error": "Error while fetching category '%s'\nCause: %s\n\nMore information in logs.",
   "fzmm.gui.headGallery.label.page": "%s/%s",
   "fzmm.gui.headGallery.label.tags": "Tags",
   "fzmm.gui.headGallery.label.tags-overlay": "%s tags selected and %s results",
