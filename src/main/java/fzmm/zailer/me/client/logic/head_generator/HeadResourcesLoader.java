@@ -128,7 +128,6 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
             IModelStep step = switch (id) {
                 case "copy" -> ModelCopyStep.parse(stepObject);
                 case "delete" -> ModelDeleteStep.parse(stepObject);
-                case "desaturate" -> ModelDesaturateStep.parse(stepObject);
                 case "fill_color" -> ModelFillColorStep.parse(stepObject);
                 case "select_color" -> ModelSelectColorStep.parse(stepObject);
                 case "select_texture" -> ModelSelectTextureStep.parse(stepObject);
