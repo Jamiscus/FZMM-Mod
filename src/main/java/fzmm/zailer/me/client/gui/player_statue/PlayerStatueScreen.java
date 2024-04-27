@@ -12,12 +12,12 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.utils.FzmmWikiConstants;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
+import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +39,7 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
     private ConfigTextBox posX;
     private ConfigTextBox posY;
     private ConfigTextBox posZ;
-    private TextFieldWidget nameField;
+    private TextBoxComponent nameField;
 
     private ButtonWidget executeButton;
 
@@ -118,8 +118,7 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
     @Override
     public void restoreMemento(IMementoObject mementoObject) {
         PlayerStatueMemento memento = (PlayerStatueMemento) mementoObject;
-        this.nameField.setText(memento.name());
-        this.nameField.setCursorToStart(false);
+        this.nameField.text(memento.name());
         this.restoreMementoTabs(memento.mementoTabHashMap);
     }
 

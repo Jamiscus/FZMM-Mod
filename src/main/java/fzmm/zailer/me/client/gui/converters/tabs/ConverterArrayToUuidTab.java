@@ -33,8 +33,7 @@ public class ConverterArrayToUuidTab implements IScreenTab {
         ButtonRow.setup(rootComponent, ButtonRow.getButtonId(RANDOM_ID), true, button -> {
             Random random = Random.create();
             for (var element : this.textBoxArray) {
-                element.setText(String.valueOf(random.nextInt()));
-                element.setCursorToStart(false);
+                element.text(String.valueOf(random.nextInt()));
             }
         });
 

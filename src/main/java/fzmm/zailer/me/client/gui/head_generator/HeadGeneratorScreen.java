@@ -25,6 +25,7 @@ import fzmm.zailer.me.utils.list.ListUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.DropdownComponent;
+import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.CollapsibleContainer;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
@@ -35,7 +36,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Window;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -68,10 +68,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private static HeadGeneratorMemento memento = null;
     private final Set<String> favoritesHeadsOnOpenScreen;
     private ImageRowsElements skinElements;
-    private TextFieldWidget headNameField;
+    private TextBoxComponent headNameField;
     private HashMap<SkinPreEditOption, ButtonComponent> skinPreEditButtons;
     private SkinPreEditOption selectedSkinPreEdit;
-    private TextFieldWidget searchField;
+    private TextBoxComponent searchField;
     private List<HeadComponentEntry> headComponentEntries;
     private List<HeadCompoundComponentEntry> headCompoundComponentEntries;
     private FlowLayout contentLayout;
@@ -479,8 +479,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         AtomicReference<ImageMode> mode = this.skinElements.mode();
 
         if (mode.get().isHeadName() && this.headNameField.getText().equals(this.previousSkinName)) {
-            this.headNameField.setText(value);
-            this.headNameField.setCursorToStart(false);
+            this.headNameField.text(value);
         }
 
         this.previousSkinName = value;
@@ -513,16 +512,13 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     public void restoreMemento(IMementoObject mementoObject) {
         HeadGeneratorMemento memento = (HeadGeneratorMemento) mementoObject;
         this.skinElements.imageModeButtons().get(memento.skinMode).onPress();
-        this.skinElements.valueField().setText(memento.skinRowValue);
-        this.skinElements.valueField().setCursorToStart(false);
-        this.headNameField.setText(memento.headName);
-        this.headNameField.setCursorToStart(false);
+        this.skinElements.valueField().text(memento.skinRowValue);
+        this.headNameField.text(memento.headName);
         if (memento.showFavorites)
             this.toggleFavoriteListExecute();
         this.skinPreEditButtons.get(memento.skinPreEditOption).onPress();
         this.selectedCategory = memento.category;
-        this.searchField.setText(memento.search);
-        this.searchField.setCursorToStart(false);
+        this.searchField.text(memento.search);
     }
 
     private record HeadGeneratorMemento(String headName, ImageMode skinMode, String skinRowValue, boolean showFavorites,

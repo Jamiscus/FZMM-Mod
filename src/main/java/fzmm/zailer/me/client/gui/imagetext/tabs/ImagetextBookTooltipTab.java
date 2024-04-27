@@ -13,9 +13,9 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.client.toast.BookNbtOverflowToast;
 import fzmm.zailer.me.exceptions.BookNbtOverflow;
 import fzmm.zailer.me.utils.FzmmUtils;
+import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
@@ -27,8 +27,8 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
     private static final String BOOK_TOOLTIP_AUTHOR_ID = "bookTooltipAuthor";
     private static final String BOOK_TOOLTIP_MESSAGE_ID = "bookTooltipMessage";
     private EnumWidget bookTooltipMode;
-    private TextFieldWidget bookTooltipAuthor;
-    private TextFieldWidget bookTooltipMessage;
+    private TextBoxComponent bookTooltipAuthor;
+    private TextBoxComponent bookTooltipMessage;
 
     @Override
     public void generate(IImagetextAlgorithm algorithm, ImagetextLogic logic, ImagetextData data, boolean isExecute) {
@@ -87,10 +87,8 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
     @Override
     public void restoreMemento(IMementoObject mementoTab) {
         BookTooltipMementoTab memento = (BookTooltipMementoTab) mementoTab;
-        this.bookTooltipAuthor.setText(memento.author);
-        this.bookTooltipAuthor.setCursorToStart(false);
-        this.bookTooltipMessage.setText(memento.message);
-        this.bookTooltipMessage.setCursorToStart(false);
+        this.bookTooltipAuthor.text(memento.author);
+        this.bookTooltipMessage.text(memento.message);
         this.bookTooltipMode.setValue(memento.mode);
     }
 

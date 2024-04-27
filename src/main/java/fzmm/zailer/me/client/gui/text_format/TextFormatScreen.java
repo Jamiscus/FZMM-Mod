@@ -17,10 +17,10 @@ import fzmm.zailer.me.config.FzmmConfig;
 import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
+import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -47,7 +47,7 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
     private static TextFormatMemento memento = null;
     private static TextFormatTabs selectedTab = TextFormatTabs.SIMPLE;
     private LabelComponent messagePreviewLabel;
-    private TextFieldWidget messageTextField;
+    private TextBoxComponent messageTextField;
     private BooleanButton boldToggle;
     private BooleanButton italicToggle;
     private BooleanButton obfuscatedToggle;
@@ -205,8 +205,7 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
     @Override
     public void restoreMemento(IMementoObject mementoObject) {
         TextFormatMemento memento = (TextFormatMemento) mementoObject;
-        this.messageTextField.setText(memento.message);
-        this.messageTextField.setCursorToStart(false);
+        this.messageTextField.text(memento.message);
         this.obfuscatedToggle.enabled(memento.obfuscated);
         this.boldToggle.enabled(memento.bold);
         this.strikethroughToggle.enabled(memento.strikethrough);

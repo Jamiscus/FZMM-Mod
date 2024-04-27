@@ -42,7 +42,7 @@ public class TextFormatSimpleTab implements ITextFormatTab {
     @Override
     public void setRandomValues() {
         Color color = Color.ofRgb(Random.create().nextInt(0xFFFFFF));
-        this.color.setText(color.asHexString(false));
+        this.color.text(color.asHexString(false));
     }
 
     @Override
@@ -63,8 +63,7 @@ public class TextFormatSimpleTab implements ITextFormatTab {
     @Override
     public void restoreMemento(IMementoObject mementoTab) {
         SimpleMementoTab simpleMementoTab = (SimpleMementoTab) mementoTab;
-        this.color.setText(simpleMementoTab.color.asHexString(false));
-        this.color.setCursorToStart(false);
+        this.color.text(simpleMementoTab.color.asHexString(false));
     }
 
     private record SimpleMementoTab(Color color) implements IMementoObject {

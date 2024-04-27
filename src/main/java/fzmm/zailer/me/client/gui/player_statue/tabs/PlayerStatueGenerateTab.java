@@ -103,8 +103,7 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
     @Override
     public void restoreMemento(IMementoObject mementoTab) {
         GenerateMementoTab memento = (GenerateMementoTab) mementoTab;
-        this.skinElements.valueField().setText(memento.skinRowValue);
-        this.skinElements.valueField().setCursorToStart(false);
+        this.skinElements.valueField().text(memento.skinRowValue);
         this.skinElements.imageModeButtons().get(memento.sourceType).onPress();
     }
 

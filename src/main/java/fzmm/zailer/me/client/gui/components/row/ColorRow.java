@@ -10,13 +10,13 @@ import io.wispforest.owo.ui.component.ColorPickerComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ColorRow extends AbstractRow implements IListEntry<Color> {
     public ColorRow(String baseTranslationKey, String id, String tooltipId) {
         this(baseTranslationKey, id, tooltipId, true, true);
@@ -27,7 +27,6 @@ public class ColorRow extends AbstractRow implements IListEntry<Color> {
     }
 
     @Override
-    @SuppressWarnings("UnstableApiUsage")
     public Component[] getComponents(String id, String tooltipId) {
         ConfigTextBox colorField = (ConfigTextBox) new ConfigTextBox()
                 .horizontalSizing(Sizing.fixed(TEXT_FIELD_WIDTH))
@@ -57,7 +56,7 @@ public class ColorRow extends AbstractRow implements IListEntry<Color> {
      * copy of COLOR of {@link OptionComponentFactory}, since I want to have one just like it,
      * but I don't have an Option<Color> object.
      */
-    @SuppressWarnings({"UnstableApiUsage", "ConstantConditions"})
+    @SuppressWarnings({"ConstantConditions"})
     public static ConfigTextBox setup(FlowLayout rootComponent, String id, Color defaultcolor, boolean withAlpha, int additionalZIndex, @Nullable Consumer<String> changedListener) {
         ConfigTextBox colorField = ConfigTextBoxRow.setup(rootComponent, getColorFieldId(id), id, defaultcolor.asHexString(withAlpha), changedListener);
 
@@ -111,24 +110,23 @@ public class ColorRow extends AbstractRow implements IListEntry<Color> {
         return new ColorRow(baseTranslationKey, id, tooltipId);
     }
 
-    public TextFieldWidget getWidget() {
-        return this.childById(TextFieldWidget.class, getColorFieldId(this.getId()));
+    public ConfigTextBox getWidget() {
+        return this.childById(ConfigTextBox.class, getColorFieldId(this.getId()));
     }
 
     @SuppressWarnings("UnstableApiUsage")
     @Override
     public Color getValue() {
-        ConfigTextBox colorField = this.childById(ConfigTextBox.class, getColorFieldId(this.getId()));
+        ConfigTextBox colorField = this.getWidget();
         return colorField == null ? Color.ofArgb(0) : (Color) colorField.parsedValue();
     }
 
     @SuppressWarnings("UnstableApiUsage")
     @Override
     public void setValue(Color value) {
-        ConfigTextBox colorField = this.childById(ConfigTextBox.class, getColorFieldId(this.getId()));
+        ConfigTextBox colorField = this.getWidget();
         if (colorField != null) {
-            colorField.setText(value.asHexString(value.alpha() < 1f));
-            colorField.setCursor(0, false);
+            colorField.text(value.asHexString(value.alpha() < 1f));
         }
     }
 }
