@@ -15,8 +15,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 
 import java.awt.image.BufferedImage;
@@ -28,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 public class PlayerStatue {
-    public static final Logger LOGGER = LogManager.getLogger("FZMM PlayerStatue");
     private final List<StatuePart> statueList;
     private final String name;
     private BufferedImage playerSkin;

@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 public class HeadGalleryResources {
     public static final HashMap<String, ObjectArrayList<MinecraftHeadsData>> cache = new HashMap<>();
@@ -33,53 +32,77 @@ public class HeadGalleryResources {
     );
 
     public static CompletableFuture<ObjectArrayList<MinecraftHeadsData>> getCategory(String category) {
-        return CompletableFuture.supplyAsync(() -> {
-            if (!CATEGORY_LIST.contains(category))
-                throw new IllegalArgumentException("Invalid category. Please choose from the following list: " + CATEGORY_LIST);
+        CompletableFuture<ObjectArrayList<MinecraftHeadsData>> future = new CompletableFuture<>();
 
-            boolean cacheCategories = FzmmClient.CONFIG.headGallery.cacheCategories();
-            if (cacheCategories && cache.containsKey(category))
-                return cache.get(category);
+        if (!CATEGORY_LIST.contains(category)) {
+            String categoryList = String.join(", ", CATEGORY_LIST);
+            String message = "Invalid category. Please choose from the following list:\n" + categoryList;
+            FzmmClient.LOGGER.error(message);
+            future.completeExceptionally(new IllegalArgumentException(message));
+            return future;
+        }
 
-            String url = MINECRAFT_HEADS_API + "?cat=" + category + "&tags=true";
-            ObjectArrayList<MinecraftHeadsData> headsData = new ObjectArrayList<>();
-            try {
-                URL obj = new URL(url);
-                HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
-                conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
-                conn.setRequestMethod("GET");
-                int responseCode = conn.getResponseCode();
-                if ((responseCode / 100) == 2) {
-                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    String inputLine;
-                    StringBuilder response = new StringBuilder();
-                    while ((inputLine = in.readLine()) != null)
-                        response.append(inputLine);
+        boolean cacheCategories = FzmmClient.CONFIG.headGallery.cacheCategories();
+        if (cacheCategories && cache.containsKey(category)) {
+            future.complete(cache.get(category));
+            return future;
+        }
 
-                    in.close();
-                    JsonArray jsonArray = JsonParser.parseString(response.toString()).getAsJsonArray();
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-                        headsData.add(MinecraftHeadsData.parse(jsonObject));
-                    }
+        String url = getUrl(category);
 
-                    if (cacheCategories)
-                        cache.put(category, headsData);
+        try {
+            future.complete(fetchUrl(url, category, cacheCategories));
+        } catch (Exception e) {
+            future.completeExceptionally(e);
+        }
 
-                    FzmmClient.LOGGER.info("[HeadGalleryResources] category '{}' successfully loaded", category);
-                } else {
-                    String errorReason = conn.getResponseMessage();
-                    FzmmClient.LOGGER.error("[HeadGalleryResources] HTTP Error {} ({})", responseCode, errorReason);
-                    throw new HttpResponseException(responseCode, errorReason == null ? "" : errorReason);
-                }
-            } catch (Exception e) {
-                FzmmClient.LOGGER.error("The category '{}' of head gallery could not be loaded", category, e);
-                throw new CompletionException(e);
-            }
+        return future;
+    }
+
+    private static String getUrl(String category) {
+        return MINECRAFT_HEADS_API + "?cat=" + category + "&tags=true";
+    }
+
+    private static ObjectArrayList<MinecraftHeadsData> fetchUrl(String url, String category, boolean cacheCategories) throws Exception {
+        URL obj = new URL(url);
+        HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+        conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
+        conn.setRequestMethod("GET");
+        int responseCode = conn.getResponseCode();
+
+        if ((responseCode / 100) == 2) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null)
+                response.append(inputLine);
+
+            in.close();
+
+            ObjectArrayList<MinecraftHeadsData> headsData = parseJson(response.toString());
+
+            if (cacheCategories)
+                cache.put(category, headsData);
+
+            FzmmClient.LOGGER.info("[HeadGalleryResources] category '{}' successfully loaded", category);
+
             return headsData;
-        }).exceptionally(e -> {
-            throw new RuntimeException(e.getCause());
-        });
+        } else {
+            String errorReason = conn.getResponseMessage();
+            String message = "HTTP Error " + responseCode + " (" + (errorReason == null ? "Unknown reason" : errorReason) + ")";
+            throw new HttpResponseException(responseCode, message);
+        }
+    }
+
+    private static ObjectArrayList<MinecraftHeadsData> parseJson(String json) {
+        JsonArray jsonArray = JsonParser.parseString(json).getAsJsonArray();
+        ObjectArrayList<MinecraftHeadsData> headsData = new ObjectArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
+            headsData.add(MinecraftHeadsData.parse(jsonObject));
+        }
+
+        return headsData;
     }
 
 }

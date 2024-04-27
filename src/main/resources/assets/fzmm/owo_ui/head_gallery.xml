@@ -125,7 +125,7 @@
                                     <positioning type="relative">0,0</positioning>
 
                                     <sizing>
-                                        <vertical method="fill">100</vertical>
+                                        <horizontal method="expand">100</horizontal>
                                     </sizing>
                                 </label>
 

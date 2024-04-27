@@ -188,19 +188,17 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
             });
         })).whenComplete((unused, throwable) -> {
             this.client.execute(() -> {
-                if (throwable == null) {
-                    this.errorLabel.text(Text.empty());
-                } else {
-                    this.categoryHeads.clear();
-                    this.applyFilters();
-                    this.setPage(1);
-                    this.errorLabel.text(Text.translatable("fzmm.gui.headGallery.label.error", category, throwable.getCause())
-                            .setStyle(Style.EMPTY.withColor(0xD83F27)));
+                this.categoryHeads.clear();
+                this.applyFilters();
+                this.setPage(1);
 
-                    for (var component : this.categoryButtonList) {
-                        if (component instanceof ButtonWidget button)
-                            button.active = true;
-                    }
+                String message = throwable == null ? "Unknown error" : throwable.getMessage();
+                this.errorLabel.text(Text.translatable("fzmm.gui.headGallery.label.error", category, message)
+                        .setStyle(Style.EMPTY.withColor(0xD83F27)));
+
+                for (var component : this.categoryButtonList) {
+                    if (component instanceof ButtonWidget button)
+                        button.active = true;
                 }
             });
         });
