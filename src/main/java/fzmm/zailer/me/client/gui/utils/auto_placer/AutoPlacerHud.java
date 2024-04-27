@@ -29,8 +29,11 @@ public class AutoPlacerHud {
     private static final List<Activation> activationList = new ArrayList<>();
 
     private static void addHud(Screen screen, List<Requirement> requirements) {
-        if (isHudActive)
+        if (isHudActive) {
             return;
+        }
+
+        isHudActive = true;
 
         List<Requirement> allRequirements = getRequirements(requirements);
 
@@ -40,7 +43,6 @@ public class AutoPlacerHud {
         // as owo-lib makes the HUD change when an event is called.
         MinecraftClient.getInstance().options.hudHidden = false;
         Hud.add(HUD_IDENTIFIER, () -> {
-            isHudActive = true;
             FlowLayout mainLayout = Containers.verticalFlow(Sizing.fill(70), Sizing.fill(70));
 
             LabelComponent titleLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.title"));
@@ -66,6 +68,11 @@ public class AutoPlacerHud {
 
                 @Override
                 public void draw(OwoUIDrawContext context, int mouseX, int mouseY, float partialTicks, float delta) {
+                    if (!isHudActive) {
+                        removeHud();
+                        return;
+                    }
+
                     for (var requirement : allRequirements) {
                         if (!requirement.predicate.get()) {
                             currentRequirementLabel.text(requirement.text);
@@ -73,15 +80,8 @@ public class AutoPlacerHud {
                         }
                     }
 
-                    isHudActive = false;
+                    removeHud();
                     MinecraftClient.getInstance().setScreen(screen);
-
-                    // Activate the HUD, as due to errors in the owo-lib,
-                    // it is added or removed incorrectly if the HUD is hidden.
-                    // If the HUD is activated immediately after the change, it has no effect,
-                    // as owo-lib makes the HUD change when an event is called.
-                    MinecraftClient.getInstance().options.hudHidden = false;
-                    Hud.remove(HUD_IDENTIFIER);
                 }
             };
 
@@ -106,8 +106,13 @@ public class AutoPlacerHud {
 
         List<Requirement> allRequirements = new ArrayList<>(requirements);
 
-        allRequirements.add(new Requirement(() -> client.crosshairTarget != null && client.crosshairTarget.getType() == BlockHitResult.Type.BLOCK,
+        allRequirements.add(new Requirement(() -> client.crosshairTarget != null &&
+                client.crosshairTarget.getType() == BlockHitResult.Type.BLOCK,
                 Text.translatable("fzmm.gui.autoPlacer.label.baseRequirement.noBlock")));
+
+        allRequirements.add(new Requirement(() -> client.crosshairTarget != null &&
+                client.crosshairTarget.squaredDistanceTo(MinecraftClient.getInstance().player) > 1.5d,
+                Text.translatable("fzmm.gui.autoPlacer.label.baseRequirement.notStandOn")));
 
         allRequirements.add(new Requirement(() -> client.player.isOnGround(),
                 Text.translatable("fzmm.gui.autoPlacer.label.baseRequirement.isNotInGround")));
@@ -123,11 +128,11 @@ public class AutoPlacerHud {
         }
         return false;
     }
-    
+
     public static void addActivation(Activation activateAutoPlacerRequirement) {
         activationList.add(activateAutoPlacerRequirement);
     }
-    
+
     public static void init() {
         addActivation(PlayerStatuePlacerScreen.getActivation());
         addActivation(HologramPlacerScreen.getActivation());
@@ -146,7 +151,8 @@ public class AutoPlacerHud {
     public record Requirement(Supplier<Boolean> predicate, Text text) {
 
     }
-    
-    public record Activation(Predicate<ItemStack> predicate, Function<ItemStack, Screen> screenGetter, List<Requirement> requirements) {
+
+    public record Activation(Predicate<ItemStack> predicate, Function<ItemStack, Screen> screenGetter,
+                             List<Requirement> requirements) {
     }
 }

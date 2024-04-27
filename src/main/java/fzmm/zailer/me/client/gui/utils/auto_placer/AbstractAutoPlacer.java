@@ -14,12 +14,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
+    private static final int DELAY_IN_MILLISECONDS = 500;
     private static final String MAIN_LAYOUT_ID = "main-layout";
     private static final String EXECUTE_ID = "execute";
     private static final String CANCEL_ID = "cancel";
@@ -80,20 +82,24 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
             sneakToggled.setValue(true);
             this.client.options.sneakKey.setPressed(true);
 
-            List<ItemStack> items = this.getItems();
+            List<ItemStack> items = new ArrayList<>(this.getItems());
+            items.add(null);
             int containerItemsSize = items.size();
-            for (int i = 0; i < containerItemsSize; i++) {
+
+            // Update the hand item first, this is to avoid that some servers when
+            // using auto placer the first item becomes the block used to open auto placer.
+            if (items.size() > 1) {
+                scheduler.schedule(() -> FzmmUtils.updateHand(items.get(0)), 0, TimeUnit.MILLISECONDS);
+            }
+
+            for (int i = 1; i < containerItemsSize; i++) {
+                @Nullable
                 ItemStack itemStack = items.get(i);
                 int index = i;
 
-                scheduler.schedule(() -> {
-                    FzmmUtils.updateHand(itemStack);
-                    this.client.doItemUse();
-
-                    int percent = (int) (((index + 1) / (float) containerItemsSize) * 100);
-                    this.loadingBarLayout.horizontalSizing(Sizing.fill(percent));
-                    this.loadingLabel.text(Text.literal(percent + "%"));
-                }, (i + 1) * 500L, TimeUnit.MILLISECONDS);
+                scheduler.schedule(() -> this.execute(itemStack, index, containerItemsSize),
+                        (index + 1) * (long) DELAY_IN_MILLISECONDS, TimeUnit.MILLISECONDS
+                );
             }
 
             scheduler.schedule(() -> {
@@ -107,10 +113,27 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
 
                 sneakToggled.setValue(isSneakToggled);
                 this.client.options.sneakKey.setPressed(false);
-            }, (containerItemsSize + 2) * 500L, TimeUnit.MILLISECONDS);
+            }, (containerItemsSize + 2) * (long) DELAY_IN_MILLISECONDS, TimeUnit.MILLISECONDS);
 
             scheduler.shutdown();
         });
+    }
+
+    private void execute(@Nullable ItemStack itemStack, int index, int containerItemsSize) {
+        assert this.client != null;
+
+        this.client.doItemUse();
+        if (itemStack != null) {
+            FzmmUtils.updateHand(itemStack);
+        }
+
+        this.updateLoadingBar(index, containerItemsSize);
+    }
+
+    protected void updateLoadingBar(int index, int maxIndex) {
+        int percent = (int) (((index + 1) / (float) maxIndex) * 100);
+        this.loadingBarLayout.horizontalSizing(Sizing.fill(percent));
+        this.loadingLabel.text(Text.literal(percent + "%"));
     }
 
     protected abstract ItemStack getFinalStack();
