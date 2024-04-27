@@ -10,7 +10,7 @@
     "focused_slot_getter.HandledScreenAccessor",
     "item_group.fix_translations_update.ItemGroupDisplayContextMixin",
     "item_group.operator_utilities_without_op.ItemGroupMixin",
-    "item_stack.auto_placer.ItemStackMixin",
+    "item_stack.auto_placer.ClientPlayerInteractionManagerMixin",
     "item_stack.tooltip.ItemStackMixin",
     "modify_fzmm_command.ChatScreenMixin",
     "screenshot_hud.ChatHudMixin",
