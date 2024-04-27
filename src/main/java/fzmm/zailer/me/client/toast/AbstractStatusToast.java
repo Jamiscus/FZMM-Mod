@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.toast;
 
 import fzmm.zailer.me.client.toast.status.IStatus;
+import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -20,8 +21,10 @@ public abstract class AbstractStatusToast implements Toast {
         IStatus status = this.getStatus();
 
         OwoUIDrawContext context = OwoUIDrawContext.of(drawContext);
-        context.fill(0, 0, this.getWidth(), this.getHeight(), status.getBackgroundColor());
-        context.drawRectOutline(0, 0, this.getWidth(), this.getHeight(), status.getOutlineColor());
+        int width = this.getWidth();
+        int height = this.getHeight();
+        context.fill(0, 0, width, height, status.getBackgroundColor());
+        context.drawRectOutline(0, 0, width, height, status.getOutlineColor());
 
         int xOffset = 40;
         TextRenderer textRenderer = manager.getClient().textRenderer;
@@ -40,11 +43,9 @@ public abstract class AbstractStatusToast implements Toast {
     public int getWidth() {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int titleWidth = textRenderer.getWidth(this.getStatus().getStatusTranslation());
-
-        int detailsWidth = 0;
         List<OrderedText> detailsLines = this.getDetailsLines();
-        for (var detailsLine : detailsLines)
-            detailsWidth = Math.max(detailsWidth, textRenderer.getWidth(detailsLine));
+
+        int detailsWidth = FzmmUtils.getMaxWidth(detailsLines, detailsLine -> detailsLine);
 
         int maxWidth = Math.max(titleWidth, detailsWidth);
         // 44 = 4 padding + 32 icon + 4 padding + text + 4 padding

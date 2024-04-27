@@ -37,11 +37,6 @@
                                 <sizing>
                                     <horizontal method="fixed">0</horizontal>
                                 </sizing>
-
-                                <padding>
-                                    <all>3</all>
-                                </padding>
-
                                 <horizontal-alignment>center</horizontal-alignment>
                             </flow-layout>
 
@@ -52,10 +47,6 @@
                             <scrollbar>
                                 <flat>#FFFFFF</flat>
                             </scrollbar>
-
-                            <padding>
-                                <all>1</all>
-                            </padding>
                         </scroll>
 
                         <flow-layout direction="vertical" id="heads-layout">
@@ -117,7 +108,7 @@
                                                     <children>
                                                     </children>
 
-                                                    <text translate="true">fzmm.gui.headGenerator.label.category</text>
+                                                    <z-index>200</z-index>
                                                 </collapsible>
                                                 <button id="toggle-favorite-list">
                                                 </button>
@@ -172,8 +163,8 @@
                             </children>
 
                             <sizing>
-                                <vertical method="fill">100</vertical>
-                                <horizontal method="fill">99</horizontal>
+                                <vertical method="expand">100</vertical>
+                                <horizontal method="expand">100</horizontal>
                             </sizing>
 
                             <horizontal-alignment>center</horizontal-alignment>
@@ -193,23 +184,15 @@
 
                     <horizontal-alignment>center</horizontal-alignment>
 
-                    <!-- FIXME help I didn't find a nice way to do this -->
-                    <margins>
-                        <horizontal>20</horizontal>
-                        <bottom>44</bottom>
-                        <top>128</top>
-                    </margins>
-
                     <sizing>
-                        <horizontal method="fill">100</horizontal>
-                        <vertical method="fill">100</vertical>
+                        <horizontal method="expand">100</horizontal>
+                        <vertical method="expand">100</vertical>
                     </sizing>
 
-                    <positioning type="absolute">0,0</positioning>
-
-                    <gap>6</gap>
+                    <margins>
+                        <horizontal>20</horizontal>
+                    </margins>
                 </flow-layout>
-
 
                 <flow-layout direction="horizontal">
                     <children>
@@ -230,53 +213,32 @@
 
                 <flow-layout direction="horizontal">
                     <children>
-
                         <button id="open-folder-button">
                             <text translate="true">fzmm.gui.headGenerator.button.openFolder</text>
                         </button>
 
-                    </children>
-
-                    <positioning type="relative">0,100</positioning>
-
-                    <horizontal-alignment>right</horizontal-alignment>
-                    <vertical-alignment>top</vertical-alignment>
-                    <gap>4</gap>
-
-                    <margins>
-                        <left>20</left>
-                        <bottom>20</bottom>
-                    </margins>
-                </flow-layout>
-
-                <flow-layout direction="horizontal">
-                    <children>
+                        <spacer>
+                            <sizing>
+                                <horizontal method="expand">100</horizontal>
+                                <vertical method="fixed">1</vertical>
+                            </sizing>
+                        </spacer>
 
                         <button id="back-button">
                             <text translate="true">fzmm.gui.button.back</text>
-
-                            <margins>
-                                <right>20</right>
-                                <bottom>20</bottom>
-                            </margins>
                         </button>
-
                     </children>
 
-                    <positioning type="relative">100,100</positioning>
-
-                    <vertical-alignment>bottom</vertical-alignment>
-                    <horizontal-alignment>right</horizontal-alignment>
+                    <padding>
+                        <horizontal>20</horizontal>
+                        <bottom>20</bottom>
+                        <top>5</top>
+                    </padding>
                 </flow-layout>
-
             </children>
 
             <vertical-alignment>top</vertical-alignment>
             <horizontal-alignment>center</horizontal-alignment>
-
-            <sizing>
-                <vertical method="content">100</vertical>
-            </sizing>
 
             <surface>
                 <vanilla-translucent/>
@@ -324,16 +286,6 @@
                         <vertical-alignment>center</vertical-alignment>
                     </flow-layout>
 
-                    <button id="save-button">
-                        <text translate="true">fzmm.gui.headGenerator.button.saveSkin</text>
-                        <positioning type="relative">0,100</positioning>
-                    </button>
-
-                    <button id="give-button">
-                        <text translate="true">fzmm.gui.button.giveHead</text>
-                        <positioning type="relative">100,100</positioning>
-                    </button>
-
                     <scroll>
                         <flow-layout direction="vertical" id="parameters">
                             <children>
@@ -341,14 +293,38 @@
                         </flow-layout>
 
                         <sizing>
-                            <vertical method="fill">80</vertical>
-                            <horizontal method="fill">100</horizontal>
+                            <vertical method="expand">100</vertical>
+                            <horizontal method="expand">100</horizontal>
                         </sizing>
 
                         <scrollbar>
                             <flat>#FFFFFF</flat>
                         </scrollbar>
+
+                        <margins>
+                            <vertical>8</vertical>
+                        </margins>
                     </scroll>
+
+                    <flow-layout direction="horizontal">
+                        <children>
+                            <button id="save-button">
+                                <text translate="true">fzmm.gui.headGenerator.button.saveSkin</text>
+                            </button>
+
+                            <spacer>
+                                <sizing>
+                                    <vertical method="fixed">22</vertical>
+                                    <horizontal method="expand">100</horizontal>
+                                </sizing>
+                            </spacer>
+
+                            <button id="give-button">
+                                <text translate="true">fzmm.gui.button.giveHead</text>
+                            </button>
+
+                        </children>
+                    </flow-layout>
 
                 </children>
 
@@ -364,10 +340,6 @@
                 <padding>
                     <all>12</all>
                 </padding>
-
-                <z-index>500</z-index>
-
-                <gap>8</gap>
 
             </flow-layout>
         </head-overlay>
