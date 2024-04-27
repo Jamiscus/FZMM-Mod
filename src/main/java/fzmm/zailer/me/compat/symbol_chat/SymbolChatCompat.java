@@ -43,7 +43,6 @@ public class SymbolChatCompat {
     private ClickableWidget fontSelectionDropDown;
     private TextFieldWidget selectedComponent = null;
     private int fontSelectionOriginalWidth;
-    private Field visibleField;
 
     public void addSymbolChatComponents(BaseFzmmScreen screen) {
         if (CompatMods.SYMBOL_CHAT_PRESENT) {
@@ -58,19 +57,12 @@ public class SymbolChatCompat {
     }
 
     private void addSymbolSelectionPanelComponent(BaseFzmmScreen screen) {
-        this.symbolSelectionPanel = new SymbolSelectionPanel(s -> {
+        this.symbolSelectionPanel = new SymbolSelectionPanel(0, 0, SymbolChat.config.getSymbolPanelHeight(), s -> {
             if (this.selectedComponent != null)
                 this.selectedComponent.write(s);
-        }, 0, 0, SymbolChat.config.getSymbolPanelHeight());
+        });
 
-        try {
-            this.visibleField = this.symbolSelectionPanel.getClass().getDeclaredField("visible");
-            this.visibleField.setAccessible(true);
-            this.setSelectionPanelVisible(false);
-        } catch (Exception e) {
-            FzmmClient.LOGGER.error("[SymbolChatCompat] Failed to get visible field", e);
-            CompatMods.SYMBOL_CHAT_PRESENT = false;
-        }
+        this.setSelectionPanelVisible(false);
 
         screen.child(new SymbolSelectionPanelComponentAdapter(this.symbolSelectionPanel, this)
                 .positioning(Positioning.relative(0, 0))
@@ -114,25 +106,14 @@ public class SymbolChatCompat {
         if (!CompatMods.SYMBOL_CHAT_PRESENT)
             return false;
 
-        try {
-            return this.visibleField.getBoolean(this.symbolSelectionPanel);
-        } catch (Exception e) {
-            FzmmClient.LOGGER.error("[SymbolChatCompat] Failed to get visible field", e);
-            CompatMods.SYMBOL_CHAT_PRESENT = false;
-            return false;
-        }
+        return this.symbolSelectionPanel.visible;
     }
 
     public void setSelectionPanelVisible(boolean visible) {
         if (!CompatMods.SYMBOL_CHAT_PRESENT)
             return;
 
-        try {
-            this.visibleField.setBoolean(this.symbolSelectionPanel, visible);
-        } catch (Exception e) {
-            FzmmClient.LOGGER.error("[SymbolChatCompat] Failed to set visible field", e);
-            CompatMods.SYMBOL_CHAT_PRESENT = false;
-        }
+        this.symbolSelectionPanel.visible = visible;
     }
 
     public Component getOpenSymbolChatPanelButton(TextFieldWidget selectedComponent) {
