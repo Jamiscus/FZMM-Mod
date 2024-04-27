@@ -43,6 +43,9 @@ public class ModelFillColorStep implements IModelStep {
         for (int y = posY; y < posY2; y++) {
             for (int x = posX; x < posX2; x++) {
                 int pixelColor = texture.getRGB(x, y);
+                if (!this.algorithm.acceptTransparency() && (pixelColor >> 24) == 0)
+                    continue;
+
                 int colorArgb  = this.algorithm.getColor(selectedColor, pixelColor);
 
                 texture.setRGB(x, y, colorArgb);
@@ -54,6 +57,9 @@ public class ModelFillColorStep implements IModelStep {
         ModelArea area = ModelArea.parse(jsonObject.get("area").getAsJsonObject());
         String algorithmString = jsonObject.get("algorithm").getAsString();
         IFillColorAlgorithm algorithm = switch (algorithmString) {
+            case "desaturate" -> IFillColorAlgorithm.DESATURATE;
+            case "grayscale" -> IFillColorAlgorithm.GRAYSCALE;
+            case "inverse" -> IFillColorAlgorithm.INVERSE;
             case "solid" -> IFillColorAlgorithm.SOLID;
             case "multiply" -> IFillColorAlgorithm.MULTIPLY;
             default -> IFillColorAlgorithm.SOLID;

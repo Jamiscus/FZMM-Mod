@@ -5,10 +5,7 @@ import io.wispforest.owo.ui.core.Color;
 public class FillColorMultiply implements IFillColorAlgorithm {
     @Override
     public int getColor(Color selectedColor, int pixelColor) {
-        int alpha = (pixelColor >> 24) & 0xFF;
-        if (alpha == 0)
-            return pixelColor;
-
+        int alpha = (pixelColor >> 24);
         int origRed = (pixelColor >> 16) & 0xFF;
         int origGreen = (pixelColor >> 8) & 0xFF;
         int origBlue = pixelColor & 0xFF;
@@ -18,5 +15,10 @@ public class FillColorMultiply implements IFillColorAlgorithm {
         int newBlue = (int) (origBlue * selectedColor.blue());
 
         return new Color(newRed / 255f, newGreen / 255f, newBlue / 255f, alpha / 255f).argb();
+    }
+
+    @Override
+    public boolean acceptTransparency() {
+        return false;
     }
 }

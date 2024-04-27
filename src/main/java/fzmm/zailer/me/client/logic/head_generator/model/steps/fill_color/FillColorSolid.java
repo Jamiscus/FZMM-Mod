@@ -7,4 +7,9 @@ public class FillColorSolid implements IFillColorAlgorithm {
     public int getColor(Color selectedColor, int pixelColor) {
         return selectedColor.rgb();
     }
+
+    @Override
+    public boolean acceptTransparency() {
+        return true;
+    }
 }
