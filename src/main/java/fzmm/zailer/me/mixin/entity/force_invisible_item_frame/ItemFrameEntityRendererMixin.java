@@ -1,4 +1,4 @@
-package fzmm.zailer.me.mixin;
+package fzmm.zailer.me.mixin.entity.force_invisible_item_frame;
 
 import fzmm.zailer.me.client.FzmmClient;
 import net.minecraft.client.render.VertexConsumerProvider;

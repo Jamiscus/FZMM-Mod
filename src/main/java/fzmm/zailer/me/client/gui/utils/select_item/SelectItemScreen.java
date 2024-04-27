@@ -5,7 +5,7 @@ import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.logic.FzmmHistory;
-import fzmm.zailer.me.mixin.PlayerInventoryAccessor;
+import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;

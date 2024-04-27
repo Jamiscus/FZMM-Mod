@@ -1,4 +1,4 @@
-package fzmm.zailer.me.mixin;
+package fzmm.zailer.me.mixin.cache_skin_getter;
 
 import net.minecraft.client.texture.PlayerSkinTexture;
 import org.spongepowered.asm.mixin.Mixin;

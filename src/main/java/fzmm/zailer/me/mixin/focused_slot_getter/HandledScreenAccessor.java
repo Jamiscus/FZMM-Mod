@@ -1,4 +1,4 @@
-package fzmm.zailer.me.mixin;
+package fzmm.zailer.me.mixin.focused_slot_getter;
 
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.screen.slot.Slot;
