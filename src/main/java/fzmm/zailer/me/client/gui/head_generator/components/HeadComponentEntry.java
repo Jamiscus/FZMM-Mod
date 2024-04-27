@@ -6,6 +6,7 @@ import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.config.FzmmConfig;
+import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -61,18 +62,12 @@ public class HeadComponentEntry extends AbstractHeadListEntry {
     private void setupFavoriteButton(ButtonComponent favoriteButton) {
         favoriteButton.onPress(this::favoriteButtonExecute);
         favoriteButton.renderer(ButtonComponent.Renderer.flat(0x00000000, 0x00000000, 0x00000000));
-        favoriteButton.horizontalSizing(Sizing.fixed(FAVORITE_BUTTON_WIDTH));
+        favoriteButton.sizing(Sizing.fixed(FAVORITE_BUTTON_WIDTH));
     }
 
     private static int getFavoriteButtonWidth() {
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-
-        return Math.max(
-                15,
-                Math.max(
-                        textRenderer.getWidth(FAVORITE_ENABLED_TEXT),
-                        textRenderer.getWidth(FAVORITE_DISABLED_TEXT)
-                ) + BaseFzmmScreen.BUTTON_TEXT_PADDING
+        return Math.max(15,
+                FzmmUtils.getMaxWidth(List.of(FAVORITE_ENABLED_TEXT, FAVORITE_DISABLED_TEXT)) + BaseFzmmScreen.BUTTON_TEXT_PADDING
         );
     }
 

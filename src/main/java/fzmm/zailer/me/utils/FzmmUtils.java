@@ -9,6 +9,7 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.EquipmentSlot;
@@ -20,9 +21,7 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -36,8 +35,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public class FzmmUtils {
 
@@ -167,6 +168,39 @@ public class FzmmUtils {
      */
     public static List<String> splitMessage(String message) {
         return Arrays.asList(message.split("(?s)(?<=.)"));
+    }
+
+    public static int getMaxWidth(Collection<StringVisitable> collection) {
+        return getMaxWidth(collection, stringVisitable -> stringVisitable);
+    }
+
+    /**
+     *
+     * @param widthGetter Object is either StringVisitable or OrderedText
+     */
+    public static <T> int getMaxWidth(Collection<T> collection, Function<T, Object> widthGetter) {
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        int max = 0;
+
+        for (T t : collection) {
+            // is an object because a generic object with both interfaces gives this
+            // Ambiguous method call. Both getWidth (StringVisitable)
+            // in TextRenderer and getWidth (OrderedText) in TextRenderer
+            //
+            // and 2 methods with polymorphism are not compatible since only one
+            // data type within the Function varies, and it detects it as the same method signature
+            Object text = widthGetter.apply(t);
+            int width;
+
+            if (text instanceof StringVisitable) {
+                width = textRenderer.getWidth((StringVisitable) text);
+            } else {
+                width = textRenderer.getWidth((OrderedText) text);
+            }
+            max = Math.max(max, width);
+        }
+
+        return max;
     }
 
     public static DyeColor[] getColorsInOrder() {

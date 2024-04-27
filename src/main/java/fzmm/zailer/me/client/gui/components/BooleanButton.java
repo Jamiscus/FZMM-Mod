@@ -1,17 +1,17 @@
 package fzmm.zailer.me.client.gui.components;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.parsing.UIModel;
 import io.wispforest.owo.ui.parsing.UIParsing;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.w3c.dom.Element;
 
+import java.util.List;
 import java.util.Map;
 
 public class BooleanButton extends ButtonComponent {
@@ -62,8 +62,7 @@ public class BooleanButton extends ButtonComponent {
     }
 
     public void setContentHorizontalSizing() {
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        int maxWidth = Math.max(textRenderer.getWidth(this.enabledText), textRenderer.getWidth(this.disabledText)) + BaseFzmmScreen.BUTTON_TEXT_PADDING;
+        int maxWidth = FzmmUtils.getMaxWidth(List.of(this.enabledText, this.disabledText)) + BaseFzmmScreen.BUTTON_TEXT_PADDING;
         this.horizontalSizing(Sizing.fixed(maxWidth));
     }
 

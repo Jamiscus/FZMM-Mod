@@ -22,10 +22,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.utils.*;
 import fzmm.zailer.me.utils.list.IListEntry;
 import fzmm.zailer.me.utils.list.ListUtils;
-import io.wispforest.owo.ui.component.ButtonComponent;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.component.DropdownComponent;
-import io.wispforest.owo.ui.component.TextBoxComponent;
+import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.CollapsibleContainer;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
@@ -36,9 +33,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.Window;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,15 +113,15 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         checkNull(contentParentLayout, "flow-layout", CONTENT_PARENT_LAYOUT_ID);
         FlowLayout headsLayout = rootComponent.childById(FlowLayout.class, HEADS_LAYOUT_ID);
         checkNull(headsLayout, "flow-layout", HEADS_LAYOUT_ID);
-        // owo-lib doesn't let to make Sizing.fill and Sizing.fill animations,
-        // so I have to remove the percentage of compoundHeadsWidth on the screen size
-        // note: this means that if the screen resolution changes it will be wrongly resized while expanded
-        Window window = this.client.getWindow();
-        int contentGap = (int) Math.floor(window.getScaleFactor() * contentParentLayout.gap());
-        int newHeadsLayoutWidth = 99 - (int) Math.floor(((COMPOUND_HEAD_LAYOUT_WIDTH + contentGap * contentParentLayout.children().size() - 1) / (float) window.getScaledWidth()) * 100);
-        Animation<Sizing> headsLayoutAnimation = headsLayout.horizontalSizing().animate(800, Easing.CUBIC, Sizing.fill(newHeadsLayoutWidth));
-        Animation<Sizing> compoundHeadsLayoutAnimation = this.compoundHeadsLayout.horizontalSizing().animate(800, Easing.CUBIC, Sizing.fixed(COMPOUND_HEAD_LAYOUT_WIDTH));
-        this.compoundExpandAnimation = Animation.compose(headsLayoutAnimation, compoundHeadsLayoutAnimation);
+
+        int animationDuration = 800;
+        Animation<Insets> headsLayoutMarginAnimation = this.compoundHeadsLayout.margins()
+                .animate(animationDuration, Easing.CUBIC, Insets.of(0, 0, 0, 6));
+        Animation<Sizing> compoundHeadsLayoutAnimation = this.compoundHeadsLayout.horizontalSizing()
+                .animate(animationDuration, Easing.CUBIC, Sizing.fixed(COMPOUND_HEAD_LAYOUT_WIDTH));
+        Animation<Insets> compoundHeadsLayoutPaddingAnimation = this.compoundHeadsLayout.padding()
+                .animate(animationDuration, Easing.CUBIC, Insets.of(3));
+        this.compoundExpandAnimation = Animation.compose(compoundHeadsLayoutAnimation, headsLayoutMarginAnimation, compoundHeadsLayoutPaddingAnimation);
 
         //bottom buttons
         ButtonRow.setup(rootComponent, ButtonRow.getButtonId(OPEN_SKIN_FOLDER_ID), true, button -> Util.getOperatingSystem().open(SKIN_SAVE_FOLDER_PATH.toFile()));
@@ -145,24 +143,49 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             headCategoryDropdown.button(Text.translatable(category.getTranslationKey()), dropdownComponent -> {
                 this.selectedCategory = category;
                 this.applyFilters();
+                this.updateCategoryTitle(headCategoryCollapsible, category);
             });
         }
         this.selectedCategory = IHeadCategory.NATURAL_CATEGORIES[0];
+        this.updateCategoryTitle(headCategoryCollapsible, this.selectedCategory);
         headCategoryCollapsible.child(headCategoryDropdown);
-        headCategoryDropdown.zIndex(300);
-        headCategoryDropdown.children().get(0).mouseDown().subscribe((mouseX, mouseY, button) -> true);
+        int maxCategoryHorizontalSizing = FzmmUtils.getMaxWidth(Arrays.asList(IHeadCategory.NATURAL_CATEGORIES),
+                this::getCategoryText) + 20;
+        headCategoryCollapsible.horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
 
+        headCategoryDropdown.zIndex(300);
+        List<Component> dropdownChildren = headCategoryDropdown.children();
+        if (!dropdownChildren.isEmpty() && dropdownChildren.get(0) instanceof ParentComponent parentComponent) {
+
+            // fixes that if you click on the margins zone it clicks on the component behind the dropdown
+            parentComponent.mouseDown().subscribe((mouseX, mouseY, button) -> true);
+            for (var child : parentComponent.children()) {
+                child.margins(Insets.of(3));
+            }
+        }
 
         this.toggleFavoriteList = ButtonRow.setup(rootComponent, TOGGLE_FAVORITE_LIST_ID, true, buttonComponent -> this.toggleFavoriteListExecute());
         checkNull(this.toggleFavoriteList, "button", TOGGLE_FAVORITE_LIST_ID);
         this.showFavorites = false;
-        int toggleFavoriteListWidth = Math.max(this.textRenderer.getWidth(HeadComponentEntry.FAVORITE_DISABLED_TEXT), this.textRenderer.getWidth(HeadComponentEntry.FAVORITE_ENABLED_TEXT)) + BUTTON_TEXT_PADDING;
+        int toggleFavoriteListWidth = FzmmUtils.getMaxWidth(List.of(HeadComponentEntry.FAVORITE_DISABLED_TEXT, HeadComponentEntry.FAVORITE_ENABLED_TEXT)) + BUTTON_TEXT_PADDING;
         this.toggleFavoriteList.horizontalSizing(Sizing.fixed(Math.max(20, toggleFavoriteListWidth)));
         this.updateToggleFavoriteText();
 
         ButtonRow.setup(rootComponent, WIKI_BUTTON_ID, true, buttonComponent -> this.wikiExecute());
 
         this.tryLoadHeadEntries(rootComponent);
+    }
+
+    private void updateCategoryTitle(CollapsibleContainer headCategoryCollapsible, IHeadCategory category) {
+        List<Component> children = headCategoryCollapsible.titleLayout().children();
+        if (!children.isEmpty() && children.get(0) instanceof LabelComponent titleComponent) {
+            titleComponent.text(this.getCategoryText(category).formatted(Formatting.UNDERLINE));
+        }
+    }
+
+    @SuppressWarnings("All")
+    private MutableText getCategoryText(IHeadCategory category) {
+        return Text.translatable("fzmm.gui.headGenerator.label.category", Text.translatable(category.getTranslationKey()));
     }
 
     @Override
@@ -191,7 +214,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         this.baseSkin = skinBase;
         this.gridBaseSkinEditedBody = this.baseSkin;
-        this.gridBaseSkinOriginalBody= this.baseSkin;
+        this.gridBaseSkinOriginalBody = this.baseSkin;
 
         this.updatePreviews();
     }
