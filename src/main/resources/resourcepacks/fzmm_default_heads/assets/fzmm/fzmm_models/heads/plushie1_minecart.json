@@ -47,23 +47,9 @@
     {
       "comment": "add minecart",
       "type": "copy",
-      "destination": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 32,
-        "height": 16
-      },
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 32,
-        "height": 16
-      },
-      "overlap_source_hat": true
+        "offset": "ALL"
+      }
     },
     {
       "type": "select_texture",

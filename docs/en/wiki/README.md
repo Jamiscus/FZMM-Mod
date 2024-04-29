@@ -8,4 +8,4 @@ Contains wiki of the following features:
 ## Other language versions:
 
 - [English](../../en/wiki/README.md)
-- [Spanish / Español](../../es/wiki/README.md)
+- [Spanish / Español](../../es/wiki/README.md) (outdated)
