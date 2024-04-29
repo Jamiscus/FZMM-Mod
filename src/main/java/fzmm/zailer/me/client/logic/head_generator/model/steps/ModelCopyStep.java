@@ -88,6 +88,20 @@ public class ModelCopyStep implements IModelStep {
         );
     }
 
+    /**
+     * @return copy with source and destination reversed
+     */
+    public ModelCopyStep reverseCopy() {
+        return new ModelCopyStep(this.source,
+                this.destination,
+                this.addHatLayer,
+                this.overlapSourceHat,
+                this.degrees,
+                this.mirrorHorizontal,
+                this.mirrorVertical
+        );
+    }
+
     public static ModelCopyStep parse(JsonObject jsonObject) {
         ModelArea source = ModelArea.parse(jsonObject.get("source").getAsJsonObject());
         ModelArea destination = null;

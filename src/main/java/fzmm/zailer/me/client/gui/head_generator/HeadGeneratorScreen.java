@@ -19,6 +19,7 @@ import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.TextureOverlap;
 import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
+import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.utils.*;
 import fzmm.zailer.me.utils.list.IListEntry;
 import fzmm.zailer.me.utils.list.ListUtils;
@@ -174,6 +175,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         ButtonRow.setup(rootComponent, WIKI_BUTTON_ID, true, buttonComponent -> this.wikiExecute());
 
         this.tryLoadHeadEntries(rootComponent);
+        this.updatePreviews();
     }
 
     private void updateCategoryTitle(CollapsibleContainer headCategoryCollapsible, IHeadCategory category) {
@@ -203,14 +205,9 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             return;
 
         if (skinBase.getWidth() == 64 && skinBase.getHeight() == 32) {
-            skinBase = ImageUtils.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skinBase);
+            skinBase = InternalModels.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skinBase);
             this.skinElements.imageButton().setImage(skinBase);
         }
-
-        // this is necessary as the models need consistency in the size of the arms
-        // if you don't want to have a model for each arm size
-//        if (ImageUtils.isAlexModel(1, skinBase))
-//            skinBase = ImageUtils.convertInSteveModel(skinBase, 1);
 
         this.baseSkin = skinBase;
         this.gridBaseSkinEditedBody = this.baseSkin;
@@ -220,35 +217,40 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     }
 
     private void tryLoadHeadEntries(FlowLayout rootComponent) {
-        if (this.contentLayout.children().isEmpty()) {
-            List<AbstractHeadEntry> headEntriesList = HeadResourcesLoader.getPreloaded();
-
-            if (headEntriesList.isEmpty()) {
-                this.addNoResultsMessage(rootComponent);
-                return;
-            }
-
-            List<HeadComponentEntry> headEntries = new ArrayList<>(headEntriesList.size());
-            for (AbstractHeadEntry entry : headEntriesList) {
-                headEntries.add(new HeadComponentEntry(entry, this));
-
-                if (entry instanceof HeadModelEntry modelEntry) {
-                    modelEntry.reset();
-                }
-            }
-
-            this.headComponentEntries.addAll(headEntries);
-            this.applyFilters();
+        if (!this.contentLayout.children().isEmpty()) {
+            return;
         }
 
-        this.updatePreviews();
+        List<AbstractHeadEntry> headEntriesList = HeadResourcesLoader.getPreloaded();
+
+        if (headEntriesList.isEmpty()) {
+            this.addNoResultsMessage(rootComponent);
+            return;
+        }
+
+        List<HeadComponentEntry> headEntries = new ArrayList<>(headEntriesList.size());
+        for (AbstractHeadEntry entry : headEntriesList) {
+            HeadComponentEntry headComponentEntry = new HeadComponentEntry(entry, this);
+
+            if (entry instanceof HeadModelEntry modelEntry) {
+                modelEntry.reset();
+                if (!modelEntry.isInternal()) {
+                    headEntries.add(headComponentEntry);
+                }
+            } else {
+                headEntries.add(headComponentEntry);
+            }
+        }
+
+        this.headComponentEntries.addAll(headEntries);
+        this.applyFilters();
     }
 
     private void addNoResultsMessage(FlowLayout parent) {
         Component label = Components.label(Text.translatable("fzmm.gui.headGenerator.label.noResults")
                         .setStyle(Style.EMPTY.withColor(0xD83F27)))
                 .horizontalTextAlignment(HorizontalAlignment.CENTER)
-                .sizing(Sizing.fill(100), Sizing.content())
+                .sizing(Sizing.expand(100), Sizing.content())
                 .margins(Insets.top(4));
         FlowLayout layout = parent.childById(FlowLayout.class, "no-results-label-layout");
         checkNull(layout, "flow-layout", "no-results-label-layout");

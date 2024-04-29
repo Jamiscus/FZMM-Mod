@@ -2,8 +2,6 @@ package fzmm.zailer.me.utils;
 
 import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
-import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
 import fzmm.zailer.me.utils.skin.GetSkinFromCache;
 import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
@@ -18,21 +16,10 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Optional;
 
 public class ImageUtils {
-    private static final Identifier OLD_FORMAT_TO_NEW_FORMAT_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, HeadResourcesLoader.FZMM_MODELS_FOLDER + "/skins/old_format_to_new_format.json");
-    public static final HeadModelEntry OLD_FORMAT_TO_NEW_FORMAT;
-
-    static {
-        OLD_FORMAT_TO_NEW_FORMAT = getOldFormatToNewFormatEntry().orElseGet(() -> {
-            FzmmClient.LOGGER.error("Error loading ImageUtils.OLD_FORMAT_TO_NEW_FORMAT");
-            return new HeadModelEntry();
-        });
-    }
-
 
     public static Optional<BufferedImage> getBufferedImgFromIdentifier(Identifier identifier) {
         try {
@@ -121,6 +108,9 @@ public class ImageUtils {
         return alpha == 0;
     }
 
+    // TODO:
+    //  add scale in head models and replace this with InternalModels.SLIM_TO_WIDE
+    //  scale is necessary in player statue (because there are 128x128 skins)
     public static BufferedImage convertInSteveModel(BufferedImage skin, int scale) {
         BufferedImage modifiedSkin = convertInSteveModel(skin, SkinPart.LEFT_ARM, scale);
         return convertInSteveModel(modifiedSkin, SkinPart.RIGHT_ARM, scale);
@@ -163,25 +153,5 @@ public class ImageUtils {
 
         g2d.dispose();
         return bufferedImage;
-    }
-
-
-    private static Optional<HeadModelEntry> getOldFormatToNewFormatEntry() {
-        Optional<Resource> imageResource = MinecraftClient.getInstance().getResourceManager().getResource(OLD_FORMAT_TO_NEW_FORMAT_IDENTIFIER);
-        if (imageResource.isEmpty())
-            return Optional.empty();
-
-        Resource resource = imageResource.get();
-
-        try {
-            InputStream inputStream = resource.getInputStream();
-            HeadModelEntry result = HeadResourcesLoader.getHeadModel(OLD_FORMAT_TO_NEW_FORMAT_IDENTIFIER, inputStream);
-            inputStream.close();
-            return Optional.of(result);
-        } catch (IOException e) {
-            FzmmClient.LOGGER.error("Error loading head generator '{}' model", OLD_FORMAT_TO_NEW_FORMAT, e);
-        }
-
-        return Optional.empty();
     }
 }

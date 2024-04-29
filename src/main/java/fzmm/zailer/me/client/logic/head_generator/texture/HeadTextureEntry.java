@@ -16,8 +16,8 @@ public class HeadTextureEntry extends AbstractHeadEntry {
      * @param headSkin the skin of the head, this is where the hat, glasses, beard, hair or whatever is,
      *                should not be confused with the base skin (the one to which this skin is applied on top)
      */
-    public HeadTextureEntry(BufferedImage headSkin, String displayName, String key) {
-        super(displayName, key);
+    public HeadTextureEntry(BufferedImage headSkin, String path) {
+        super(path);
         this.headSkin = headSkin;
         this.isEditingSkinBody = this.calculateIsEditingSkinBody();
     }
