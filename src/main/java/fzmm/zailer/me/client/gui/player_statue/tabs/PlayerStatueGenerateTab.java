@@ -8,6 +8,7 @@ import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
 import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
 import fzmm.zailer.me.client.gui.player_statue.PlayerStatueScreen;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
+import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.client.logic.player_statue.PlayerStatue;
 import fzmm.zailer.me.client.toast.status.ImageStatus;
 import fzmm.zailer.me.utils.FzmmUtils;
@@ -43,7 +44,7 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
         skinButton.setButtonCallback(skin -> {
             this.executeButton.active = this.canExecute();
             if (skin.getWidth() == 64 && skin.getHeight() == 32)
-                skinButton.setImage(ImageUtils.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skin));
+                skinButton.setImage(InternalModels.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skin));
         });
     }
 

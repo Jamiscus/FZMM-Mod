@@ -18,44 +18,53 @@ import java.util.NoSuchElementException;
 public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntry {
 
     public static final String DESTINATION_ID = "destination_skin";
-    private final List<IModelStep> steps;
-    private final List<ResettableModelParameter<BufferedImage, String>> textures;
-    private final List<? extends IModelParameter<Color>> colors;
-    private final List<? extends IModelParameter<OffsetParameter>> offsets;
-    private boolean isPaintable;
-    private boolean isEditingSkinBody;
-    private boolean isFirstResult;
+    private final List<IModelStep> steps = new ArrayList<>();
+    private final List<ResettableModelParameter<BufferedImage, String>> textures = new ArrayList<>();
+    private final List<IModelParameter<Color>> colors = new ArrayList<>();
+    private final List<IModelParameter<OffsetParameter>> offsets = new ArrayList<>();
+    private boolean isPaintable = false;
+    private boolean isEditingSkinBody = false;
+    private boolean isFirstResult = false;
+    private boolean isInternal = false;
 
     public HeadModelEntry() {
-        this("", "", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        super("");
     }
 
-    public HeadModelEntry(String displayName, String key, List<IModelStep> steps,
+    public HeadModelEntry(String key, List<IModelStep> steps,
                           List<ResettableModelParameter<BufferedImage, String>> textures,
                           List<? extends IModelParameter<Color>> colors,
                           List<? extends IModelParameter<OffsetParameter>> offsets) {
-        super(displayName, key);
-        this.steps = steps;
-        this.textures = textures;
-        this.colors = colors;
-        this.offsets = offsets;
-        this.isPaintable = false;
-        this.isEditingSkinBody = false;
-        this.isFirstResult = false;
+        super(key);
+        this.steps.addAll(steps);
+        this.textures.addAll(textures);
+        this.colors.addAll(colors);
+        this.offsets.addAll(offsets);
+    }
+
+    public HeadModelEntry copy(String newPath) {
+        HeadModelEntry result = new HeadModelEntry(newPath, this.steps, this.textures, this.colors, this.offsets);
+
+        result.isPaintable(this.isPaintable);
+        result.isEditingSkinBody(this.isEditingSkinBody);
+        result.isFirstResult(this.isFirstResult);
+        result.isInternal(this.isInternal);
+
+        return result;
     }
 
     @Override
     public BufferedImage getHeadSkin(BufferedImage baseSkin) {
-        BufferedImage headSkin = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage result = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 
-        Graphics2D destinationGraphics = headSkin.createGraphics();
+        Graphics2D destinationGraphics = result.createGraphics();
         Color selectedColor = Color.WHITE;
         List<ResettableModelParameter<BufferedImage, String>> texturesCopy = new ArrayList<>(this.textures);
         List<IModelParameter<Color>> colorsCopy = new ArrayList<>(this.colors);
         List<IModelParameter<OffsetParameter>> offsetsCopy = new ArrayList<>(this.offsets);
 
         texturesCopy.add(new ResettableModelParameter<>("base_skin", baseSkin, null, false));
-        texturesCopy.add(new ResettableModelParameter<>(DESTINATION_ID, headSkin, null, false));
+        texturesCopy.add(new ResettableModelParameter<>(DESTINATION_ID, result, null, false));
 
         ModelData modelData = new ModelData(destinationGraphics, DESTINATION_ID, texturesCopy, colorsCopy, offsetsCopy, baseSkin, selectedColor);
 
@@ -67,7 +76,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
 
         destinationGraphics.dispose();
 
-        return headSkin;
+        return result;
     }
 
     @Override
@@ -99,6 +108,14 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
 
     public boolean isPaintable() {
         return this.isPaintable;
+    }
+
+    public boolean isInternal() {
+        return this.isInternal;
+    }
+
+    public void isInternal(boolean value) {
+        this.isInternal = value;
     }
 
     @Override
@@ -133,6 +150,15 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
     @Override
     public List<? extends IModelParameter<OffsetParameter>> getOffsets() {
         return this.offsets;
+    }
+
+    public List<IModelStep> getSteps() {
+        return this.steps;
+    }
+
+    public void setSteps(List<IModelStep> steps) {
+        this.steps.clear();
+        this.steps.addAll(steps);
     }
 
     @Override

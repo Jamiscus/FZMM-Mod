@@ -8,12 +8,22 @@ public abstract class AbstractHeadEntry {
 
     private final Text displayName;
     private final String filterValue;
-    private final String key;
+    private final String path;
 
-    public AbstractHeadEntry(String displayName, String key) {
-        this.displayName = Text.literal(displayName);
-        this.key = key;
-        this.filterValue = displayName.toLowerCase();
+    public AbstractHeadEntry(String path) {
+        String displayNameStr = this.toDisplayName(path);
+        this.displayName = Text.literal(displayNameStr);
+        this.path = path;
+        this.filterValue = displayNameStr.toLowerCase();
+    }
+
+    private String toDisplayName(String path) {
+        String[] folders = path.split("/");
+        String fileName = folders.length != 0 ? folders[folders.length - 1] : path;
+
+        String displayName = fileName.replaceAll("_", " ");
+        String firstCharacter = String.valueOf(displayName.charAt(0));
+        return displayName.replaceFirst(firstCharacter, firstCharacter.toUpperCase());
     }
 
     public Text getDisplayName() {
@@ -24,8 +34,18 @@ public abstract class AbstractHeadEntry {
         return this.filterValue;
     }
 
+    /**
+     * @return path to the resource from HeadResourcesLoader.FZMM_MODELS_FOLDER
+     * <p>
+     * Example: "heads/plushie_1", "internal/plushie_base"
+     */
+    public String getPath() {
+        return this.path;
+    }
+
     public String getKey() {
-        return this.key;
+        String[] split = this.path.split("/");
+        return split[split.length - 1];
     }
 
     public abstract BufferedImage getHeadSkin(BufferedImage baseSkin);

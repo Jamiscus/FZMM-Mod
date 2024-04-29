@@ -1,0 +1,285 @@
+{
+  "is_editing_skin_body": true,
+  "steps": [
+    {
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 16
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 24,
+        "height": 16
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "RIGHT_LEG",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 16,
+        "height": 16
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm left side",
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm front",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 3,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm right side",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 8,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 7,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm back",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 12,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 11,
+        "y": 4,
+        "width": 3,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm top",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0,
+        "width": 3,
+        "height": 4
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm bottom",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 7,
+        "y": 0,
+        "width": 3,
+        "height": 4
+      },
+      "add_hat_layer": true
+    },
+
+    {
+      "comment": "== copy of the left arm but on the right arm ===",
+      "type": "copy",
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 3,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 8,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 7,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 12,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 11,
+        "y": 4,
+        "width": 3,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0,
+        "width": 3,
+        "height": 4
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 7,
+        "y": 0,
+        "width": 3,
+        "height": 4
+      },
+      "add_hat_layer": true
+    }
+  ]
+}

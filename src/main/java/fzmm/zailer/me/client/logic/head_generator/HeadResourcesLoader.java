@@ -1,10 +1,12 @@
 package fzmm.zailer.me.client.logic.head_generator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
+import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.IModelParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.ModelParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
@@ -29,13 +31,24 @@ import java.util.*;
 
 public class HeadResourcesLoader implements SynchronousResourceReloader, IdentifiableResourceReloadListener {
 
-    private static final List<AbstractHeadEntry> LOADED_RESOURCES = new ArrayList<>();
+    private static ImmutableList<AbstractHeadEntry> LOADED_RESOURCES = ImmutableList.<AbstractHeadEntry>builder().build();
     public static final String HEADS_TEXTURES_FOLDER = "textures/heads";
     public static final String FZMM_MODELS_FOLDER = "fzmm_models";
-    public static final String HEADS_MODELS_FOLDER = FZMM_MODELS_FOLDER + "/heads";
+    public static final String INTERNAL_FOLDER = "internal";
+    public static final String INTERNAL_MODELS_FOLDER = FZMM_MODELS_FOLDER + "/" + INTERNAL_FOLDER;
 
-    public static List<AbstractHeadEntry> getPreloaded() {
-        return List.copyOf(LOADED_RESOURCES);
+    public static ImmutableList<AbstractHeadEntry> getPreloaded() {
+        return LOADED_RESOURCES;
+    }
+
+    public static Optional<AbstractHeadEntry> getByPath(String id) {
+        for (AbstractHeadEntry entry : LOADED_RESOURCES) {
+            if (entry.getPath().equals(id)) {
+                return Optional.of(entry);
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -45,15 +58,19 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
 
     @Override
     public void reload(ResourceManager manager) {
-        LOADED_RESOURCES.clear();
+        List<AbstractHeadEntry> builder = new ArrayList<>();
 
-        LOADED_RESOURCES.addAll(loadHeadsModels(manager));
-        LOADED_RESOURCES.addAll(loadHeadsTextures(manager));
+        builder.addAll(loadHeadsModels(manager, INTERNAL_MODELS_FOLDER, true));
+        builder.addAll(loadHeadsModels(manager, FZMM_MODELS_FOLDER + "/heads", false));
+        builder.addAll(loadHeadsTextures(manager));
 
-        LOADED_RESOURCES.sort(Comparator.comparing(AbstractHeadEntry::isFirstResult)
+        builder.sort(Comparator.comparing(AbstractHeadEntry::isFirstResult)
                 .reversed()
-                .thenComparing(AbstractHeadEntry::getKey));
+                .thenComparing(AbstractHeadEntry::getPath));
 
+        LOADED_RESOURCES = ImmutableList.copyOf(builder);
+
+        InternalModels.reload();
     }
 
     private static Set<HeadTextureEntry> loadHeadsTextures(ResourceManager manager) {
@@ -66,7 +83,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
                 String path = identifier.getPath();
                 String fileName = path.substring(HEADS_TEXTURES_FOLDER.length() + 1, path.length() - ".png".length());
 
-                entries.add(new HeadTextureEntry(nativeImage, toDisplayName(fileName), fileName));
+                entries.add(new HeadTextureEntry(nativeImage, fileName));
 
                 inputStream.close();
             } catch (IOException e) {
@@ -76,23 +93,22 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         return entries;
     }
 
-    private static String toDisplayName(String name) {
-        String displayName = name.replaceAll("_", " ");
-        String firstCharacter = String.valueOf(displayName.charAt(0));
-        return displayName.replaceFirst(firstCharacter, firstCharacter.toUpperCase());
-    }
-
-    private static Set<HeadModelEntry> loadHeadsModels(ResourceManager manager) {
+    /**
+     *
+     * @param path resource pack path since "assets/fzmm/"
+     * @param internal if true, it should not be displayed to the user (i.e. it will not be displayed in the head generator).
+     */
+    private static Set<HeadModelEntry> loadHeadsModels(ResourceManager manager, String path, boolean internal) {
         Set<HeadModelEntry> entries = new HashSet<>();
 
 
-        manager.findResources(HEADS_MODELS_FOLDER, identifier -> identifier.getPath().endsWith(".json")).forEach(((identifier, resource) -> {
+        manager.findResources(path, identifier -> identifier.getPath().endsWith(".json")).forEach(((identifier, resource) -> {
             try {
                 InputStream inputStream = resource.getInputStream();
-                entries.add(getHeadModel(identifier, inputStream));
+                entries.add(getHeadModel(path, identifier, inputStream));
                 inputStream.close();
             } catch (Exception e) {
-                FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading head generator model: {}", identifier.getPath(),  e);
+                FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading head generator model: {}", identifier.getPath(), e);
 
                 if (MinecraftClient.getInstance().player != null) {
                     Text message = Text.translatable("fzmm.gui.headGenerator.model.error.loadingModel", identifier.getPath())
@@ -103,12 +119,18 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
             }
         }));
 
+        for (HeadModelEntry entry : entries) {
+            entry.isInternal(internal);
+        }
+
         return entries;
     }
 
-    public static HeadModelEntry getHeadModel(Identifier identifier, InputStream inputStream) {
+    public static HeadModelEntry getHeadModel(String basePath, Identifier identifier, InputStream inputStream) {
         String path = identifier.getPath();
-        String fileName = path.substring(HEADS_MODELS_FOLDER.length() + 1, path.length() - ".json".length());
+        path = path.substring(0, path.length() - ".json".length());
+        String[] folders = path.split("/");
+        path = folders.length > 1 ? folders[folders.length - 2] + "/" + folders[folders.length - 1] : basePath;
 
         JsonObject jsonObject = JsonParser.parseReader(new InputStreamReader(inputStream)).getAsJsonObject();
         List<ResettableModelParameter<BufferedImage, String>> textures = getHeadModelTextures(jsonObject);
@@ -139,7 +161,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
             steps.add(step);
         }
 
-        HeadModelEntry entry = new HeadModelEntry(toDisplayName(fileName), fileName, steps, textures, colors, offsets);
+        HeadModelEntry entry = new HeadModelEntry(path, steps, textures, colors, offsets);
 
         entry.isPaintable(isPaintableModel);
         entry.isEditingSkinBody(isEditingSkinBody);
