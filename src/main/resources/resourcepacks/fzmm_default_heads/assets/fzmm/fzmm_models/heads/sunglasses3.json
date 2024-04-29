@@ -42,12 +42,7 @@
       "comment": "source body",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 16,
-        "width": 64,
-        "height": 48
+        "offset": "ALL_BODY"
       }
     },
     {

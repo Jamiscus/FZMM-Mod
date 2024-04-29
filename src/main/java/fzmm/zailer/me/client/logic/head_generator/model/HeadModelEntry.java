@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 
 public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntry {
 
+    public static final String DESTINATION_ID = "destination_skin";
     private final List<IModelStep> steps;
     private final List<ResettableModelParameter<BufferedImage, String>> textures;
     private final List<? extends IModelParameter<Color>> colors;
@@ -54,9 +55,9 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
         List<IModelParameter<OffsetParameter>> offsetsCopy = new ArrayList<>(this.offsets);
 
         texturesCopy.add(new ResettableModelParameter<>("base_skin", baseSkin, null, false));
-        texturesCopy.add(new ResettableModelParameter<>("destination_skin", headSkin, null, false));
+        texturesCopy.add(new ResettableModelParameter<>(DESTINATION_ID, headSkin, null, false));
 
-        ModelData modelData = new ModelData(destinationGraphics, "destination_skin", texturesCopy, colorsCopy, offsetsCopy, baseSkin, selectedColor);
+        ModelData modelData = new ModelData(destinationGraphics, DESTINATION_ID, texturesCopy, colorsCopy, offsetsCopy, baseSkin, selectedColor);
 
         for (var step : this.steps)
             step.apply(modelData);

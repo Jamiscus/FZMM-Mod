@@ -16,12 +16,7 @@
       "comment": "block",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 64,
-        "height": 16
+        "offset": "ALL"
       }
     },
     {

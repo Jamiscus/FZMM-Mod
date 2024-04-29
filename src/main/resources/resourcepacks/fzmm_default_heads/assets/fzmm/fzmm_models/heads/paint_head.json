@@ -12,24 +12,14 @@
       "comment": "head texture",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 64,
-        "height": 64
+        "offset": "ALL"
       }
     },
     {
       "type": "fill_color",
       "algorithm": "grayscale",
       "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 64,
-        "height": 64
+        "offset": "ALL"
       }
     },
     {
@@ -40,12 +30,7 @@
       "type": "fill_color",
       "algorithm": "multiply",
       "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 64,
-        "height": 64
+        "offset": "ALL"
       }
     }
   ]

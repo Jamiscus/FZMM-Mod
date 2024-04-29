@@ -15,12 +15,7 @@
       "comment": "head",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 64,
-        "height": 16
+        "offset": "ALL"
       },
       "add_hat_layer": false
     },
@@ -32,12 +27,7 @@
       "comment": "add mask",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": true,
-        "x": 0,
-        "y": 0,
-        "width": 32,
-        "height": 16
+        "offset": "ALL"
       }
     },
     {

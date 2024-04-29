@@ -27,6 +27,32 @@
       "overlap_source_hat": true
     },
     {
+      "comment": "head texture hat",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 12,
+        "width": 32,
+        "height": 4
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "head texture hat",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 16,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "add_hat_layer": true
+    },
+    {
       "type": "select_texture",
       "texture_id": "colored_hat"
     },
@@ -34,12 +60,7 @@
       "comment": "colored hat",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 64,
-        "height": 16
+        "offset": "ALL"
       }
     },
     {
