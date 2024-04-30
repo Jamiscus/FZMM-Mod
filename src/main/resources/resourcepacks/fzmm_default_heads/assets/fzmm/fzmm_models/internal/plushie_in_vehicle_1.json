@@ -1,0 +1,66 @@
+{
+  "textures": [
+    {
+      "id": "vehicle",
+      "requested": false
+    }
+  ],
+  "steps": [
+    {
+      "comment": "head top",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "head lateral",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 32,
+        "height": 5
+      },
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 32,
+        "height": 8
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "vehicle"
+    },
+    {
+      "comment": "add vehicle",
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "comment": "plushie arms",
+      "type": "function",
+      "function_path": "internal/plushie_arms_1",
+      "offsets": [
+        {
+          "id": "y_offset",
+          "value": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "steps": [
+    {
+      "comment": "left head",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 8,
+        "height": 8
+      },
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 4,
+        "height": 3
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left body",
+      "type": "copy",
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 3,
+        "width": 4,
+        "height": 2
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left leg left side",
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 8
+      },
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 5,
+        "width": 4,
+        "height": 2
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left leg left bottom side",
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 0,
+        "y": 12,
+        "width": 4,
+        "height": 4
+      },
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 7,
+        "width": 4,
+        "height": 1
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm",
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 1,
+        "y": 3,
+        "width": 2,
+        "height": 3
+      },
+      "overlap_source_hat": true
+    }
+  ]
+}

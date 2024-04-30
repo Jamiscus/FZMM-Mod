@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class ModelParameter<VALUE> implements IModelParameter<VALUE> {
+public class ModelParameter<VALUE> implements IParameterEntry<VALUE> {
     private final String id;
     @Nullable
     private VALUE value;

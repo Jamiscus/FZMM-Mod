@@ -24,6 +24,22 @@ public record SkinPart(byte x, byte y, byte hatX, byte hatY, byte width, byte he
         return new PosI(this.hatX, this.hatY);
     }
 
+    public SkinPart invert() {
+        if (this == RIGHT_ARM)
+            return LEFT_ARM;
+
+        if (this == LEFT_ARM)
+            return RIGHT_ARM;
+
+        if (this == RIGHT_LEG)
+            return LEFT_LEG;
+
+        if (this == LEFT_LEG)
+            return RIGHT_LEG;
+
+        return this;
+    }
+
     public static SkinPart fromString(String value) {
         return switch (value.toUpperCase()) {
             case "RIGHT_LEG" -> RIGHT_LEG;

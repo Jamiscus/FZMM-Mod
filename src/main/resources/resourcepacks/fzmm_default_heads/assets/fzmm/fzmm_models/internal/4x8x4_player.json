@@ -1,0 +1,18 @@
+{
+  "steps": [
+    {
+      "type": "function",
+      "function_path": "internal/4x8_player_left_side"
+    },
+    {
+      "type": "function",
+      "function_path": "internal/4x8_player_front_side",
+      "pos": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0
+      }
+    }
+  ]
+}

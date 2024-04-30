@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import fzmm.zailer.me.utils.SkinPart;
 
 public class ModelPoint {
-    protected final SkinPart offset;
+    protected SkinPart offset;
     protected final boolean hatLayer;
     protected byte x;
     protected byte y;
@@ -55,5 +55,9 @@ public class ModelPoint {
 
     public boolean hatLayer() {
         return hatLayer;
+    }
+
+    public void swapLeftAndRight() {
+        this.offset = this.offset.invert();
     }
 }

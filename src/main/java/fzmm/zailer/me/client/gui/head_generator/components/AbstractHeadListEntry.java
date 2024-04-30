@@ -10,11 +10,12 @@ import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
 import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.IParametersEntry;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.INestedParameters;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
 import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntity;
 import fzmm.zailer.me.client.entity.custom_skin.CustomPlayerSkinEntity;
 import fzmm.zailer.me.client.entity.custom_skin.ISkinMutable;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
 import fzmm.zailer.me.utils.list.IListEntry;
@@ -130,9 +131,16 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
     public void update(BufferedImage baseSkin, boolean isSlim) {
         MinecraftClient client = MinecraftClient.getInstance();
         TextureManager textureManager = client.getTextureManager();
-        BufferedImage previewSkin = this.entry.getHeadSkin(baseSkin);
+        BufferedImage previewSkin;
 
         this.close();
+        try {
+            previewSkin = this.entry.getHeadSkin(baseSkin);
+        } catch (Exception e) {
+            FzmmClient.LOGGER.error("Failed to update preview skin of '{}'", this.entry.getKey(), e);
+            return;
+        }
+
         if (!(this.previewComponent.entity() instanceof ISkinMutable previewEntity)) {
             FzmmClient.LOGGER.error("[AbstractHeadListEntry] Failed to update preview entity");
             return;
@@ -218,12 +226,12 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
     }
 
     private void addParameters(FlowLayout panel, BaseFzmmScreen parent) {
-        if (!(this.entry instanceof IParametersEntry parametersEntry))
+        if (!(this.entry instanceof INestedParameters parametersEntry))
             return;
 
         FlowLayout parametersLayout = panel.childById(FlowLayout.class, "parameters");
         BaseFzmmScreen.checkNull(parametersLayout, "flow-layout", "parameters");
-        if (parametersEntry.hasParameters()) {
+        if (parametersEntry.hasRequestedParameters()) {
             LabelComponent parametersLabel = Components.label(Text.translatable("fzmm.gui.headGenerator.label.parameters"));
             parametersLayout.child(parametersLabel);
         }
@@ -233,8 +241,9 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
         this.addOffsetsParameters(parametersLayout, parametersEntry, parent);
     }
 
-    private void addTextureParameters(FlowLayout parametersLayout, IParametersEntry parametersEntry, BaseFzmmScreen parent) {
-        for (var texture : parametersEntry.getTextures()) {
+    private void addTextureParameters(FlowLayout parametersLayout, INestedParameters parametersEntry, BaseFzmmScreen parent) {
+        ParameterList<BufferedImage> textureParameters = parametersEntry.getNestedTextureParameters();
+        for (var texture : textureParameters.parameterList()) {
             if (!texture.isRequested())
                 continue;
             String buttonId = texture.id() + "-texture";
@@ -244,7 +253,7 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
 
             ImageRowsElements elements = ImageRows.setup(parametersLayout, buttonId, enumButtonId, ImageMode.NAME);
             elements.imageButton().setButtonCallback(bufferedImage -> {
-                parametersEntry.putTexture(texture.id(), bufferedImage);
+                textureParameters.update(texture.id(), bufferedImage);
                 this.update();
             });
 
@@ -252,8 +261,9 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
         }
     }
 
-    private void addColorParameters(FlowLayout parametersLayout, IParametersEntry parametersEntry, BaseFzmmScreen parent) {
-        for (var colorParameter : parametersEntry.getColors()) {
+    private void addColorParameters(FlowLayout parametersLayout, INestedParameters parametersEntry, BaseFzmmScreen parent) {
+        ParameterList<Color> colorParameters = parametersEntry.getNestedColorParameters();
+        for (var colorParameter : colorParameters.parameterList()) {
             if (!colorParameter.isRequested())
                 continue;
             String id = colorParameter.id() + "-color";
@@ -261,7 +271,7 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
             parametersLayout.child(colorRow);
 
             ColorRow.setup(parametersLayout, id, colorParameter.value().orElse(Color.WHITE), false, 300, s -> {
-                parametersEntry.putColor(colorParameter.id(), colorRow.getValue());
+                colorParameters.update(colorParameter.id(), colorRow.getValue());
                 this.update();
             });
 
@@ -269,8 +279,9 @@ public abstract class AbstractHeadListEntry extends FlowLayout implements IListE
         }
     }
 
-    private void addOffsetsParameters(FlowLayout parametersLayout, IParametersEntry parametersEntry, BaseFzmmScreen parent) {
-        for (var offset : parametersEntry.getOffsets()) {
+    private void addOffsetsParameters(FlowLayout parametersLayout, INestedParameters parametersEntry, BaseFzmmScreen parent) {
+        ParameterList<OffsetParameter> offsetParameters = parametersEntry.getNestedOffsetParameters();
+        for (var offset : offsetParameters.parameterList()) {
             if (!offset.isRequested() && offset.value().isEmpty())
                 continue;
             OffsetParameter offsetParameter = offset.value().get();
