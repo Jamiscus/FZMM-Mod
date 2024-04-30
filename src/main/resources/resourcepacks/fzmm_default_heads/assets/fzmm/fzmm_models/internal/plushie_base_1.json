@@ -1,0 +1,43 @@
+{
+  "steps": [
+    {
+      "comment": "head top",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "overlap_source_hat": true
+    },
+    {
+      "comment": "head lateral",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 32,
+        "height": 5
+      },
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 32,
+        "height": 8
+      },
+      "overlap_source_hat": true
+    },
+    {
+      "comment": "plushie body",
+      "type": "function",
+      "function_path": "internal/plushie_base_body_1"
+    }
+  ]
+}

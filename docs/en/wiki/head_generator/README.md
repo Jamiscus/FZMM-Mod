@@ -11,6 +11,9 @@ Versions are only added when there was a change, if the version you are using do
 Remove `Desaturate` step (break change)
 Add `desaturate`, `grayscale` and `inverse` color algorithm
 Add `ALL` and `ALL_BODY` as `Area` offset
+Added Function step, which allows models to be reused
+Added `inverted_left_and_right` to base model
+Added `assets/fzmm/fzmm_models/internal` for use with Function
 
 ## [0.2.3](./0.2.3_head_generator.md)
 Allows the use of parameters in the GUI, adds offset, other changes

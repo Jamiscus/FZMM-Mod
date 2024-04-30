@@ -1,14 +1,16 @@
 package fzmm.zailer.me.client.logic.head_generator.model.parameters;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Optional;
 
-public interface IModelParameter<T> {
+public interface IParameterEntry<T> {
 
     String id();
 
     Optional<T> value();
 
-    void setValue(T value);
+    void setValue(@Nullable T value);
 
 
     /**

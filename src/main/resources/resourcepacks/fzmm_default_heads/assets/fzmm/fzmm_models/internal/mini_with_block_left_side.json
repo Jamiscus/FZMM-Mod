@@ -1,0 +1,157 @@
+{
+  "steps": [
+    {
+      "comment": "lateral left_arm",
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 16,
+        "height": 12
+      },
+      "add_hat_layer": true,
+      "mirror_vertical": true
+    },
+    {
+      "comment": "bottom left_arm",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "top left_arm",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left left_leg",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 4,
+        "height": 8
+      },
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "front left_leg",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 4,
+        "y": 8,
+        "width": 4,
+        "height": 8
+      },
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "right left_leg",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 8,
+        "y": 8,
+        "width": 4,
+        "height": 8
+      },
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 8,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "back left_leg",
+      "type": "copy",
+      "destination": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 12,
+        "y": 8,
+        "width": 4,
+        "height": 8
+      },
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 12,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "bottom left_leg",
+      "type": "copy",
+      "source": {
+        "offset": "LEFT_LEG",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      },
+      "add_hat_layer": true
+    }
+  ]
+}

@@ -8,38 +8,43 @@ import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
 import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.core.Color;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntry {
+public class HeadModelEntry extends AbstractHeadEntry implements INestedParameters {
 
     public static final String DESTINATION_ID = "destination_skin";
+    public static final String BASE_SKIN_ID = "base_skin";
     private final List<IModelStep> steps = new ArrayList<>();
-    private final List<ResettableModelParameter<BufferedImage, String>> textures = new ArrayList<>();
-    private final List<IModelParameter<Color>> colors = new ArrayList<>();
-    private final List<IModelParameter<OffsetParameter>> offsets = new ArrayList<>();
+    @Nullable
+    private ParameterList<BufferedImage> textures = null;
+    @Nullable
+    private ParameterList<Color> colors = null;
+    @Nullable
+    private ParameterList<OffsetParameter> offsets = null;
     private boolean isPaintable = false;
     private boolean isEditingSkinBody = false;
     private boolean isFirstResult = false;
     private boolean isInternal = false;
+    private boolean isInvertedLeftAndRight = false;
 
     public HeadModelEntry() {
         super("");
     }
 
     public HeadModelEntry(String key, List<IModelStep> steps,
-                          List<ResettableModelParameter<BufferedImage, String>> textures,
-                          List<? extends IModelParameter<Color>> colors,
-                          List<? extends IModelParameter<OffsetParameter>> offsets) {
+                          @Nullable ParameterList<BufferedImage> textures,
+                          @Nullable ParameterList<Color> colors,
+                          @Nullable ParameterList<OffsetParameter> offsets) {
         super(key);
         this.steps.addAll(steps);
-        this.textures.addAll(textures);
-        this.colors.addAll(colors);
-        this.offsets.addAll(offsets);
+        this.textures = textures;
+        this.colors = colors;
+        this.offsets = offsets;
     }
 
     public HeadModelEntry copy(String newPath) {
@@ -49,6 +54,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
         result.isEditingSkinBody(this.isEditingSkinBody);
         result.isFirstResult(this.isFirstResult);
         result.isInternal(this.isInternal);
+        result.isInvertedLeftAndRight(this.isInvertedLeftAndRight);
 
         return result;
     }
@@ -58,25 +64,25 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
         BufferedImage result = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D destinationGraphics = result.createGraphics();
-        Color selectedColor = Color.WHITE;
-        List<ResettableModelParameter<BufferedImage, String>> texturesCopy = new ArrayList<>(this.textures);
-        List<IModelParameter<Color>> colorsCopy = new ArrayList<>(this.colors);
-        List<IModelParameter<OffsetParameter>> offsetsCopy = new ArrayList<>(this.offsets);
 
-        texturesCopy.add(new ResettableModelParameter<>("base_skin", baseSkin, null, false));
-        texturesCopy.add(new ResettableModelParameter<>(DESTINATION_ID, result, null, false));
+        ModelData data = new ModelData(destinationGraphics, DESTINATION_ID, this.textures,
+                this.colors, this.offsets, baseSkin, Color.WHITE, this.isInvertedLeftAndRight());
 
-        ModelData modelData = new ModelData(destinationGraphics, DESTINATION_ID, texturesCopy, colorsCopy, offsetsCopy, baseSkin, selectedColor);
-
-        for (var step : this.steps)
-            step.apply(modelData);
-
-        for (var offset : this.offsets)
-            offset.value().ifPresent(OffsetParameter::reset);
+        this.apply(data, baseSkin, result);
+        this.resetOffset(data.offsets());
 
         destinationGraphics.dispose();
 
         return result;
+    }
+
+    public void apply(ModelData data, BufferedImage baseSkin, BufferedImage destinationSkin) {
+        ParameterList<BufferedImage> textures = data.textures();
+        textures.put(new ResettableModelParameter<>(BASE_SKIN_ID, baseSkin, null, false));
+        textures.put(new ResettableModelParameter<>(DESTINATION_ID, destinationSkin, null, false));
+
+        for (var step : this.steps)
+            step.apply(data);
     }
 
     @Override
@@ -118,38 +124,12 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
         this.isInternal = value;
     }
 
-    @Override
-    public List<? extends IModelParameter<Color>> getColors() {
-        return this.colors;
+    public void isInvertedLeftAndRight(boolean value) {
+        this.isInvertedLeftAndRight = value;
     }
 
-    @Override
-    public void putColor(String key, Color color) {
-        for (var colorEntry : this.colors) {
-            if (colorEntry.id().equals(key)) {
-                colorEntry.setValue(color);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public List<ResettableModelParameter<BufferedImage, String>> getTextures() {
-        return this.textures;
-    }
-
-    public void putTexture(String key, BufferedImage texture) {
-        for (var textureEntry : this.textures) {
-            if (textureEntry.id().equals(key)) {
-                textureEntry.setValue(texture);
-                return;
-            }
-        }
-    }
-
-    @Override
-    public List<? extends IModelParameter<OffsetParameter>> getOffsets() {
-        return this.offsets;
+    public boolean isInvertedLeftAndRight() {
+        return this.isInvertedLeftAndRight;
     }
 
     public List<IModelStep> getSteps() {
@@ -162,24 +142,41 @@ public class HeadModelEntry extends AbstractHeadEntry implements IParametersEntr
     }
 
     @Override
-    public boolean hasParameters() {
-        return this.getColors().stream().anyMatch(IModelParameter::isRequested)
-                || this.getTextures().stream().anyMatch(IModelParameter::isRequested)
-                || this.getOffsets().stream().anyMatch(IModelParameter::isRequested);
+    public ParameterList<OffsetParameter> getOffsetParameters() {
+        return this.offsets == null ? new ParameterList<>() : this.offsets;
     }
 
-    public void reset() {
-        for (var textureParameter : this.textures) {
+    @Override
+    public ParameterList<BufferedImage> getTextureParameters() {
+        return this.textures == null ? new ParameterList<>() : this.textures;
+    }
+
+    @Override
+    public ParameterList<Color> getColorParameters() {
+        return this.colors == null ? new ParameterList<>() : this.colors;
+    }
+
+    public void loadDefaultTexture() {
+        for (var textureParameter : this.getNestedTextureParameters().parameterList()) {
             BufferedImage texture;
-            String defaultValue = textureParameter.getDefaultValue();
+            String defaultValue = textureParameter instanceof ResettableModelParameter<BufferedImage> resettableParam ?
+                    resettableParam.getDefaultValue() : null;
+
             if (defaultValue != null) {
+                //TODO: HeadResourcesLoader
                 Identifier textureIdentifier = new Identifier(defaultValue);
-                texture = ImageUtils.getBufferedImgFromIdentifier(textureIdentifier).orElseThrow(() -> new NoSuchElementException(defaultValue));
+                texture = ImageUtils.getBufferedImgFromIdentifier(textureIdentifier).orElseThrow(() -> new IllegalArgumentException(defaultValue));
             } else {
                 texture = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
             }
 
             textureParameter.setValue(texture);
+        }
+    }
+
+    public void resetOffset(ParameterList<OffsetParameter> offsetParameters) {
+        for (var offset : offsetParameters.parameterList()) {
+            offset.value().ifPresent(OffsetParameter::reset);
         }
     }
 }

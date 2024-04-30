@@ -228,12 +228,18 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             return;
         }
 
+        this.headComponentEntries.addAll(this.getHeadComponents(headEntriesList));
+        this.applyFilters();
+    }
+
+    private List<HeadComponentEntry> getHeadComponents(List<AbstractHeadEntry> headEntriesList) {
         List<HeadComponentEntry> headEntries = new ArrayList<>(headEntriesList.size());
+
         for (AbstractHeadEntry entry : headEntriesList) {
             HeadComponentEntry headComponentEntry = new HeadComponentEntry(entry, this);
 
             if (entry instanceof HeadModelEntry modelEntry) {
-                modelEntry.reset();
+                modelEntry.loadDefaultTexture();
                 if (!modelEntry.isInternal()) {
                     headEntries.add(headComponentEntry);
                 }
@@ -242,8 +248,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             }
         }
 
-        this.headComponentEntries.addAll(headEntries);
-        this.applyFilters();
+        return headEntries;
     }
 
     private void addNoResultsMessage(FlowLayout parent) {

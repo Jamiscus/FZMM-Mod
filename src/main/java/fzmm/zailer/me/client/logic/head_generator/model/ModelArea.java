@@ -1,12 +1,11 @@
 package fzmm.zailer.me.client.logic.head_generator.model;
 
 import com.google.gson.JsonObject;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.IModelParameter;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.IParameterEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
 import fzmm.zailer.me.utils.SkinPart;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ModelArea extends ModelPoint {
     private static final ModelArea ALL_AREA = new ModelArea(SkinPart.HEAD, false, 0, 0, 64, 64);
@@ -30,14 +29,12 @@ public class ModelArea extends ModelPoint {
             return ALL_BODY;
         }
 
-        SkinPart offset = SkinPart.fromString(offsetString);
-        boolean hat_layer = areaObject.get("hat_layer").getAsBoolean();
-        int x = areaObject.get("x").getAsInt();
-        int y = areaObject.get("y").getAsInt();
+        ModelPoint point = ModelPoint.parse(areaObject);
+
         int width = areaObject.get("width").getAsInt();
         int height = areaObject.get("height").getAsInt();
 
-        ModelArea result = new ModelArea(offset, hat_layer, x, y, width, height);
+        ModelArea result = new ModelArea(point.offset, point.hatLayer, point.x, point.y, width, height);
 
         if (result.equals(HEAD_LAYER)) {
             result = HEAD_LAYER;
@@ -56,7 +53,7 @@ public class ModelArea extends ModelPoint {
         return this.height;
     }
 
-    public ModelArea copyWithOffset(List<IModelParameter<OffsetParameter>> offsets) {
+    public ModelArea copyWithOffset(List<IParameterEntry<OffsetParameter>> offsets) {
         ModelArea copy = new ModelArea(this.offset, this.hatLayer, this.x, this.y, this.width, this.height);
         for (var offset : offsets) {
             offset.value().ifPresent(offsetParameter -> {
@@ -83,10 +80,5 @@ public class ModelArea extends ModelPoint {
                 this.x == modelArea.x &&
                 this.offset == modelArea.offset
                 && this.hatLayer == modelArea.hatLayer;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.width, this.height);
     }
 }

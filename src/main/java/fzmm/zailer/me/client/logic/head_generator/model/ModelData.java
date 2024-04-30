@@ -1,51 +1,45 @@
 package fzmm.zailer.me.client.logic.head_generator.model;
 
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.IModelParameter;
+import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.ResettableModelParameter;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList;
 import io.wispforest.owo.ui.core.Color;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Optional;
 
 public final class ModelData {
     private Graphics2D destinationGraphics;
     private String destinationId;
-    private final List<ResettableModelParameter<BufferedImage, String>> textures;
-    private final List<IModelParameter<Color>> colors;
-    private final List<IModelParameter<OffsetParameter>> offsets;
+    private final ParameterList<BufferedImage> textures;
+    private final ParameterList<Color> colors;
+    private final ParameterList<OffsetParameter> offsets;
+    private final boolean isInvertedLeftAndRight;
     private BufferedImage selectedTexture;
     private Color selectedColor;
 
-    public ModelData(Graphics2D destinationGraphics, String destinationId, List<ResettableModelParameter<BufferedImage, String>> textures,
-                     List<IModelParameter<Color>> colors, List<IModelParameter<OffsetParameter>> offsets,
-                     BufferedImage selectedTexture, Color selectedColor) {
+    public ModelData(Graphics2D destinationGraphics, String destinationId, @Nullable ParameterList<BufferedImage> textures,
+                     @Nullable ParameterList<Color> colors, @Nullable ParameterList<OffsetParameter> offsets,
+                     BufferedImage selectedTexture, Color selectedColor, boolean isInvertedLeftAndRight) {
         this.destinationGraphics = destinationGraphics;
         this.destinationId = destinationId;
-        this.textures = textures;
-        this.colors = colors;
-        this.offsets = offsets;
+        this.textures = textures == null ? new ParameterList<>() : textures;
+        this.colors = colors == null ? new ParameterList<>() : colors;
+        this.offsets = offsets == null ? new ParameterList<>() : offsets;
         this.selectedTexture = selectedTexture;
         this.selectedColor = selectedColor;
+        this.isInvertedLeftAndRight = isInvertedLeftAndRight;
     }
 
     public Color getColor(String key) {
-        for (var colorEntry : this.colors) {
-            if (colorEntry.id().equals(key))
-                return colorEntry.value().orElse(Color.WHITE);
-        }
-        return Color.WHITE;
+        return this.colors.get(key).orElse(Color.WHITE);
     }
 
 
     public Optional<BufferedImage> getTexture(String key) {
-        for (var textureEntry : this.textures) {
-            if (textureEntry.id().equals(key))
-                return textureEntry.value();
-        }
-        return Optional.empty();
+        return this.textures.get(key);
     }
 
     public Graphics2D destinationGraphics() {
@@ -56,15 +50,23 @@ public final class ModelData {
         return this.destinationId;
     }
 
-    public List<ResettableModelParameter<BufferedImage, String>> textures() {
+    public BufferedImage destinationTexture() {
+        return this.getTexture(this.destinationId).orElseThrow(() -> {
+            String message = String.format("[ModelData] Could not find destination texture '%s'", this.destinationId);
+            FzmmClient.LOGGER.error(message);
+            return new IllegalArgumentException(message);
+        });
+    }
+
+    public ParameterList<BufferedImage> textures() {
         return this.textures;
     }
 
-    public List<IModelParameter<Color>> colors() {
+    public ParameterList<Color> colors() {
         return this.colors;
     }
 
-    public List<IModelParameter<OffsetParameter>> offsets() {
+    public ParameterList<OffsetParameter> offsets() {
         return this.offsets;
     }
 
@@ -90,5 +92,9 @@ public final class ModelData {
 
     public void selectedColor(Color color) {
         this.selectedColor = color;
+    }
+
+    public boolean isInvertedLeftAndRight() {
+        return this.isInvertedLeftAndRight;
     }
 }

@@ -15,7 +15,7 @@ public class ModelToggleOffsetStep implements IModelStep {
 
     @Override
     public void apply(ModelData data) {
-        for (var offset : data.offsets()) {
+        for (var offset : data.offsets().parameterList()) {
             if (offset.id().equals(this.offsetId)) {
                 offset.value().ifPresent(offsetParameter -> offsetParameter.setEnabled(this.enabled));
                 return;

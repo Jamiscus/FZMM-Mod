@@ -1,9 +1,8 @@
-package fzmm.zailer.me.client.logic.head_generator.model.steps;
+package fzmm.zailer.me.client.logic.head_generator.model.steps.select;
 
 import com.google.gson.JsonObject;
-import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
-import io.wispforest.owo.ui.core.Color;
+import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
 
 
 public class ModelSelectColorStep implements IModelStep {
@@ -16,14 +15,7 @@ public class ModelSelectColorStep implements IModelStep {
 
     @Override
     public void apply(ModelData data) {
-        Color color = data.getColor(this.colorId);
-
-        if (color == null) {
-            color = Color.WHITE;
-            FzmmClient.LOGGER.error("[ModelSelectColorStep] Could not find color '{}'", this.colorId);
-        }
-
-        data.selectedColor(color);
+        data.selectedColor(data.getColor(this.colorId));
     }
 
     public static ModelSelectColorStep parse(JsonObject jsonObject) {

@@ -30,10 +30,13 @@ public class ModelCopyStep implements IModelStep {
 
     @Override
     public void apply(ModelData data) {
+        if (data.isInvertedLeftAndRight()) {
+            this.swapLeftAndRight();
+        }
         Graphics2D graphics = data.destinationGraphics();
         BufferedImage selectedTexture = data.selectedTexture();
 
-        ModelArea destination = this.destination.copyWithOffset(data.offsets());
+        ModelArea destination = this.destination.copyWithOffset(data.offsets().parameterList());
         if (this.addHatLayer) {
             this.apply(graphics, destination, selectedTexture, false, false);
             this.apply(graphics, destination, selectedTexture, true, true);
@@ -42,6 +45,10 @@ public class ModelCopyStep implements IModelStep {
             this.apply(graphics, destination, selectedTexture, true, this.destination.hatLayer());
         } else {
             this.apply(graphics, destination, selectedTexture, this.source.hatLayer(), this.destination.hatLayer());
+        }
+
+        if (data.isInvertedLeftAndRight()) {
+            this.swapLeftAndRight();
         }
     }
 
@@ -100,6 +107,16 @@ public class ModelCopyStep implements IModelStep {
                 this.mirrorHorizontal,
                 this.mirrorVertical
         );
+    }
+
+    private void swapLeftAndRight() {
+        this.destination.swapLeftAndRight();
+
+        // as they can be the same instance, it is necessary to avoid swapping them both at the same time
+        if (this.source != this.destination) {
+            this.source.swapLeftAndRight();
+
+        }
     }
 
     public static ModelCopyStep parse(JsonObject jsonObject) {

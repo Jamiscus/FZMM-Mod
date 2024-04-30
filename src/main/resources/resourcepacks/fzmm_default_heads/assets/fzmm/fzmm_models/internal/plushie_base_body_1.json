@@ -1,0 +1,89 @@
+{
+  "steps": [
+    {
+      "comment": "body",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 13,
+        "width": 8,
+        "height": 2
+      },
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 0,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "overlap_source_hat": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 8,
+        "y": 13,
+        "width": 8,
+        "height": 2
+      },
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 8,
+        "height": 12
+      },
+      "overlap_source_hat": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 16,
+        "y": 13,
+        "width": 8,
+        "height": 2
+      },
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 12,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "overlap_source_hat": true
+    },
+    {
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 24,
+        "y": 13,
+        "width": 8,
+        "height": 2
+      },
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 16,
+        "y": 4,
+        "width": 8,
+        "height": 12
+      },
+      "overlap_source_hat": true
+    },
+    {
+      "type": "function",
+      "function_path": "internal/plushie_legs_1"
+    }
+  ]
+}

@@ -7,11 +7,11 @@ import com.google.gson.JsonParser;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.IModelParameter;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.ModelParameter;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.ResettableModelParameter;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.*;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.*;
+import fzmm.zailer.me.client.logic.head_generator.model.steps.select.ModelSelectColorStep;
+import fzmm.zailer.me.client.logic.head_generator.model.steps.select.ModelSelectDestinationStep;
+import fzmm.zailer.me.client.logic.head_generator.model.steps.select.ModelSelectTextureStep;
 import fzmm.zailer.me.client.logic.head_generator.texture.HeadTextureEntry;
 import io.wispforest.owo.ui.core.Color;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.function.Function;
 
 public class HeadResourcesLoader implements SynchronousResourceReloader, IdentifiableResourceReloadListener {
 
@@ -94,8 +95,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
     }
 
     /**
-     *
-     * @param path resource pack path since "assets/fzmm/"
+     * @param path     resource pack path since "assets/fzmm/"
      * @param internal if true, it should not be displayed to the user (i.e. it will not be displayed in the head generator).
      */
     private static Set<HeadModelEntry> loadHeadsModels(ResourceManager manager, String path, boolean internal) {
@@ -133,12 +133,13 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         path = folders.length > 1 ? folders[folders.length - 2] + "/" + folders[folders.length - 1] : basePath;
 
         JsonObject jsonObject = JsonParser.parseReader(new InputStreamReader(inputStream)).getAsJsonObject();
-        List<ResettableModelParameter<BufferedImage, String>> textures = getHeadModelTextures(jsonObject);
-        List<? extends IModelParameter<Color>> colors = getHeadModelColors(jsonObject);
-        List<? extends IModelParameter<OffsetParameter>> offsets = getHeadModelOffsets(jsonObject);
+        Optional<ParameterList<BufferedImage>> textures = getParameterList(jsonObject, "textures", HeadResourcesLoader::textureParser);
+        Optional<ParameterList<Color>> colors = getParameterList(jsonObject, "colors", HeadResourcesLoader::colorParser);
+        Optional<ParameterList<OffsetParameter>> offsets = getParameterList(jsonObject, "offsets", HeadResourcesLoader::offsetParser);
         boolean isPaintableModel = jsonObject.has("paintable") && jsonObject.get("paintable").getAsBoolean();
         boolean isEditingSkinBody = jsonObject.has("is_editing_skin_body") && jsonObject.get("is_editing_skin_body").getAsBoolean();
         boolean isFirstResult = jsonObject.has("first_result") && jsonObject.get("first_result").getAsBoolean();
+        boolean isInvertedLeftAndRight = jsonObject.has("inverted_left_and_right") && jsonObject.get("inverted_left_and_right").getAsBoolean();
 
         JsonArray stepsArray = jsonObject.getAsJsonArray("steps");
         List<IModelStep> steps = new ArrayList<>();
@@ -155,84 +156,69 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
                 case "select_texture" -> ModelSelectTextureStep.parse(stepObject);
                 case "toggle_offset" -> ModelToggleOffsetStep.parse(stepObject);
                 case "select_destination" -> ModelSelectDestinationStep.parse(stepObject);
+                case "function" -> ModelFunctionStep.parse(stepObject);
                 default -> data -> FzmmClient.LOGGER.warn("[HeadResourcesLoader] Unknown model step type: {}", id);
             };
 
             steps.add(step);
         }
 
-        HeadModelEntry entry = new HeadModelEntry(path, steps, textures, colors, offsets);
+        HeadModelEntry entry = new HeadModelEntry(path, steps, textures.orElse(null),
+                colors.orElse(null), offsets.orElse(null));
 
         entry.isPaintable(isPaintableModel);
         entry.isEditingSkinBody(isEditingSkinBody);
         entry.isFirstResult(isFirstResult);
+        entry.isInvertedLeftAndRight(isInvertedLeftAndRight);
 
         return entry;
     }
 
-    private static List<ResettableModelParameter<BufferedImage, String>> getHeadModelTextures(JsonObject jsonObject) {
-        List<ResettableModelParameter<BufferedImage, String>> result = new ArrayList<>();
-        if (!jsonObject.has("textures"))
-            return new ArrayList<>();
+    public static <T> Optional<ParameterList<T>> getParameterList(JsonObject jsonObject, String key, Function<JsonObject, IParameterEntry<T>> elementParser) {
+        ParameterList<T> result = new ParameterList<>();
+        if (!jsonObject.has(key))
+            return Optional.empty();
 
-        JsonArray texturesArray = jsonObject.get("textures").getAsJsonArray();
+        JsonArray texturesArray = jsonObject.get(key).getAsJsonArray();
 
         for (var textureElement : texturesArray) {
             JsonObject textureObject = textureElement.getAsJsonObject();
-            String id = textureObject.get("id").getAsString();
-            boolean requested = !textureObject.has("requested") || textureObject.get("requested").getAsBoolean();
-            String defaultValue = textureObject.has("path") ? textureObject.get("path").getAsString() : null;
-
-            result.add(new ResettableModelParameter<>(id, null, defaultValue, requested));
+            result.put(elementParser.apply(textureObject));
         }
 
-        return result;
+        return Optional.of(result);
     }
 
-    private static List<? extends IModelParameter<Color>> getHeadModelColors(JsonObject jsonObject) {
-        List<ModelParameter<Color>> result = new ArrayList<>();
-        if (!jsonObject.has("colors"))
-            return result;
+    public static IParameterEntry<BufferedImage> textureParser(JsonObject jsonObject) {
+        String id = jsonObject.get("id").getAsString();
+        boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
+        String defaultValue = jsonObject.has("path") ? jsonObject.get("path").getAsString() : null;
 
-        JsonArray colorsArray = jsonObject.get("colors").getAsJsonArray();
-
-        for (var colorElement : colorsArray) {
-            JsonObject colorObject = colorElement.getAsJsonObject();
-            String id = colorObject.get("id").getAsString();
-            boolean requested = !colorObject.has("requested") || colorObject.get("requested").getAsBoolean();
-
-            Color color = Color.WHITE;
-            if (colorObject.has("color_hex")) {
-                String colorHex = colorObject.get("color_hex").getAsString();
-                color = Color.ofRgb(Integer.decode(colorHex));
-            }
-
-            result.add(new ModelParameter<>(id, color, requested));
-        }
-
-        return result;
+        return new ResettableModelParameter<>(id, null, defaultValue, requested);
     }
 
-    private static List<? extends IModelParameter<OffsetParameter>> getHeadModelOffsets(JsonObject jsonObject) {
-        List<ModelParameter<OffsetParameter>> result = new ArrayList<>();
-        if (!jsonObject.has("offsets"))
-            return result;
+    public static IParameterEntry<Color> colorParser(JsonObject jsonObject) {
+        String id = jsonObject.get("id").getAsString();
+        boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
 
-        JsonArray offsetsArray = jsonObject.get("offsets").getAsJsonArray();
-
-        for (var offsetElement : offsetsArray) {
-            JsonObject offsetObject = offsetElement.getAsJsonObject();
-            String id = offsetObject.get("id").getAsString();
-            boolean requested = !offsetObject.has("requested") || offsetObject.get("requested").getAsBoolean();
-            byte value = offsetObject.has("value") ? offsetObject.get("value").getAsByte() : 0;
-            byte minValue = offsetObject.has("min_value") ? offsetObject.get("min_value").getAsByte() : 0;
-            byte maxValue = offsetObject.has("max_value") ? offsetObject.get("max_value").getAsByte() : 8;
-            boolean isXAxis = offsetObject.has("axis") && offsetObject.get("axis").getAsString().equalsIgnoreCase("X");
-            boolean enabled = offsetObject.has("enabled") && offsetObject.get("enabled").getAsBoolean();
-
-            result.add(new ModelParameter<>(id, new OffsetParameter(value, minValue, maxValue, isXAxis, enabled), requested));
+        Color color = Color.WHITE;
+        if (jsonObject.has("color_hex")) {
+            String colorHex = jsonObject.get("color_hex").getAsString();
+            color = Color.ofRgb(Integer.decode(colorHex));
         }
 
-        return result;
+        return new ModelParameter<>(id, color, requested);
+    }
+
+    public static IParameterEntry<OffsetParameter> offsetParser(JsonObject jsonObject) {
+        String id = jsonObject.get("id").getAsString();
+        boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
+        byte value = jsonObject.has("value") ? jsonObject.get("value").getAsByte() : 0;
+        byte minValue = jsonObject.has("min_value") ? jsonObject.get("min_value").getAsByte() : 0;
+        byte maxValue = jsonObject.has("max_value") ? jsonObject.get("max_value").getAsByte() : 8;
+        boolean isXAxis = jsonObject.has("axis") && jsonObject.get("axis").getAsString().equalsIgnoreCase("X");
+        boolean enabled = jsonObject.has("enabled") && jsonObject.get("enabled").getAsBoolean();
+
+        return new ModelParameter<>(id, new OffsetParameter(value, minValue, maxValue, isXAxis, enabled), requested);
     }
 }

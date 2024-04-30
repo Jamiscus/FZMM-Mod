@@ -26,7 +26,11 @@ public class ModelFillColorStep implements IModelStep {
         if (optionalTexture.isEmpty())
             return;
 
-        ModelArea area = this.area.copyWithOffset(data.offsets());
+        if (data.isInvertedLeftAndRight()) {
+            this.area.swapLeftAndRight();
+        }
+
+        ModelArea area = this.area.copyWithOffset(data.offsets().parameterList());
         BufferedImage texture = optionalTexture.get();
         Color selectedColor = data.selectedColor();
 
@@ -34,6 +38,10 @@ public class ModelFillColorStep implements IModelStep {
         int posY = area.getYWithOffset();
         int posX2 = posX + area.width();
         int posY2 = posY + area.height();
+
+        if (data.isInvertedLeftAndRight()) {
+            this.area.swapLeftAndRight();
+        }
 
         if (posX2 > texture.getWidth() && posY2 > texture.getHeight()) {
             FzmmClient.LOGGER.error("[ModelFillColorStep] Pixel outside of texture: {} {}",  posX2,  posY2);

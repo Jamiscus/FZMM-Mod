@@ -1,9 +1,10 @@
-package fzmm.zailer.me.client.logic.head_generator.model.steps;
+package fzmm.zailer.me.client.logic.head_generator.model.steps.select;
 
 import com.google.gson.JsonObject;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.ModelParameter;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.IParameterEntry;
+import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,21 +20,12 @@ public class ModelSelectDestinationStep implements IModelStep {
 
     @Override
     public void apply(ModelData data) {
-        ModelParameter<BufferedImage> textureParameter = null;
+        Optional<IParameterEntry<BufferedImage>> textureParamOptional = data.textures().getParameter(this.textureId);
 
-        for (ModelParameter<BufferedImage> parameter : data.textures()) {
-            if (parameter.id().equals(this.textureId)) {
-                textureParameter = parameter;
-                break;
-            }
-        }
-
-        if (textureParameter == null) {
-            FzmmClient.LOGGER.warn("[ModelSelectTextureStep] Could not find texture parameter '{}'", this.textureId);
-        } else {
-            Optional<BufferedImage> textureOptional = textureParameter.value();
-            if (!textureParameter.isRequested() && textureOptional.isEmpty()) {
-                //FzmmClient.LOGGER.warn("[ModelSelectTextureStep] Could not find texture '{}'", this.textureId);
+        textureParamOptional.ifPresentOrElse(parameter -> {
+            Optional<BufferedImage> textureOptional = parameter.value();
+            if (!parameter.isRequested() && textureOptional.isEmpty()) {
+                FzmmClient.LOGGER.warn("[ModelSelectDestinationStep] Could not find texture '{}'", this.textureId);
                 return;
             }
 
@@ -43,7 +35,7 @@ public class ModelSelectDestinationStep implements IModelStep {
             data.destinationGraphics().dispose();
             data.destinationGraphics(destinationGraphics);
             data.destinationId(this.textureId);
-        }
+        }, () -> FzmmClient.LOGGER.warn("[ModelSelectTextureStep] Could not find texture parameter '{}'", this.textureId));
     }
 
     public static ModelSelectDestinationStep parse(JsonObject jsonObject) {
