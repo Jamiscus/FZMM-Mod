@@ -5,7 +5,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 public class HeadModelCategory implements IHeadCategory {
-    public static final String CATEGORY_ID = "category";
+    public static final String CATEGORY_ID = "model";
     @Override
     public String getTranslationKey() {
         return "fzmm.gui.headGenerator.option.category.model";
@@ -19,5 +19,10 @@ public class HeadModelCategory implements IHeadCategory {
     @Override
     public Text getText() {
         return Text.translatable(this.getTranslationKey()).setStyle(Style.EMPTY.withColor(0xC8375B));
+    }
+
+    @Override
+    public boolean isModel() {
+        return true;
     }
 }

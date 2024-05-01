@@ -151,15 +151,12 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         DropdownComponent headCategoryDropdown = Components.dropdown(Sizing.content());
 
         for (var category : IHeadCategory.NATURAL_CATEGORIES) {
-            headCategoryDropdown.button(Text.translatable(category.getTranslationKey()), dropdownComponent -> {
-                this.selectedCategory = category;
-                this.applyFilters();
-                this.updateCategoryTitle(this.headCategoryCollapsible, category);
-            });
+            headCategoryDropdown.button(Text.translatable(category.getTranslationKey()),
+                    dropdownComponent -> this.updateCategory(category));
         }
 
         this.selectedCategory = IHeadCategory.NATURAL_CATEGORIES[0];
-        this.updateCategoryTitle(this.headCategoryCollapsible, this.selectedCategory);
+        this.updateCategoryTitle(this.selectedCategory);
         this.headCategoryCollapsible.child(headCategoryDropdown);
         int maxCategoryHorizontalSizing = FzmmUtils.getMaxWidth(Arrays.asList(IHeadCategory.NATURAL_CATEGORIES),
                 this::getCategoryText) + 20;
@@ -189,10 +186,27 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         this.updatePreviews();
     }
 
-    private void updateCategoryTitle(CollapsibleContainer headCategoryCollapsible, IHeadCategory category) {
-        List<Component> children = headCategoryCollapsible.titleLayout().children();
+    private void updateCategory(IHeadCategory category) {
+        this.selectedCategory = category;
+        this.applyFilters();
+        this.updateCategoryTitle(category);
+        this.updateTogglePreEdit();
+    }
+
+    private void updateCategoryTitle(IHeadCategory category) {
+        List<Component> children = this.headCategoryCollapsible.titleLayout().children();
         if (!children.isEmpty() && children.get(0) instanceof LabelComponent titleComponent) {
             titleComponent.text(this.getCategoryText(category).formatted(Formatting.UNDERLINE));
+        }
+    }
+
+    private void updateTogglePreEdit() {
+        if (!FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels()) {
+            return;
+        }
+
+        for (var preEditOption : this.skinPreEditButtons.keySet()) {
+            this.skinPreEditButtons.get(preEditOption).active = !this.selectedCategory.isModel() && preEditOption != this.selectedSkinPreEdit;
         }
     }
 
@@ -277,24 +291,39 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
                     .anyMatch(entry -> entry.getValue().isEditingSkinBody());
 
             SkinPreEditOption skinPreEditOption = this.skinPreEdit();
-            BufferedImage previousPreview = this.skinPreEdit(this.baseSkin, skinPreEditOption, compoundEntriesEditingSkinBody);
+            BufferedImage selectedPreEdit = this.skinPreEdit(this.baseSkin, skinPreEditOption, compoundEntriesEditingSkinBody);
             boolean isSlim = ImageUtils.isAlexModel(1, this.baseSkin);
 
-            for (var headEntry : this.headCompoundComponentEntries) {
-                headEntry.update(previousPreview, isSlim);
-                previousPreview = new TextureOverlap(headEntry.getPreview())
-                        .overlap(compoundEntriesEditingSkinBody)
-                        .getHeadTexture();
-            }
-
-            this.gridBaseSkinOriginalBody = this.skinPreEdit(previousPreview, skinPreEditOption, false);
-            this.gridBaseSkinEditedBody = this.skinPreEdit(previousPreview, skinPreEditOption, true);
-
-            for (var headEntry : this.headComponentEntries) {
-                headEntry.update(this.getGridBaseSkin(headEntry.getValue().isEditingSkinBody()), isSlim);
+            if (this.headCompoundComponentEntries.isEmpty() && FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels()) {
+                this.updatePreviewsForceNoneInModels(selectedPreEdit, isSlim);
+            } else {
+                this.updatePreviewsDefault(selectedPreEdit, isSlim, compoundEntriesEditingSkinBody, skinPreEditOption);
             }
         });
+    }
 
+    private void updatePreviewsForceNoneInModels(BufferedImage selectedPreEdit, boolean isSlim) {
+        BufferedImage preEditNone = this.skinPreEdit(this.baseSkin, SkinPreEditOption.NONE, false);
+        for (var headEntry : this.headComponentEntries) {
+            headEntry.update(headEntry.getValue() instanceof HeadModelEntry ? preEditNone : selectedPreEdit, isSlim);
+        }
+    }
+
+    private void updatePreviewsDefault(BufferedImage previousPreview, boolean isSlim, boolean compoundEntriesEditingSkinBody,
+                                       SkinPreEditOption skinPreEditOption) {
+        for (var headEntry : this.headCompoundComponentEntries) {
+            headEntry.update(previousPreview, isSlim);
+            previousPreview = new TextureOverlap(headEntry.getPreview())
+                    .overlap(compoundEntriesEditingSkinBody)
+                    .getHeadTexture();
+        }
+
+        this.gridBaseSkinOriginalBody = this.skinPreEdit(previousPreview, skinPreEditOption, false);
+        this.gridBaseSkinEditedBody = this.skinPreEdit(previousPreview, skinPreEditOption, true);
+
+        for (var headEntry : this.headComponentEntries) {
+            headEntry.update(this.getGridBaseSkin(headEntry.getValue().isEditingSkinBody()), isSlim);
+        }
     }
 
     public BufferedImage skinPreEdit(SkinPreEditOption skinPreEditOption, boolean editBody) {
@@ -560,7 +589,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         if (memento.showFavorites)
             this.toggleFavoriteListExecute();
         this.skinPreEditButtons.get(memento.skinPreEditOption).onPress();
-        this.selectedCategory = memento.category;
+        this.updateCategory(memento.category);
         this.searchField.text(memento.search);
     }
 
