@@ -9,8 +9,9 @@ import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
-import fzmm.zailer.me.client.gui.head_generator.components.AbstractHeadListEntry;
+import fzmm.zailer.me.client.gui.head_generator.components.AbstractHeadComponentEntry;
 import fzmm.zailer.me.client.gui.head_generator.components.HeadComponentEntry;
+import fzmm.zailer.me.client.gui.head_generator.components.HeadComponentOverlay;
 import fzmm.zailer.me.client.gui.head_generator.components.HeadCompoundComponentEntry;
 import fzmm.zailer.me.client.gui.head_generator.options.SkinPreEditOption;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
@@ -30,7 +31,6 @@ import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Insets;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScreen {
     private static final int COMPOUND_HEAD_LAYOUT_WIDTH = 60;
@@ -84,6 +85,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private IHeadCategory selectedCategory;
     private ButtonComponent giveButton;
     private Animation.Composed compoundExpandAnimation;
+    private CollapsibleContainer headCategoryCollapsible;
 
 
     public HeadGeneratorScreen(@Nullable Screen parent) {
@@ -132,27 +134,36 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         this.skinPreEditButtons = new HashMap<>();
         for (SkinPreEditOption preEditOption : SkinPreEditOption.values()) {
-            this.setupPreEditButton(rootComponent, preEditOption);
+            FlowLayout skinPreEditButtonLayout = rootComponent.childById(FlowLayout.class, preEditOption.getId());
+            checkNull(skinPreEditButtonLayout, "flow-layout", preEditOption.getId());
+            this.setupPreEditButton(skinPreEditButtonLayout, preEditOption, this.skinPreEditButtons, skinPreEditOption -> {
+                this.selectedSkinPreEdit = skinPreEditOption;
+
+                if (this.skinElements.imageButton().hasImage()) {
+                    this.updatePreviews();
+                }
+            });
         }
         this.skinPreEditButtons.get(SkinPreEditOption.OVERLAP).onPress();
 
-        CollapsibleContainer headCategoryCollapsible = rootComponent.childById(CollapsibleContainer.class, HEAD_CATEGORY_ID);
-        checkNull(headCategoryCollapsible, "collapsible", HEAD_CATEGORY_ID);
+        this.headCategoryCollapsible = rootComponent.childById(CollapsibleContainer.class, HEAD_CATEGORY_ID);
+        checkNull(this.headCategoryCollapsible, "collapsible", HEAD_CATEGORY_ID);
         DropdownComponent headCategoryDropdown = Components.dropdown(Sizing.content());
 
         for (var category : IHeadCategory.NATURAL_CATEGORIES) {
             headCategoryDropdown.button(Text.translatable(category.getTranslationKey()), dropdownComponent -> {
                 this.selectedCategory = category;
                 this.applyFilters();
-                this.updateCategoryTitle(headCategoryCollapsible, category);
+                this.updateCategoryTitle(this.headCategoryCollapsible, category);
             });
         }
+
         this.selectedCategory = IHeadCategory.NATURAL_CATEGORIES[0];
-        this.updateCategoryTitle(headCategoryCollapsible, this.selectedCategory);
-        headCategoryCollapsible.child(headCategoryDropdown);
+        this.updateCategoryTitle(this.headCategoryCollapsible, this.selectedCategory);
+        this.headCategoryCollapsible.child(headCategoryDropdown);
         int maxCategoryHorizontalSizing = FzmmUtils.getMaxWidth(Arrays.asList(IHeadCategory.NATURAL_CATEGORIES),
                 this::getCategoryText) + 20;
-        headCategoryCollapsible.horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
+        this.headCategoryCollapsible.horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
 
         headCategoryDropdown.zIndex(300);
         List<Component> dropdownChildren = headCategoryDropdown.children();
@@ -188,11 +199,6 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     @SuppressWarnings("All")
     private MutableText getCategoryText(IHeadCategory category) {
         return Text.translatable("fzmm.gui.headGenerator.label.category", Text.translatable(category.getTranslationKey()));
-    }
-
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
     }
 
     private void imageCallback(BufferedImage skinBase) {
@@ -263,7 +269,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     }
 
 
-    private void updatePreviews() {
+    public void updatePreviews() {
         assert this.client != null;
 
         this.client.execute(() -> {
@@ -291,6 +297,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
     }
 
+    public BufferedImage skinPreEdit(SkinPreEditOption skinPreEditOption, boolean editBody) {
+        return this.skinPreEdit(this.baseSkin, skinPreEditOption, editBody);
+    }
+
     public BufferedImage skinPreEdit(BufferedImage preview, SkinPreEditOption skinPreEditOption, boolean editBody) {
         BufferedImage result = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
         result = skinPreEditOption.getPreEdit().execute(result, preview, List.of(SkinPart.HEAD));
@@ -299,21 +309,17 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         return result;
     }
 
-    public void setupPreEditButton(FlowLayout rootComponent, SkinPreEditOption preEditOption) {
-        FlowLayout preEditLayout = rootComponent.childById(FlowLayout.class, preEditOption.getId());
-        checkNull(preEditLayout, "button", preEditOption.getId());
+    public void setupPreEditButton(FlowLayout preEditLayout, SkinPreEditOption preEditOption,
+                                   HashMap<SkinPreEditOption, ButtonComponent> skinPreEditButtons,
+                                   Consumer<SkinPreEditOption> selectPreEditCallback) {
         preEditLayout.tooltip(Text.translatable(preEditOption.getTranslationKey() + ".tooltip"));
 
         ButtonComponent preEditButton = Components.button(Text.empty(), button -> {
-            this.selectedSkinPreEdit = preEditOption;
+            selectPreEditCallback.accept(preEditOption);
 
-            if (this.skinElements.imageButton().hasImage()) {
-                this.updatePreviews();
-            }
-
-            for (var option : this.skinPreEditButtons.keySet()) {
+            for (var option : skinPreEditButtons.keySet()) {
                 if (option != preEditOption)
-                    this.skinPreEditButtons.get(option).active = true;
+                    skinPreEditButtons.get(option).active = true;
             }
             button.active = false;
         });
@@ -323,7 +329,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             preEditOption.getIcon().render(context, button.x() + 2, button.y() + 2, 0, 0, delta);
         });
 
-        this.skinPreEditButtons.put(preEditOption, preEditButton);
+        skinPreEditButtons.put(preEditOption, preEditButton);
         preEditLayout.child(preEditButton);
     }
 
@@ -342,7 +348,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         });
     }
 
-    private void closeTextures(List<? extends AbstractHeadListEntry> entries) {
+    private void closeTextures(List<? extends AbstractHeadComponentEntry> entries) {
         for (var entry : entries) {
             entry.close();
         }
@@ -392,7 +398,8 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             CompletableFuture.delayedExecutor(i, TimeUnit.SECONDS).execute(() -> this.updateButton(message, false));
         }
 
-        CompletableFuture.delayedExecutor(seconds, TimeUnit.SECONDS).execute(() -> this.updateButton(HeadComponentEntry.GIVE_BUTTON_TEXT, true));
+        CompletableFuture.delayedExecutor(seconds, TimeUnit.SECONDS)
+                .execute(() -> this.updateButton(HeadComponentOverlay.GIVE_BUTTON_TEXT, true));
     }
 
     public void updateButton(Text message, boolean active) {
@@ -417,7 +424,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         return this.headNameField.getText();
     }
 
-    public void addCompound(AbstractHeadEntry headData) {
+    public void addCompound(AbstractHeadEntry headData, BufferedImage currentPreview) {
         assert this.client != null;
 
         List<Component> compoundHeads = this.compoundHeadsLayout.children();
@@ -426,7 +433,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             this.compoundHeadsLayout.surface(Surface.DARK_PANEL);
         }
 
-        HeadCompoundComponentEntry entry = new HeadCompoundComponentEntry(headData, this.compoundHeadsLayout, this);
+        HeadCompoundComponentEntry entry = new HeadCompoundComponentEntry(headData, this.compoundHeadsLayout, this, currentPreview);
 
         this.headCompoundComponentEntries.add(entry);
         this.compoundHeadsLayout.child(entry);
@@ -472,10 +479,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         return this.selectedSkinPreEdit;
     }
 
-    public void upCompoundEntry(AbstractHeadListEntry entry) {
+    public void upCompoundEntry(AbstractHeadComponentEntry entry) {
         List<IListEntry<AbstractHeadEntry>> list = new ArrayList<>();
         for (var component : this.compoundHeadsLayout.children()) {
-            if (component instanceof AbstractHeadListEntry headEntry) {
+            if (component instanceof AbstractHeadComponentEntry headEntry) {
                 list.add(headEntry);
             }
         }
@@ -484,10 +491,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         this.updatePreviews();
     }
 
-    public void downCompoundEntry(AbstractHeadListEntry entry) {
+    public void downCompoundEntry(AbstractHeadComponentEntry entry) {
         List<IListEntry<AbstractHeadEntry>> list = new ArrayList<>();
         for (var component : this.compoundHeadsLayout.children()) {
-            if (component instanceof AbstractHeadListEntry headEntry) {
+            if (component instanceof AbstractHeadComponentEntry headEntry) {
                 list.add(headEntry);
             }
         }
@@ -513,6 +520,12 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         }
 
         this.previousSkinName = value;
+    }
+
+    public void collapseCategories() {
+        if (this.headCategoryCollapsible.expanded()) {
+            this.headCategoryCollapsible.toggleExpansion();
+        }
     }
 
     @Override

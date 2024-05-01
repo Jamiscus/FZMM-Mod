@@ -286,10 +286,24 @@
                         <vertical-alignment>center</vertical-alignment>
                     </flow-layout>
 
-                    <scroll>
-                        <flow-layout direction="vertical" id="parameters">
+                    <scroll direction="vertical">
+                        <flow-layout direction="vertical">
                             <children>
+
+                                <flow-layout direction="horizontal" id="default-options">
+                                    <children>
+                                    </children>
+
+                                    <gap>10</gap>
+                                </flow-layout>
+
+                                <flow-layout direction="vertical" id="parameters">
+                                    <children>
+                                    </children>
+                                </flow-layout>
                             </children>
+
+                            <gap>4</gap>
                         </flow-layout>
 
                         <sizing>

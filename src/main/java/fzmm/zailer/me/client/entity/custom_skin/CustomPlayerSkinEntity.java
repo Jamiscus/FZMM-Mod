@@ -38,12 +38,8 @@ public class CustomPlayerSkinEntity extends OtherClientPlayerEntity implements I
         );
     }
 
-//    /**
-//     * mods like DinnerMod may try to query the entity name and if the entity does not have a
-//     * name it returns null, which may result in a crash if the other mod does not check for null.
-//     */
-//    @Override
-//    public String getEntityName() {
-//        return this.uuidString;
-//    }
+    @Override
+    public void updateFormat(boolean isSlim) {
+        this.setSkin(this.textures.texture(), isSlim);
+    }
 }
