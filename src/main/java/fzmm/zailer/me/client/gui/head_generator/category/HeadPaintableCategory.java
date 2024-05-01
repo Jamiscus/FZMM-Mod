@@ -20,4 +20,9 @@ public class HeadPaintableCategory implements IHeadCategory {
     public Text getText() {
         return Text.translatable(this.getTranslationKey()).setStyle(Style.EMPTY.withColor(0xE6A419));
     }
+
+    @Override
+    public boolean isModel() {
+        return true;
+    }
 }

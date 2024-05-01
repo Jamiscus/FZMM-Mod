@@ -34,7 +34,6 @@ public class FzmmConfigModel {
     @Nest
     public HeadGalleryNest headGallery = new HeadGalleryNest();
     @Nest
-    @ExcludeFromScreen
     public HeadGeneratorNest headGenerator = new HeadGeneratorNest();
     @Nest
     public HistoryNest history = new HistoryNest();
@@ -135,6 +134,7 @@ public class FzmmConfigModel {
     public static class HeadGeneratorNest {
         @ExcludeFromScreen
         public Set<String> favoriteSkins = new HashSet<>();
+        public boolean forcePreEditNoneInModels = true;
     }
 
     public static class HistoryNest {

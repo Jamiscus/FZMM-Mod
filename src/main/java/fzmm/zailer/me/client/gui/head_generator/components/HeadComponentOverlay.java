@@ -61,12 +61,13 @@ public class HeadComponentOverlay extends FlowLayout {
     private ButtonComponent selectedSkinFormat;
 
     public HeadComponentOverlay(HeadGeneratorScreen parentScreen, EntityComponent<Entity> previewEntity,
-                                AbstractHeadEntry entry, AbstractHeadComponentEntry headComponentEntry) {
+                                AbstractHeadComponentEntry headComponentEntry) {
         super(Sizing.content(), Sizing.content(), Algorithm.VERTICAL);
         this.parentScreen = parentScreen;
         this.previewEntity = previewEntity;
         this.isSlimFormat = false;
         this.selectedSkinFormat = null;
+        AbstractHeadEntry entry = headComponentEntry.getValue();
 
         Map<String, String> parameters = Map.of("name", entry.getDisplayName().getString());
 
@@ -94,7 +95,7 @@ public class HeadComponentOverlay extends FlowLayout {
 
             ButtonComponent giveButton = panel.childById(ButtonComponent.class, "give-button");
             BaseFzmmScreen.checkNull(giveButton, "button", "give-button");
-            giveButton.onPress((button) -> this.giveButtonExecute(headComponentEntry, entry));
+            giveButton.onPress((button) -> this.giveButtonExecute(headComponentEntry));
             giveButton.horizontalSizing(Sizing.fixed(giveButtonWidth));
             parentScreen.setCurrentGiveButton(giveButton);
 
@@ -115,8 +116,8 @@ public class HeadComponentOverlay extends FlowLayout {
         this.child(headOverlay);
     }
 
-    private void giveButtonExecute(AbstractHeadComponentEntry headComponentEntry, AbstractHeadEntry entry) {
-        this.parentScreen.giveHead(headComponentEntry.getPreview(), entry.getDisplayName().getString());
+    private void giveButtonExecute(AbstractHeadComponentEntry headComponentEntry) {
+        this.parentScreen.giveHead(headComponentEntry.getPreview(), headComponentEntry.getValue().getDisplayName().getString());
     }
 
     public void saveSkinExecute(@Nullable BufferedImage skin) {
@@ -313,7 +314,9 @@ public class HeadComponentOverlay extends FlowLayout {
             });
             preEditRow.child(layout);
         }
-        preEditHashMap.get(this.parentScreen.skinPreEdit()).active = false;
+        boolean forcePreEditInNone = FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels() &&
+                headComponentEntry.getValue() instanceof HeadModelEntry;
+        preEditHashMap.get(forcePreEditInNone ? SkinPreEditOption.NONE : this.parentScreen.skinPreEdit()).active = false;
 
         preEditLayout.child(preEditRow);
 

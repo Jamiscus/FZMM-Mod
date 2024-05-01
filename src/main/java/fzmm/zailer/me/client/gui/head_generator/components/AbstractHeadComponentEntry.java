@@ -167,7 +167,7 @@ public abstract class AbstractHeadComponentEntry extends FlowLayout implements I
         parent.collapseCategories();
 
         EntityComponent<Entity> previewEntity = this.copyCustomHeadEntity().allowMouseRotation(true);
-        FlowLayout overlayLayout = new HeadComponentOverlay(parent, previewEntity, this.entry, this);
+        FlowLayout overlayLayout = new HeadComponentOverlay(parent, previewEntity, this);
 
         this.overlayContainer = new OverlayContainer<>(overlayLayout) {
             @Override

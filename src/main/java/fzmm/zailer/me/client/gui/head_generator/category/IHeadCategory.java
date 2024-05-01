@@ -20,6 +20,8 @@ public interface IHeadCategory {
 
     Text getText();
 
+    boolean isModel();
+
     static IHeadCategory getCategory(AbstractHeadEntry entry, String id) {
         for (int i = 1; i != NATURAL_CATEGORIES.length; i++) {
             if (NATURAL_CATEGORIES[i].isCategory(entry, id)) {

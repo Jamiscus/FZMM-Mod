@@ -22,4 +22,9 @@ public class HeadCompoundCategory implements IHeadCategory {
         return Text.translatable(this.getTranslationKey() + ".message").setStyle(Style.EMPTY.withColor(0x4492BB));
     }
 
+    @Override
+    public boolean isModel() {
+        return false;
+    }
+
 }

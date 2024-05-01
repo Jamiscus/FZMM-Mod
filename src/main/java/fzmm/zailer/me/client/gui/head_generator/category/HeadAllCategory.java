@@ -20,4 +20,9 @@ public class HeadAllCategory implements IHeadCategory {
         return Text.translatable(this.getTranslationKey()).setStyle(Style.EMPTY.withColor(0xFFFFFF));
     }
 
+    @Override
+    public boolean isModel() {
+        return false;
+    }
+
 }

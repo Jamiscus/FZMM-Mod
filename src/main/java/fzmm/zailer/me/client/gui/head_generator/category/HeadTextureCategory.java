@@ -22,4 +22,9 @@ public class HeadTextureCategory implements IHeadCategory {
         return Text.translatable(this.getTranslationKey()).setStyle(Style.EMPTY.withColor(0x5FD926));
     }
 
+    @Override
+    public boolean isModel() {
+        return false;
+    }
+
 }
