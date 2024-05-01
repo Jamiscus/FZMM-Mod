@@ -141,6 +141,21 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
         this.steps.addAll(steps);
     }
 
+    /**
+     * It validates that the step is correct; it runs after loading all resources
+     * from HeadResourceLoader so that, in case one is required, it can be checked
+     * for existence. If it's false, a message will be displayed in the chat, and
+     * it will be removed from the loaded resources.
+     */
+    public boolean validate() throws IllegalArgumentException{
+        for (var step : this.getSteps()) {
+            if (!step.validate()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     @Override
     public ParameterList<OffsetParameter> getOffsetParameters() {
         return this.offsets == null ? new ParameterList<>() : this.offsets;

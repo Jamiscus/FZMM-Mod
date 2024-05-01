@@ -44,7 +44,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
 
     @Override
     public void apply(ModelData data) {
-        Optional<HeadModelEntry> functionOptional = this.getFunction();
+        Optional<HeadModelEntry> functionOptional = getFunction(this.functionPath);
         if (functionOptional.isEmpty())
             return;
         HeadModelEntry function = functionOptional.get();
@@ -90,15 +90,15 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
         data.offsets().put(functionData.offsets());
     }
 
-    public Optional<HeadModelEntry> getFunction() {
-        AbstractHeadEntry functionEntry = HeadResourcesLoader.getByPath(this.functionPath).orElseThrow(() -> {
-            String message = String.format("[ModelFunctionStep] Could not find function step '%s'", this.functionPath);
+    public static Optional<HeadModelEntry> getFunction(String functionPath) {
+        AbstractHeadEntry functionEntry = HeadResourcesLoader.getByPath(functionPath).orElseThrow(() -> {
+            String message = String.format("[ModelFunctionStep] Could not find function step '%s'", functionPath);
             FzmmClient.LOGGER.error(message);
             return new IllegalArgumentException(message);
         });
 
         if (!(functionEntry instanceof HeadModelEntry function)) {
-            FzmmClient.LOGGER.warn("[ModelFunctionStep] '{}' is not a HeadModelEntry", this.functionPath);
+            FzmmClient.LOGGER.warn("[ModelFunctionStep] '{}' is not a HeadModelEntry", functionPath);
             return Optional.empty();
         }
 
@@ -144,8 +144,13 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
 
     @Override
     public List<IModelStep> getSteps() {
-        Optional<HeadModelEntry> functionOptional = this.getFunction();
+        Optional<HeadModelEntry> functionOptional = getFunction(this.functionPath);
         return functionOptional.isPresent() ? functionOptional.get().getSteps() : new ArrayList<>();
+    }
+
+    @Override
+    public boolean validate() throws IllegalArgumentException {
+        return getFunction(this.functionPath).isPresent();
     }
 
     public static ModelFunctionStep parse(JsonObject jsonObject) {

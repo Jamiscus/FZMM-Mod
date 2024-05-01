@@ -18,6 +18,10 @@ public abstract class AbstractHeadEntry {
     }
 
     private String toDisplayName(String path) {
+        if (path.isEmpty()) {
+            return "";
+        }
+
         String[] folders = path.split("/");
         String fileName = folders.length != 0 ? folders[folders.length - 1] : path;
 
