@@ -71,7 +71,7 @@ public class FzmmClient implements ClientModInitializer {
                         container,
                         Text.literal("FZMM: Head generator"),
                         ResourcePackActivationType.DEFAULT_ENABLED
-                )).filter(success -> !success).ifPresent(success -> LOGGER.warn("Could not register built-in resource pack with custom name."));
+                )).filter(success -> !success).ifPresent(success -> LOGGER.warn("[FzmmClient] Failed to register default heads resource pack"));
 
         CONFIG.history.subscribeToMaxItemHistory(integer -> FzmmHistory.update());
         CONFIG.history.subscribeToMaxHeadHistory(integer -> FzmmHistory.update());

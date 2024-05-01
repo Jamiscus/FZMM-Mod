@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.SynchronousResourceReloader;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -59,36 +60,80 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
 
     @Override
     public void reload(ResourceManager manager) {
-        List<AbstractHeadEntry> builder = new ArrayList<>();
+        try {
+            List<AbstractHeadEntry> builder = new ArrayList<>();
 
-        builder.addAll(loadHeadsModels(manager, INTERNAL_MODELS_FOLDER, true));
-        builder.addAll(loadHeadsModels(manager, FZMM_MODELS_FOLDER + "/heads", false));
-        builder.addAll(loadHeadsTextures(manager));
+            builder.addAll(loadHeadsModels(manager, INTERNAL_MODELS_FOLDER, true));
+            builder.addAll(loadHeadsModels(manager, FZMM_MODELS_FOLDER + "/heads", false));
+            builder.addAll(loadHeadsTextures(manager));
 
-        builder.sort(Comparator.comparing(AbstractHeadEntry::isFirstResult)
-                .reversed()
-                .thenComparing(AbstractHeadEntry::getPath));
+            builder.sort(Comparator.comparing(AbstractHeadEntry::isFirstResult)
+                    .reversed()
+                    .thenComparing(AbstractHeadEntry::getPath));
 
-        LOADED_RESOURCES = ImmutableList.copyOf(builder);
+            LOADED_RESOURCES = ImmutableList.copyOf(builder);
 
-        InternalModels.reload();
+            InternalModels.reload();
+        } catch (Exception e) {
+            FzmmClient.LOGGER.error("[HeadResourcesLoader] Error reloading resources", e);
+        }
+
+        this.validate();
     }
+
+    public void validate() {
+        // If there's a model that isn't valid and another model requires it later,
+        // an error will occur because it's no longer loaded.
+        // Therefore, it's necessary to validate and load it twice the same amount.
+        int previousValidResources = -1;
+        while (previousValidResources != LOADED_RESOURCES.size()) {
+            List<AbstractHeadEntry> builder = new ArrayList<>();
+
+            for (var entry : LOADED_RESOURCES) {
+                try {
+                    if (entry instanceof HeadModelEntry modelEntry) {
+                        if (modelEntry.validate()) {
+                            builder.add(modelEntry);
+                        } else {
+                            FzmmClient.LOGGER.warn("[HeadResourcesLoader] '{}' is not valid", modelEntry.getPath());
+                        }
+                    } else {
+                        builder.add(entry);
+                    }
+                } catch (Exception e) {
+                    FzmmClient.LOGGER.error("[HeadResourcesLoader] Error validating '{}'", entry.getPath(), e);
+                    addChatMessageError(e, entry.getPath());
+                }
+            }
+
+            previousValidResources = LOADED_RESOURCES.size();
+            LOADED_RESOURCES = ImmutableList.copyOf(builder);
+        }
+    }
+
 
     private static Set<HeadTextureEntry> loadHeadsTextures(ResourceManager manager) {
         Set<HeadTextureEntry> entries = new HashSet<>();
 
         manager.findResources(HEADS_TEXTURES_FOLDER, identifier -> identifier.getPath().endsWith(".png")).forEach(((identifier, resource) -> {
+            InputStream inputStream = null;
             try {
-                InputStream inputStream = resource.getInputStream();
+                inputStream = resource.getInputStream();
                 BufferedImage nativeImage = ImageIO.read(inputStream);
                 String path = identifier.getPath();
                 String fileName = path.substring(HEADS_TEXTURES_FOLDER.length() + 1, path.length() - ".png".length());
 
                 entries.add(new HeadTextureEntry(nativeImage, fileName));
-
-                inputStream.close();
             } catch (IOException e) {
                 FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading head generator texture", e);
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        FzmmClient.LOGGER.error("[HeadResourcesLoader] Error closing texture input stream", e);
+                    }
+                }
             }
         }));
         return entries;
@@ -103,18 +148,21 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
 
 
         manager.findResources(path, identifier -> identifier.getPath().endsWith(".json")).forEach(((identifier, resource) -> {
+            InputStream inputStream = null;
             try {
-                InputStream inputStream = resource.getInputStream();
+                inputStream = resource.getInputStream();
                 entries.add(getHeadModel(path, identifier, inputStream));
-                inputStream.close();
             } catch (Exception e) {
                 FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading head generator model: {}", identifier.getPath(), e);
 
-                if (MinecraftClient.getInstance().player != null) {
-                    Text message = Text.translatable("fzmm.gui.headGenerator.model.error.loadingModel", identifier.getPath())
-                            .setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR));
-
-                    MinecraftClient.getInstance().player.sendMessage(message);
+                addChatMessageError(e, identifier.getPath());
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        FzmmClient.LOGGER.error("[HeadResourcesLoader] Error closing model input stream", e);
+                    }
                 }
             }
         }));
@@ -220,5 +268,17 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         boolean enabled = jsonObject.has("enabled") && jsonObject.get("enabled").getAsBoolean();
 
         return new ModelParameter<>(id, new OffsetParameter(value, minValue, maxValue, isXAxis, enabled), requested);
+    }
+
+    private static void addChatMessageError(Exception e, String path) {
+        if (MinecraftClient.getInstance().player != null) {
+            Text message = Text.translatable("fzmm.gui.headGenerator.model.error.loadingModel", path)
+                    .setStyle(Style.EMPTY
+                            .withColor(FzmmClient.CHAT_BASE_COLOR)
+                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(e.getMessage())))
+                    );
+
+            MinecraftClient.getInstance().player.sendMessage(message);
+        }
     }
 }
