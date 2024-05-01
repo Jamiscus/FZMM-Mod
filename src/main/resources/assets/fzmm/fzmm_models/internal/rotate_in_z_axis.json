@@ -117,6 +117,13 @@
       "degrees": 90,
       "mirror_vertical": true,
       "add_hat_layer": true
+    },
+    {
+      "comment": "add body",
+      "type": "copy",
+      "source": {
+        "offset": "ALL_BODY"
+      }
     }
   ]
 }

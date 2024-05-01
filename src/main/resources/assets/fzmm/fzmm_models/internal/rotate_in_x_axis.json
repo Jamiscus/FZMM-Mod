@@ -111,6 +111,13 @@
       },
       "add_hat_layer": true,
       "degrees": 90
+    },
+    {
+        "comment": "add body",
+        "type": "copy",
+        "source": {
+            "offset": "ALL_BODY"
+        }
     }
   ]
 }

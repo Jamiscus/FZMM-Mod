@@ -18,10 +18,11 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.random.Random;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;
 
-public class HeadComponentEntry extends AbstractHeadListEntry {
+public class HeadComponentEntry extends AbstractHeadComponentEntry {
     private static final Text ADD_LAYER_BUTTON_TEXT = Text.translatable("fzmm.gui.button.add");
     public static final Text FAVORITE_ENABLED_TEXT = Text.translatable("fzmm.gui.button.favorite.enabled").setStyle(Style.EMPTY.withColor(0xECC709));
     private static final Text FAVORITE_ENABLED_EASTER_EGG_TEXT = Text.translatable("fzmm.gui.button.favorite.enabled_easter_egg").setStyle(Style.EMPTY.withColor(0xF4300B));
@@ -130,7 +131,12 @@ public class HeadComponentEntry extends AbstractHeadListEntry {
         layout.children(List.of(overlayFavoriteButton, addCompoundButton));
     }
 
+    @Override
+    public BufferedImage getBaseSkin() {
+        return this.parentScreen.getGridBaseSkin(this.getValue().isEditingSkinBody());
+    }
+
     private void addCompoundButtonExecute(ButtonComponent button) {
-        this.parentScreen.addCompound(this.entry);
+        this.parentScreen.addCompound(this.entry, this.getPreview());
     }
 }

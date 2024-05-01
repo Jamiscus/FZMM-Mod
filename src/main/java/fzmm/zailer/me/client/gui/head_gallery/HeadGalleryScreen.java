@@ -186,22 +186,25 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
                     callback.run();
                 }
             });
-        })).whenComplete((unused, throwable) -> {
-            this.client.execute(() -> {
-                this.categoryHeads.clear();
-                this.applyFilters();
-                this.setPage(1);
+        })).whenComplete((unused, throwable) -> this.client.execute(() -> {
+            if (throwable == null) {
+                this.errorLabel.text(Text.empty());
+                return;
+            }
 
-                String message = throwable == null ? "Unknown error" : throwable.getMessage();
-                this.errorLabel.text(Text.translatable("fzmm.gui.headGallery.label.error", category, message)
-                        .setStyle(Style.EMPTY.withColor(0xD83F27)));
+            this.categoryHeads.clear();
+            this.applyFilters();
+            this.setPage(1);
 
-                for (var component : this.categoryButtonList) {
-                    if (component instanceof ButtonWidget button)
-                        button.active = true;
-                }
-            });
-        });
+            this.errorLabel.text(Text.translatable("fzmm.gui.headGallery.label.error", category, throwable.getMessage())
+                    .setStyle(Style.EMPTY.withColor(0xD83F27)));
+            FzmmClient.LOGGER.error("[HeadGalleryScreen] Error while fetching category '{}'", category, throwable);
+
+            for (var component : this.categoryButtonList) {
+                if (component instanceof ButtonWidget button)
+                    button.active = true;
+            }
+        }));
     }
 
     private void updateAvailableTagList(ObjectArrayList<MinecraftHeadsData> categoryData) {

@@ -40,4 +40,9 @@ public class CustomHeadEntity extends MobEntity implements ISkinMutable {
     public void setSkin(Identifier skin, boolean isSlim) {
         this.customHeadTexture = skin;
     }
+
+    @Override
+    public void updateFormat(boolean isSlim) {
+
+    }
 }

@@ -4,6 +4,7 @@ import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
+import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
@@ -14,12 +15,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.text.Text;
 
-public class HeadCompoundComponentEntry extends AbstractHeadListEntry{
-    private static final Text REMOVE_LAYER_BUTTON_TEXT = Text.translatable("fzmm.gui.button.remove");
+import java.awt.image.BufferedImage;
 
-    public HeadCompoundComponentEntry(AbstractHeadEntry headData, FlowLayout parentLayout, HeadGeneratorScreen parentScreen) {
-        super(headData, Sizing.fixed(50), Sizing.fixed(45), parentScreen);
+public class HeadCompoundComponentEntry extends AbstractHeadComponentEntry {
+    private static final Text REMOVE_LAYER_BUTTON_TEXT = Text.translatable("fzmm.gui.button.remove");
+    private boolean modifiedPreview;
+    private BufferedImage previousCompoundSkin;
+
+    public HeadCompoundComponentEntry(AbstractHeadEntry entry, FlowLayout parentLayout, HeadGeneratorScreen parentScreen, BufferedImage initialPreview) {
+        super(entry, Sizing.fixed(50), Sizing.fixed(45), parentScreen);
         this.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
+        this.previousCompoundSkin = parentScreen.getGridBaseSkin(entry.isEditingSkinBody());
 
         FlowLayout moveButtons = Containers.horizontalFlow(Sizing.content(), Sizing.content());
         moveButtons.positioning(Positioning.relative(50, 100));
@@ -40,11 +46,44 @@ public class HeadCompoundComponentEntry extends AbstractHeadListEntry{
 
         this.child(moveButtons);
 
-        for (var entry : moveButtons.children()) {
-            entry.mouseEnter().subscribe(() -> this.mouseEnterEvents.sink().onMouseEnter());
-            entry.mouseLeave().subscribe(() -> this.mouseLeaveEvents.sink().onMouseLeave());
+        for (var button : moveButtons.children()) {
+            button.mouseEnter().subscribe(() -> this.mouseEnterEvents.sink().onMouseEnter());
+            button.mouseLeave().subscribe(() -> this.mouseLeaveEvents.sink().onMouseLeave());
         }
         this.parent = parentLayout;
+        this.updatePreview(initialPreview, ImageUtils.isAlexModel(1, initialPreview));
+    }
+
+    @Override
+    public BufferedImage getBaseSkin() {
+        return this.previousCompoundSkin;
+    }
+
+    @Override
+    public void update(BufferedImage previousCompoundSkin, boolean isSlim) {
+        this.previousCompoundSkin = previousCompoundSkin;
+        if (!this.modifiedPreview) {
+            super.update(previousCompoundSkin, isSlim);
+        }
+
+        this.modifiedPreview = false;
+    }
+
+    @Override
+    public void updatePreview(BufferedImage previewSkin, boolean isSlim) {
+        super.updatePreview(previewSkin, isSlim);
+        this.modifiedPreview = true;
+    }
+
+    @Override
+    protected void addOverlay(HeadGeneratorScreen parent) {
+        super.addOverlay(parent);
+        this.modifiedPreview = true;
+    }
+
+    @Override
+    protected void onCloseOverlay() {
+        this.parentScreen.updatePreviews();
     }
 
     private void removeCompoundEntry(ButtonComponent button) {

@@ -7,4 +7,6 @@ public interface ISkinMutable {
     Identifier getTextures();
 
     void setSkin(Identifier skin, boolean isSlim);
+
+    void updateFormat(boolean isSlim);
 }
