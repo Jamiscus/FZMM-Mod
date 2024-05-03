@@ -99,6 +99,10 @@
                                                     <vertical method="fixed">150</vertical>
                                                 </sizing>
 
+                                                <margins>
+                                                    <all>1</all>
+                                                </margins>
+
                                                 <max-lines>1</max-lines>
                                             </text-area>
                                         </children>
