@@ -1,0 +1,115 @@
+{
+  "textures": [
+    {
+      "path": "fzmm:textures/model_textures/monitor_texture_2.png",
+      "id": "monitor",
+      "requested": false
+    }
+  ],
+  "steps": [
+    {
+      "comment": "head face",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 10,
+        "y": 9,
+        "width": 4,
+        "height": 3
+      },
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 8,
+        "y": 8,
+        "width": 8,
+        "height": 8
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "left arm front",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 8,
+        "y": 12,
+        "width": 2,
+        "height": 3
+      },
+      "source": {
+        "offset": "LEFT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "right arm front",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 14,
+        "y": 12,
+        "width": 2,
+        "height": 3
+      },
+      "source": {
+        "offset": "RIGHT_ARM",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 4,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "comment": "body front",
+      "type": "copy",
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 10,
+        "y": 12,
+        "width": 4,
+        "height": 3
+      },
+      "source": {
+        "offset": "BODY",
+        "hat_layer": false,
+        "x": 4,
+        "y": 4,
+        "width": 8,
+        "height": 12
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "monitor"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "base_skin"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL_BODY"
+      }
+    }
+  ]
+}

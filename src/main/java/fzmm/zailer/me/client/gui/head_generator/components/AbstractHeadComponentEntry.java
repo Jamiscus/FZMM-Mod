@@ -76,7 +76,7 @@ public abstract class AbstractHeadComponentEntry extends FlowLayout implements I
         if (isBody) {
             previewEntity = new CustomPlayerSkinEntity(MinecraftClient.getInstance().world);
             size = BODY_PREVIEW_SIZE;
-            margins = 4;
+            margins = 2;
         } else {
             previewEntity = new CustomHeadEntity(MinecraftClient.getInstance().world);
             size = HEAD_PREVIEW_SIZE;

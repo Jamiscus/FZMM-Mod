@@ -11,9 +11,9 @@ import java.util.function.Supplier;
 public interface INestedParameters {
 
     default boolean hasRequestedParameters() {
-        return this.getColorParameters().hasRequestedParameters() ||
-                this.getTextureParameters().hasRequestedParameters() ||
-                this.getOffsetParameters().hasRequestedParameters();
+        return this.getNestedColorParameters().hasRequestedParameters() ||
+                this.getNestedTextureParameters().hasRequestedParameters() ||
+                this.getNestedOffsetParameters().hasRequestedParameters();
     }
 
     default <T> ParameterList<T> getNestedParameters(Supplier<ParameterList<T>> parametersSupplier,

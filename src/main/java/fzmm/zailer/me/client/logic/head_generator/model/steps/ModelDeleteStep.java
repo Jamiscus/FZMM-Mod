@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.logic.head_generator.model.steps;
 
 import com.google.gson.JsonObject;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelArea;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 
@@ -31,7 +32,7 @@ public class ModelDeleteStep implements IModelStep {
     }
 
     public static ModelDeleteStep parse(JsonObject jsonObject) {
-        ModelArea area = ModelArea.parse(jsonObject.get("area").getAsJsonObject());
+        ModelArea area = ModelArea.parse(HeadResourcesLoader.get(jsonObject, "area").getAsJsonObject());
 
         return new ModelDeleteStep(area);
     }

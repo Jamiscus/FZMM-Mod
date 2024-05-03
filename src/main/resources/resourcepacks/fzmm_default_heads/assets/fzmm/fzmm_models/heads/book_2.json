@@ -1,0 +1,189 @@
+{
+  "paintable": true,
+  "textures": [
+    {
+      "path": "fzmm:textures/model_textures/book2_pages.png",
+      "id": "book_pages",
+      "requested": false
+    },
+    {
+      "path": "fzmm:textures/model_textures/book2_cover.png",
+      "id": "book_cover",
+      "requested": false
+    },
+    {
+      "id": "painted_books",
+      "requested": false
+    }
+  ],
+  "colors": [
+    {
+      "color_hex": "#8C480B",
+      "id": "top_book",
+      "requested": true
+    },
+    {
+      "color_hex": "#1D8617",
+      "id": "bottom_book",
+      "requested": true
+    }
+  ],
+  "steps": [
+    {
+      "type": "select_texture",
+      "texture_id": "book_cover"
+    },
+    {
+      "type": "select_destination",
+      "texture_id": "painted_books"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
+      }
+    },
+    {
+      "comment": "paint top book",
+      "type": "select_color",
+      "color_id": "top_book"
+    },
+    {
+      "type": "fill_color",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 8,
+        "width": 64,
+        "height": 4
+      },
+      "algorithm": "multiply"
+    },
+    {
+      "type": "fill_color",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 8,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "algorithm": "multiply"
+    },
+    {
+      "type": "fill_color",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 8,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "algorithm": "multiply"
+    },
+    {
+      "comment": "paint bottom book",
+      "type": "select_color",
+      "color_id": "bottom_book"
+    },
+    {
+      "type": "fill_color",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 12,
+        "width": 64,
+        "height": 4
+      },
+      "algorithm": "multiply"
+    },
+    {
+      "type": "fill_color",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 16,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "algorithm": "multiply"
+    },
+    {
+      "type": "fill_color",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 16,
+        "y": 0,
+        "width": 8,
+        "height": 8
+      },
+      "algorithm": "multiply"
+    },
+    {
+      "comment": "add book pages, book cover, base_skin body",
+      "type": "select_destination",
+      "texture_id": "destination_skin"
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "book_pages"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
+      }
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "painted_books"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
+      }
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "base_skin"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL_BODY"
+      }
+    },
+    {
+      "type": "function",
+      "function_path": "internal/5x6_player_draw",
+      "pos": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 10,
+        "y": 1
+      }
+    }
+  ]
+}

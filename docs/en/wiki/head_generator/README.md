@@ -20,6 +20,8 @@ Added `inverted_left_and_right` to base model
 
 Added `assets/fzmm/fzmm_models/internal` for use with Function
 
+Added Condition step, which allows branching based on the condition
+
 ## [0.2.3](./0.2.3_head_generator.md)
 Allows the use of parameters in the GUI, adds offset, other changes
 

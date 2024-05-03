@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.logic.head_generator.model.steps.select;
 
 import com.google.gson.JsonObject;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.IParameterEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
@@ -33,7 +34,7 @@ public class ModelSelectTextureStep implements IModelStep {
     }
 
     public static ModelSelectTextureStep parse(JsonObject jsonObject) {
-        String textureId = jsonObject.get("texture_id").getAsString();
+        String textureId = HeadResourcesLoader.get(jsonObject, "texture_id").getAsString();
 
         return new ModelSelectTextureStep(textureId);
     }
