@@ -89,7 +89,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         FlowLayout colorLayout = rootComponent.childById(FlowLayout.class, COLOR_LAYOUT_ID);
         checkNull(colorLayout, "flow-layout", COLOR_LAYOUT_ID);
         List<Component> colorList = new ArrayList<>();
-        DyeColor[] dyeColorsInOrder = FzmmUtils.getColorsInOrder();
+        DyeColor[] dyeColorsInOrder = FzmmUtils.getDyeColorsInOrder();
         for (var dyeColor : dyeColorsInOrder) {
             BoxComponent colorBox = Components.box(Sizing.fixed(16), Sizing.fixed(16));
             colorBox.margins(Insets.of(1));
@@ -146,7 +146,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
     private void selectBanner() {
         List<ItemStack> defaultItems = new ArrayList<>();
 
-        for (var dye : FzmmUtils.getColorsInOrder())
+        for (var dye : FzmmUtils.getDyeColorsInOrder())
             defaultItems.add(BannerBuilder.getBannerByDye(dye).getDefaultStack());
 
         defaultItems.add(Items.SHIELD.getDefaultStack());

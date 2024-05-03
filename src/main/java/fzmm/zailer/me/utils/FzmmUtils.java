@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -203,8 +204,8 @@ public class FzmmUtils {
         return max;
     }
 
-    public static DyeColor[] getColorsInOrder() {
-        return new DyeColor[] {
+    public static DyeColor[] getDyeColorsInOrder() {
+        DyeColor[] result = new DyeColor[] {
                 DyeColor.WHITE,
                 DyeColor.LIGHT_GRAY,
                 DyeColor.GRAY,
@@ -222,5 +223,44 @@ public class FzmmUtils {
                 DyeColor.MAGENTA,
                 DyeColor.PINK
         };
+
+        return addToArray(result, DyeColor.values());
+    }
+
+    public static Formatting[] getFormattingColorsInOrder() {
+        Formatting[] result = new Formatting[] {
+                Formatting.WHITE,
+                Formatting.GRAY,
+                Formatting.DARK_GRAY,
+                Formatting.BLACK,
+                Formatting.DARK_RED,
+                Formatting.RED,
+                Formatting.GOLD,
+                Formatting.YELLOW,
+                Formatting.GREEN,
+                Formatting.DARK_GREEN,
+                Formatting.DARK_AQUA,
+                Formatting.AQUA,
+                Formatting.BLUE,
+                Formatting.DARK_BLUE,
+                Formatting.DARK_PURPLE,
+                Formatting.LIGHT_PURPLE,
+        };
+
+        return addToArray(result, Formatting.values());
+    }
+
+    private static <T> T[] addToArray(T[] sortedArray, T[] allArray) {
+        int lastIndex = sortedArray.length;
+        sortedArray = Arrays.copyOf(sortedArray, allArray.length);
+
+        List<T> notFound = new ArrayList<>(Arrays.asList(allArray));
+        notFound.removeAll(Arrays.asList(sortedArray));
+
+        for (var value : notFound) {
+            sortedArray[lastIndex++] = value;
+        }
+
+        return sortedArray;
     }
 }
