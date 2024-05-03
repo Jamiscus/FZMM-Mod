@@ -87,7 +87,14 @@ public class SkullEditor implements IItemEditorScreen {
         this.noteBlockSoundTextBox = editorLayout.childById(ConfigTextBox.class, "note-block-sound");
         BaseFzmmScreen.checkNull(this.noteBlockSoundTextBox, "text-box", "note-block-sound");
         this.noteBlockSoundTextBox.valueParser(Identifier::tryParse);
-        this.noteBlockSoundTextBox.applyPredicate(s -> Registries.SOUND_EVENT.getOrEmpty(new Identifier(s)).isPresent());
+        this.noteBlockSoundTextBox.applyPredicate(s -> {
+            Identifier identifier = Identifier.tryParse(s);
+            if (identifier == null) {
+                return false;
+            }
+
+            return Registries.SOUND_EVENT.getOrEmpty(identifier).isPresent();
+        });
         this.noteBlockSoundTextBox.setMaxLength(255);
         this.noteBlockSoundTextBox.onChanged().subscribe(value -> {
             if (this.noteBlockSoundTextBox.isValid())
