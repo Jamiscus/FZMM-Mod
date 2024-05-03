@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class HeadComponentOverlay extends FlowLayout {
-    public static final int BODY_PREVIEW_OVERLAY_SIZE = 24;
     private static final int OVERLAY_WIDGETS_WIDTH = 75;
     public static final Text GIVE_BUTTON_TEXT = Text.translatable("fzmm.gui.button.giveHead");
     public static final Text GIVE_WAITING_UNDEFINED_TEXT = Text.translatable("fzmm.gui.headGenerator.wait");
@@ -83,9 +82,10 @@ public class HeadComponentOverlay extends FlowLayout {
             previewLayout.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
 
             this.previewEntity.cursorStyle(CursorStyle.MOVE);
+            int previewEntitySize = this.previewEntity.horizontalSizing().get().value * 2;
+            this.previewEntity.sizing(Sizing.fixed(previewEntitySize));
             if (headComponentEntry.isBodyPreview()) {
-                this.previewEntity.sizing(Sizing.fixed(BODY_PREVIEW_OVERLAY_SIZE));
-                previewLayout.sizing(Sizing.content(8), Sizing.fixed((int) (BODY_PREVIEW_OVERLAY_SIZE * 2.5)));
+                previewLayout.sizing(Sizing.content(8), Sizing.fixed((int) (previewEntitySize * 2.5)));
             }
             previewLayout.child(this.previewEntity);
 
