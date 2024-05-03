@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.logic.head_generator.model.steps;
 
 import com.google.gson.JsonObject;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelArea;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 
@@ -120,7 +121,7 @@ public class ModelCopyStep implements IModelStep {
     }
 
     public static ModelCopyStep parse(JsonObject jsonObject) {
-        ModelArea source = ModelArea.parse(jsonObject.get("source").getAsJsonObject());
+        ModelArea source = ModelArea.parse(HeadResourcesLoader.get(jsonObject, "source").getAsJsonObject());
         ModelArea destination = null;
 
         if (jsonObject.has("destination"))

@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.logic.head_generator.model;
 
 import com.google.gson.JsonObject;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.IParameterEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
 import fzmm.zailer.me.utils.SkinPart;
@@ -21,18 +22,18 @@ public class ModelArea extends ModelPoint {
         this.height = (byte) height;
     }
 
-    public static ModelArea parse(JsonObject areaObject) {
-        String offsetString = areaObject.get("offset").getAsString();
+    public static ModelArea parse(JsonObject jsonObject) {
+        String offsetString = HeadResourcesLoader.get(jsonObject, "offset").getAsString();
         if (offsetString.equalsIgnoreCase("ALL")) {
             return ALL_AREA;
         } else if (offsetString.equalsIgnoreCase("ALL_BODY")) {
             return ALL_BODY;
         }
 
-        ModelPoint point = ModelPoint.parse(areaObject);
+        ModelPoint point = ModelPoint.parse(jsonObject);
 
-        int width = areaObject.get("width").getAsInt();
-        int height = areaObject.get("height").getAsInt();
+        int width = HeadResourcesLoader.get(jsonObject, "width").getAsInt();
+        int height = HeadResourcesLoader.get(jsonObject, "height").getAsInt();
 
         ModelArea result = new ModelArea(point.offset, point.hatLayer, point.x, point.y, width, height);
 

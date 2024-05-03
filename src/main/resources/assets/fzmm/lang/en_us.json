@@ -191,7 +191,7 @@
   "fzmm.gui.headGenerator.option.overlayDefault.rotate": "Rotate",
   "fzmm.gui.headGenerator.option.overlayDefault.skinFormat": "Skin format",
   "fzmm.gui.headGenerator.option.overlayDefault.skinFormat.slim": "Slim (\"Alex format\")",
-  "fzmm.gui.headGenerator.option.overlayDefault.skinFormat.wide": "Wide (\"Steve  format\")",
+  "fzmm.gui.headGenerator.option.overlayDefault.skinFormat.wide": "Wide (\"Steve format\")",
   "fzmm.gui.headGenerator.option.search": "Search",
   "fzmm.gui.headGenerator.option.search.tooltip": "Search for a head by name among those available.",
   "fzmm.gui.headGenerator.option.skin": "Skin",

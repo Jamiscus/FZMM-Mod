@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.logic.head_generator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fzmm.zailer.me.client.FzmmClient;
@@ -189,26 +190,13 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         boolean isFirstResult = jsonObject.has("first_result") && jsonObject.get("first_result").getAsBoolean();
         boolean isInvertedLeftAndRight = jsonObject.has("inverted_left_and_right") && jsonObject.get("inverted_left_and_right").getAsBoolean();
 
-        JsonArray stepsArray = jsonObject.getAsJsonArray("steps");
+        JsonArray stepsArray = get(jsonObject, "steps").getAsJsonArray();
         List<IModelStep> steps = new ArrayList<>();
 
         for (var element : stepsArray) {
             JsonObject stepObject = element.getAsJsonObject();
-            String id = stepObject.get("type").getAsString();
 
-            IModelStep step = switch (id) {
-                case "copy" -> ModelCopyStep.parse(stepObject);
-                case "delete" -> ModelDeleteStep.parse(stepObject);
-                case "fill_color" -> ModelFillColorStep.parse(stepObject);
-                case "select_color" -> ModelSelectColorStep.parse(stepObject);
-                case "select_texture" -> ModelSelectTextureStep.parse(stepObject);
-                case "toggle_offset" -> ModelToggleOffsetStep.parse(stepObject);
-                case "select_destination" -> ModelSelectDestinationStep.parse(stepObject);
-                case "function" -> ModelFunctionStep.parse(stepObject);
-                default -> data -> FzmmClient.LOGGER.warn("[HeadResourcesLoader] Unknown model step type: {}", id);
-            };
-
-            steps.add(step);
+            steps.add(parseStep(stepObject));
         }
 
         HeadModelEntry entry = new HeadModelEntry(path, steps, textures.orElse(null),
@@ -222,7 +210,39 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         return entry;
     }
 
-    public static <T> Optional<ParameterList<T>> getParameterList(JsonObject jsonObject, String key, Function<JsonObject, IParameterEntry<T>> elementParser) {
+    /**
+     * the default JsonObject does not show the missing key, it gives a generic error,
+     * which makes it difficult to find which required key you did not use.
+     * <p/>
+     * then it is preferable to use this one, to make debugging easier in case you are creating a model
+     */
+    public static JsonElement get(JsonObject jsonObject, String key) throws IllegalArgumentException {
+        if (jsonObject.has(key)) {
+            return jsonObject.get(key);
+        } else {
+            throw new IllegalArgumentException(String.format("[HeadResourcesLoader] Missing key: '%s', JSON object: %s", key, jsonObject));
+        }
+    }
+
+    public static IModelStep parseStep(JsonObject stepObject) {
+        String id = get(stepObject, "type").getAsString();
+
+        return switch (id) {
+            case "copy" -> ModelCopyStep.parse(stepObject);
+            case "delete" -> ModelDeleteStep.parse(stepObject);
+            case "fill_color" -> ModelFillColorStep.parse(stepObject);
+            case "select_color" -> ModelSelectColorStep.parse(stepObject);
+            case "select_texture" -> ModelSelectTextureStep.parse(stepObject);
+            case "toggle_offset" -> ModelToggleOffsetStep.parse(stepObject);
+            case "select_destination" -> ModelSelectDestinationStep.parse(stepObject);
+            case "function" -> ModelFunctionStep.parse(stepObject);
+            case "condition" -> ModelConditionStep.parse(stepObject);
+            default -> data -> FzmmClient.LOGGER.warn("[HeadResourcesLoader] Unknown model step type: {}", id);
+        };
+    }
+
+    public static <T> Optional<ParameterList<T>> getParameterList(JsonObject jsonObject, String key,
+                                                                  Function<JsonObject, IParameterEntry<T>> elementParser) {
         ParameterList<T> result = new ParameterList<>();
         if (!jsonObject.has(key))
             return Optional.empty();
@@ -238,7 +258,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
     }
 
     public static IParameterEntry<BufferedImage> textureParser(JsonObject jsonObject) {
-        String id = jsonObject.get("id").getAsString();
+        String id = HeadResourcesLoader.get(jsonObject, "id").getAsString();
         boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
         String defaultValue = jsonObject.has("path") ? jsonObject.get("path").getAsString() : null;
 
@@ -246,20 +266,32 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
     }
 
     public static IParameterEntry<Color> colorParser(JsonObject jsonObject) {
-        String id = jsonObject.get("id").getAsString();
+        String id = HeadResourcesLoader.get(jsonObject, "id").getAsString();
         boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
 
         Color color = Color.WHITE;
         if (jsonObject.has("color_hex")) {
             String colorHex = jsonObject.get("color_hex").getAsString();
-            color = Color.ofRgb(Integer.decode(colorHex));
+            color = parseColor(colorHex);
         }
 
         return new ModelParameter<>(id, color, requested);
     }
 
+    public static Color parseColor(String colorHex) {
+        if (colorHex.startsWith("#")) {
+            colorHex = colorHex.substring(1);
+        } else {
+            throw new IllegalArgumentException(String.format("[HeadResourcesLoader] Missing '#' in color hex: %s", colorHex));
+        }
+
+        int color = Integer.parseUnsignedInt(colorHex, 16);
+
+        return colorHex.length() == 8 ? Color.ofArgb(color) : Color.ofRgb(color);
+    }
+
     public static IParameterEntry<OffsetParameter> offsetParser(JsonObject jsonObject) {
-        String id = jsonObject.get("id").getAsString();
+        String id = HeadResourcesLoader.get(jsonObject, "id").getAsString();
         boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
         byte value = jsonObject.has("value") ? jsonObject.get("value").getAsByte() : 0;
         byte minValue = jsonObject.has("min_value") ? jsonObject.get("min_value").getAsByte() : 0;

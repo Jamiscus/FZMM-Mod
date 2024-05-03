@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.logic.head_generator.model.steps;
 
 import com.google.gson.JsonObject;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 
 public class ModelToggleOffsetStep implements IModelStep {
@@ -23,8 +24,8 @@ public class ModelToggleOffsetStep implements IModelStep {
         }
     }
     public static ModelToggleOffsetStep parse(JsonObject jsonObject) {
-        String offsetId = jsonObject.get("offset_id").getAsString();
-        boolean enabled = jsonObject.get("enabled").getAsBoolean();
+        String offsetId = HeadResourcesLoader.get(jsonObject, "offset_id").getAsString();
+        boolean enabled = HeadResourcesLoader.get(jsonObject, "enabled").getAsBoolean();
 
         return new ModelToggleOffsetStep(offsetId, enabled);
     }

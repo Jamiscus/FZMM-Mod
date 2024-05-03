@@ -8,7 +8,6 @@ import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelPoint;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.*;
-import fzmm.zailer.me.utils.SkinPart;
 import io.wispforest.owo.ui.core.Color;
 import org.jetbrains.annotations.Nullable;
 
@@ -154,7 +153,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
     }
 
     public static ModelFunctionStep parse(JsonObject jsonObject) {
-        String functionPath = jsonObject.get("function_path").getAsString();
+        String functionPath = HeadResourcesLoader.get(jsonObject, "function_path").getAsString();
 
         Optional<ParameterList<BufferedImage>> textures = HeadResourcesLoader.getParameterList(jsonObject,
                 "textures", HeadResourcesLoader::textureParser);
@@ -166,8 +165,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
                 "offsets", HeadResourcesLoader::offsetParser);
 
         ModelPoint point = jsonObject.has("pos") ?
-                ModelPoint.parse(jsonObject.getAsJsonObject("pos")) :
-                new ModelPoint(SkinPart.HEAD, false, 0, 0);
+                ModelPoint.parse(jsonObject.getAsJsonObject("pos")) : ModelPoint.ZERO;
 
         boolean isInvertedLeftAndRight = jsonObject.has("inverted_left_and_right") && jsonObject.get("inverted_left_and_right").getAsBoolean();
 

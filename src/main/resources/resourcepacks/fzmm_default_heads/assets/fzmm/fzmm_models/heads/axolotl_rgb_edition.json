@@ -2,20 +2,39 @@
   "paintable": true,
   "textures": [
     {
-      "id": "axolotl",
-      "path": "fzmm:textures/model_textures/axolotl.png",
+      "id": "part_1",
+      "path": "fzmm:textures/model_textures/axolotl_part_1.png",
+      "requested": false
+    },
+    {
+      "id": "part_2",
+      "path": "fzmm:textures/model_textures/axolotl_part_2.png",
+      "requested": false
+    },
+    {
+      "id": "painted_part",
       "requested": false
     }
   ],
   "colors": [
     {
-      "id": "selected_color",
-      "color_hex": "#f5bddd"
+      "id": "primary_color",
+      "color_hex": "#FBC1E3"
+    },
+    {
+      "id": "secondary_color",
+      "color_hex": "#F27093"
     }
   ],
   "steps": [
     {
-      "comment": "head texture",
+      "comment": "Add base skin, overlap hat layer",
+      "type": "copy",
+      "source": {
+        "offset": "ALL_BODY"
+      }
+    },
+    {
       "type": "copy",
       "source": {
         "offset": "HEAD",
@@ -28,239 +47,124 @@
       "overlap_source_hat": true
     },
     {
-      "type": "select_texture",
-      "texture_id": "axolotl"
+      "comment": "Paint and add part 1",
+      "type": "select_destination",
+      "texture_id": "painted_part"
     },
     {
-      "comment": "axolotl",
-      "type": "copy",
-      "source": {
-        "offset": "ALL"
-      }
+      "type": "select_texture",
+      "texture_id": "part_1"
     },
     {
       "type": "select_color",
-      "color_id": "selected_color"
+      "color_id": "primary_color"
     },
     {
-      "comment": "top sides",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
+      "type": "copy",
+      "source": {
         "offset": "HEAD",
         "hat_layer": false,
         "x": 0,
-        "y": 8,
-        "width": 32,
-        "height": 2
-      }
-    },
-    {
-      "comment": "top",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 8,
         "y": 0,
-        "width": 8,
-        "height": 8
+        "width": 64,
+        "height": 16
       }
     },
     {
-      "comment": "left",
       "type": "fill_color",
-      "algorithm": "multiply",
       "area": {
         "offset": "HEAD",
         "hat_layer": false,
         "x": 0,
-        "y": 10,
-        "width": 9,
-        "height": 1
-      }
+        "y": 0,
+        "width": 64,
+        "height": 16
+      },
+      "algorithm": "multiply"
     },
     {
-      "comment": "right",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
+      "type": "select_destination",
+      "texture_id": "destination_skin"
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "painted_part"
+    },
+    {
+      "type": "copy",
+      "source": {
         "offset": "HEAD",
         "hat_layer": false,
-        "x": 15,
-        "y": 10,
-        "width": 17,
-        "height": 1
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
       }
     },
     {
-      "comment": "left leg 1",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 1,
-        "y": 11,
-        "width": 1,
-        "height": 5
-      }
+      "comment": "Repeat with part 2, and delete part 1",
+      "type": "select_destination",
+      "texture_id": "painted_part"
     },
     {
-      "comment": "left leg 1",
-      "type": "fill_color",
-      "algorithm": "multiply",
+      "type": "select_texture",
+      "texture_id": "part_2"
+    },
+    {
+      "type": "select_color",
+      "color_id": "secondary_color"
+    },
+    {
+      "type": "delete",
       "area": {
         "offset": "HEAD",
         "hat_layer": false,
         "x": 0,
-        "y": 14,
-        "width": 1,
-        "height": 1
+        "y": 0,
+        "width": 64,
+        "height": 16
       }
     },
     {
-      "comment": "left leg 1",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
+      }
+    },
+    {
       "type": "fill_color",
-      "algorithm": "multiply",
       "area": {
         "offset": "HEAD",
         "hat_layer": false,
-        "x": 2,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
+      },
+      "algorithm": "multiply"
     },
     {
-      "comment": "left leg 2",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
+      "type": "select_destination",
+      "texture_id": "destination_skin"
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "painted_part"
+    },
+    {
+      "type": "copy",
+      "source": {
         "offset": "HEAD",
         "hat_layer": false,
-        "x": 6,
-        "y": 11,
-        "width": 1,
-        "height": 5
-      }
-    },
-    {
-      "comment": "left leg 2",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 5,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
-    },
-    {
-      "comment": "left leg 2",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 7,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
-    },
-    {
-      "comment": "right leg 1",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 17,
-        "y": 11,
-        "width": 1,
-        "height": 5
-      }
-    },
-    {
-      "comment": "right leg 1",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 16,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
-    },
-    {
-      "comment": "right leg 1",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 18,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
-    },
-    {
-      "comment": "right leg 2",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 22,
-        "y": 11,
-        "width": 1,
-        "height": 5
-      }
-    },
-    {
-      "comment": "right leg 2",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 21,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
-    },
-    {
-      "comment": "right leg 2",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 23,
-        "y": 14,
-        "width": 1,
-        "height": 1
-      }
-    },
-    {
-      "comment": "hat layer",
-      "type": "fill_color",
-      "algorithm": "multiply",
-      "area": {
-        "offset": "HEAD",
-        "hat_layer": true,
-        "x": 3,
-        "y": 2,
-        "width": 18,
-        "height": 9
+        "x": 0,
+        "y": 0,
+        "width": 64,
+        "height": 16
       }
     }
   ]

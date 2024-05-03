@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.logic.head_generator.model.steps;
 
 import com.google.gson.JsonObject;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelArea;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.fill_color.IFillColorAlgorithm;
@@ -62,8 +63,8 @@ public class ModelFillColorStep implements IModelStep {
     }
 
     public static ModelFillColorStep parse(JsonObject jsonObject) {
-        ModelArea area = ModelArea.parse(jsonObject.get("area").getAsJsonObject());
-        String algorithmString = jsonObject.get("algorithm").getAsString();
+        ModelArea area = ModelArea.parse(HeadResourcesLoader.get(jsonObject, "area").getAsJsonObject());
+        String algorithmString = HeadResourcesLoader.get(jsonObject, "algorithm").getAsString();
         IFillColorAlgorithm algorithm = switch (algorithmString) {
             case "desaturate" -> IFillColorAlgorithm.DESATURATE;
             case "grayscale" -> IFillColorAlgorithm.GRAYSCALE;

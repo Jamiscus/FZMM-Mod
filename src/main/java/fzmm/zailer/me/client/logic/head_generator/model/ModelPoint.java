@@ -1,9 +1,11 @@
 package fzmm.zailer.me.client.logic.head_generator.model;
 
 import com.google.gson.JsonObject;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.utils.SkinPart;
 
 public class ModelPoint {
+    public static ModelPoint ZERO = new ModelPoint(SkinPart.HEAD, false, 0, 0);
     protected SkinPart offset;
     protected final boolean hatLayer;
     protected byte x;
@@ -16,12 +18,12 @@ public class ModelPoint {
         this.y = (byte) y;
     }
 
-    public static ModelPoint parse(JsonObject areaObject) {
-        String offsetString = areaObject.get("offset").getAsString();
+    public static ModelPoint parse(JsonObject jsonObject) {
+        String offsetString = HeadResourcesLoader.get(jsonObject, "offset").getAsString();
         SkinPart offset = SkinPart.fromString(offsetString);
-        boolean hat_layer = areaObject.get("hat_layer").getAsBoolean();
-        int x = areaObject.get("x").getAsInt();
-        int y = areaObject.get("y").getAsInt();
+        boolean hat_layer = HeadResourcesLoader.get(jsonObject, "hat_layer").getAsBoolean();
+        int x = HeadResourcesLoader.get(jsonObject, "x").getAsInt();
+        int y = HeadResourcesLoader.get(jsonObject, "y").getAsInt();
         return new ModelPoint(offset, hat_layer, x, y);
     }
 

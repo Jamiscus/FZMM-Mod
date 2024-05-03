@@ -9,7 +9,7 @@ lang = {
   "tt_ru": {"tt_ru"}
 }
 
-src_dir = "src/main/resources/assets/fzmm/lang/"
+src_dir = "../src/main/resources/assets/fzmm/lang/"
 
 # Iterate through and clone all language variants
 for lang_code, variants in lang.items():
