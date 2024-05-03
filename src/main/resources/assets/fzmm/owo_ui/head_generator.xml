@@ -352,7 +352,7 @@
                 </surface>
 
                 <padding>
-                    <all>12</all>
+                    <all>6</all>
                 </padding>
 
             </flow-layout>
