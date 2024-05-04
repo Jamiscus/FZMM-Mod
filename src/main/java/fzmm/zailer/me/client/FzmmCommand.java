@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import fzmm.zailer.me.builders.DisplayBuilder;
+import fzmm.zailer.me.client.argument_type.VersionArgumentType;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.InventoryUtils;
 import fzmm.zailer.me.utils.TagsConstant;
@@ -19,27 +20,31 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.ItemStackArgument;
-import net.minecraft.command.argument.ItemStackArgumentType;
-import net.minecraft.command.argument.RegistryEntryArgumentType;
-import net.minecraft.command.argument.TextArgumentType;
+import net.minecraft.command.argument.*;
+import net.minecraft.datafixer.DataFixTypes;
+import net.minecraft.datafixer.Schemas;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.*;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.*;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
+import org.jetbrains.annotations.NotNull;
+import net.minecraft.util.Formatting;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // I want to remove all the commands so that the mod can be used only through gui
 public class FzmmCommand {
@@ -103,6 +108,51 @@ public class FzmmCommand {
                     giveItem(item, amount);
                     return 1;
                 })))
+
+        );
+
+        fzmmCommand.then(ClientCommandManager.literal("old_give")
+                .executes(ctx -> sendHelpMessage("commands.fzmm.old_give.help", BASE_COMMAND + " old_give <item> <nbt> <version_code> or old_give <item> <damage> <nbt> <version_code>"))
+                .then(ClientCommandManager.argument("item", IdentifierArgumentType.identifier()).executes((ctx) -> {
+                            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("commands.fzmm.old_give.nbt_required").formatted(Formatting.RED));
+                            return 1;
+                        }).then(ClientCommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound()).executes((ctx) -> {
+
+                            Identifier item = ctx.getArgument("item", Identifier.class);
+                            NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+
+                            oldGiveItem(item, nbt, VersionArgumentType.VERSIONS.get(0));
+                            return 1;
+                        }).then(ClientCommandManager.argument("item_version", VersionArgumentType.version()).executes(ctx -> {
+                            Identifier item = ctx.getArgument("item", Identifier.class);
+                            NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+                            Pair<String, Integer> version = VersionArgumentType.getVersion(ctx, "item_version");
+
+                            oldGiveItem(item, nbt, version);
+                            return 1;
+                        }))).then(ClientCommandManager.argument("damage", IntegerArgumentType.integer()).executes((ctx) -> {
+                            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable("commands.fzmm.old_give.nbt_required").formatted(Formatting.RED));
+
+                            return 1;
+                        }).then(ClientCommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound()).executes((ctx) -> {
+
+                            Identifier item = ctx.getArgument("item", Identifier.class);
+                            int damage = IntegerArgumentType.getInteger(ctx, "damage");
+                            NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+
+                            oldGiveItem(item, damage, nbt, VersionArgumentType.VERSIONS.get(0));
+                            return 1;
+                        }).then(ClientCommandManager.argument("item_version", VersionArgumentType.version()).executes(ctx -> {
+                            Identifier item = ctx.getArgument("item", Identifier.class);
+                            int damage = IntegerArgumentType.getInteger(ctx, "damage");
+                            NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+                            Pair<String, Integer> version = VersionArgumentType.getVersion(ctx, "item_version");
+
+                            oldGiveItem(item, damage, nbt, version);
+                            return 1;
+                        }))))
+
+                )
 
         );
 
@@ -274,6 +324,83 @@ public class FzmmCommand {
         FzmmUtils.giveItem(itemStack);
     }
 
+    private static void oldGiveItem(Identifier item, NbtCompound nbtCompound, Pair<String, Integer> oldVersion) {
+        oldGiveItem(item, 0, nbtCompound, oldVersion);
+    }
+
+    private static void oldGiveItem(Identifier item, int damage, NbtCompound nbtCompound, Pair<String, Integer> oldVersion) {
+        CompletableFuture.runAsync(() -> {
+            AtomicBoolean error = new AtomicBoolean(false);
+            int oldVersionData = oldVersion.getRight();
+            NbtCompound fakeHotbarStorageCompound = getFakeHotbarStorageCompound(item.toString(), damage, nbtCompound, oldVersionData);
+            // use data fixers to update nbt from a fake HotbarStorageEntry
+            fakeHotbarStorageCompound = DataFixTypes.HOTBAR.update(Schemas.getFixer(), fakeHotbarStorageCompound, oldVersionData);
+
+            assert MinecraftClient.getInstance().world != null;
+            Optional<ItemStack> result = Optional.empty();
+            try {
+                NbtCompound stackCompound = fakeHotbarStorageCompound.getList(String.valueOf(0), NbtCompound.COMPOUND_TYPE).getCompound(0);
+                result = Optional.of(ItemStack.fromNbt(stackCompound));
+            } catch (Exception e) {
+                error.set(true);
+                FzmmClient.LOGGER.error("[FzmmCommand] Failed to parse update item with '/fzmm old_give'", e);
+            }
+
+            ChatHud chatHud = MinecraftClient.getInstance().inGameHud.getChatHud();
+            MutableText errorMessage = Text.translatable("commands.fzmm.old_give.error", item.toString(), oldVersion.getLeft()).formatted(Formatting.RED);
+            if (error.get() || result.isEmpty() || result.get().isEmpty()) {
+                chatHud.addMessage(errorMessage);
+            } else {
+                FzmmUtils.giveItem(result.get());
+                chatHud.addMessage(Text.translatable("commands.fzmm.old_give.success", item.toString(), oldVersion.getLeft())
+                                .withColor(FzmmClient.CHAT_BASE_COLOR)
+                        );
+            }
+        });
+    }
+
+    @NotNull
+    private static NbtCompound getFakeHotbarStorageCompound(String item, int damage, NbtCompound nbtCompound, int oldVersion) {
+        NbtCompound fakeHotbarStorageCompound = new NbtCompound();
+
+        try {
+            int version1204 = VersionArgumentType.parse("1.20.4").getRight();
+            String countKey = oldVersion > version1204 ? "count" : "Count";
+            String tagKey = oldVersion > version1204 ? "components" : "tag";
+
+            for (int i = 0; i < 9; i++) {
+                NbtList entry = new NbtList();
+                if (i == 0) {
+                    NbtCompound itemCompound = new NbtCompound();
+                    itemCompound.putByte(countKey, (byte) 1);
+                    itemCompound.putString("id", item);
+                    itemCompound.put(tagKey, nbtCompound);
+                    if (oldVersion <= VersionArgumentType.parse("1.12.2").getRight()) {
+                        itemCompound.putInt("Damage", damage);
+                    }
+
+                    entry.add(itemCompound);
+                }
+
+                for (int j = entry.size(); j != 9; j++) {
+                    NbtCompound emptyCompound = new NbtCompound();
+                    emptyCompound.putByte(countKey, (byte) 1);
+                    emptyCompound.putString("id", "minecraft:air");
+
+                    entry.add(emptyCompound);
+                }
+
+                fakeHotbarStorageCompound.put(String.valueOf(i), entry);
+            }
+        } catch (CommandSyntaxException e) {
+            FzmmClient.LOGGER.error("[FzmmCommand] Failed to get fake hotbar storage compound", e);
+            return new NbtCompound();
+        }
+
+        return fakeHotbarStorageCompound;
+    }
+
+
     private static void addEnchant(Enchantment enchant, short level) {
         //{Enchantments:[{message:"minecraft:aqua_affinity",lvl:1s}]}
 
@@ -323,7 +450,7 @@ public class FzmmCommand {
         if (!stack.hasNbt()) {
             ctx.getSource().sendError(Text.translatable("commands.fzmm.item.withoutNbt"));
             return;
-        };
+        }
 
         assert stack.getNbt() != null;
         Text nbtMessage = NbtHelper.toPrettyPrintedText(stack.getNbt());
