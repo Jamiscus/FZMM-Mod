@@ -364,17 +364,13 @@ public class FzmmCommand {
         NbtCompound fakeHotbarStorageCompound = new NbtCompound();
 
         try {
-            int version1204 = VersionArgumentType.parse("1.20.4").getRight();
-            String countKey = oldVersion > version1204 ? "count" : "Count";
-            String tagKey = oldVersion > version1204 ? "components" : "tag";
-
             for (int i = 0; i < 9; i++) {
                 NbtList entry = new NbtList();
                 if (i == 0) {
                     NbtCompound itemCompound = new NbtCompound();
-                    itemCompound.putByte(countKey, (byte) 1);
+                    itemCompound.putByte("Count", (byte) 1);
                     itemCompound.putString("id", item);
-                    itemCompound.put(tagKey, nbtCompound);
+                    itemCompound.put("tag", nbtCompound);
                     if (oldVersion <= VersionArgumentType.parse("1.12.2").getRight()) {
                         itemCompound.putInt("Damage", damage);
                     }
@@ -384,7 +380,7 @@ public class FzmmCommand {
 
                 for (int j = entry.size(); j != 9; j++) {
                     NbtCompound emptyCompound = new NbtCompound();
-                    emptyCompound.putByte(countKey, (byte) 1);
+                    emptyCompound.putByte("Count", (byte) 1);
                     emptyCompound.putString("id", "minecraft:air");
 
                     entry.add(emptyCompound);
