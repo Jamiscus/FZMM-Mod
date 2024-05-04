@@ -1,39 +1,36 @@
 package fzmm.zailer.me.builders;
 
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ChargedProjectilesComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CrossbowBuilder {
 
-    private final NbtCompound nbt;
-    private final NbtList chargedProjectiles;
+    private final ItemStack stack;
+    private final List<ItemStack> chargedProjectiles;
 
     private CrossbowBuilder() {
-        this.nbt = new NbtCompound();
-        this.chargedProjectiles = new NbtList();
+        this.stack = Items.CROSSBOW.getDefaultStack();
+        this.chargedProjectiles = new ArrayList<>();
     }
 
     public static CrossbowBuilder builder() {
         return new CrossbowBuilder();
     }
 
-    public CrossbowBuilder setCharged(boolean charged) {
-        this.nbt.putBoolean("Charged", charged);
-        return this;
-    }
-
     public CrossbowBuilder putProjectile(ItemStack projectile) {
-        this.chargedProjectiles.add(projectile.writeNbt(new NbtCompound()));
+        this.chargedProjectiles.add(projectile);
         return this;
     }
 
     public ItemStack get() {
-        ItemStack crossbow = new ItemStack(Items.CROSSBOW);
-        this.nbt.put("ChargedProjectiles", this.chargedProjectiles);
-        crossbow.setNbt(nbt);
-        return crossbow;
+        this.stack.apply(DataComponentTypes.CHARGED_PROJECTILES, null,
+                component -> ChargedProjectilesComponent.of(new ArrayList<>(this.chargedProjectiles)));
+        return stack.copy();
     }
 
 }

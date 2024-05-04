@@ -1,19 +1,17 @@
 package fzmm.zailer.me.builders;
 
-import fzmm.zailer.me.utils.TagsConstant;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ContainerBuilder {
     private final List<ItemStack> itemList;
@@ -41,44 +39,30 @@ public class ContainerBuilder {
     }
 
     public List<ItemStack> getAsList() {
-        List<NbtList> itemsTagList = this.getItemsTagList();
+        List<List<ItemStack>> itemsTagList = this.getItemsTagList();
         List<ItemStack> containerList = new ArrayList<>();
 
         for (var itemTag : itemsTagList) {
-            NbtCompound blockEntityTag = new NbtCompound();
-            blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, itemTag);
-
             ItemStack stack = this.containerItem.getDefaultStack();
-            stack.setSubNbt(TagsConstant.BLOCK_ENTITY, blockEntityTag);
+            stack.apply(DataComponentTypes.CONTAINER, null, component -> ContainerComponent.fromStacks(itemTag));
             containerList.add(stack);
         }
 
         return containerList;
     }
 
-    public List<NbtList> getItemsTagList() {
-        List<NbtList> itemsTagList = new ArrayList<>();
+    public List<List<ItemStack>> getItemsTagList() {
+        List<List<ItemStack>> itemsTagList = new ArrayList<>();
         int containersAmount = (int) Math.ceil((float) this.itemList.size() / this.maxItemByContainer);
 
         for (int i = 0; i != containersAmount; i++) {
             int sublistEnd = Math.min((i + 1) * this.maxItemByContainer, this.itemList.size());
             List<ItemStack> stackSublist = this.itemList.subList(i * this.maxItemByContainer, sublistEnd);
-            itemsTagList.add(this.getItemsTag(stackSublist));
+            itemsTagList.add(stackSublist);
         }
 
         return itemsTagList;
     }
-
-    public NbtList getItemsTag(List<ItemStack> stackList) {
-        NbtList itemsTag = new NbtList();
-        for (int i = 0; i != stackList.size(); i++) {
-            NbtCompound tag = stackList.get(i).writeNbt(new NbtCompound());
-            tag.putByte(TagsConstant.INVENTORY_SLOT, (byte) i);
-            itemsTag.add(tag);
-        }
-        return itemsTag;
-    }
-
     public ContainerBuilder add(ItemStack stack) {
         return this.addAll(List.of(stack));
     }
@@ -91,8 +75,12 @@ public class ContainerBuilder {
     public ContainerBuilder addLoreToItems(Item itemToApply, String lore, int color) {
         for (ItemStack stack : this.itemList) {
             if (stack.getItem() == itemToApply) {
-                NbtCompound tag = DisplayBuilder.of(stack).addLore(lore, color).getNbt();
-                stack.setNbt(tag);
+                stack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, component -> {
+                    List<Text> lines = new ArrayList<>(component.lines());
+                    lines.add(Text.literal(lore).setStyle(Style.EMPTY.withColor(color)));
+
+                    return new LoreComponent(List.copyOf(lines));
+                });
             }
         }
         return this;
@@ -100,22 +88,7 @@ public class ContainerBuilder {
 
     public ContainerBuilder setNameStyleToItems(Style style) {
         for (ItemStack stack : this.itemList) {
-            Optional<String> optionalName = DisplayBuilder.of(stack).getName();
-            if (optionalName.isEmpty())
-                continue;
-            String name = optionalName.get();
-            MutableText nameText;
-            try {
-                nameText = Text.Serialization.fromJson(name);
-                if (nameText == null)
-                    nameText = Text.literal(name);
-
-                nameText = nameText.copy();
-
-                nameText.setStyle(style);
-                stack.setCustomName(nameText);
-            } catch (Exception ignored) {
-            }
+            stack.apply(DataComponentTypes.CUSTOM_NAME, Text.empty(), component -> component.copy().setStyle(style));
         }
         return this;
     }

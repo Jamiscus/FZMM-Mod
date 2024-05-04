@@ -1,8 +1,7 @@
 package fzmm.zailer.me.client.entity.custom_skin;
 
 import fzmm.zailer.me.client.FzmmClient;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityDimensions;
+import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
@@ -15,13 +14,11 @@ public class CustomHeadEntity extends MobEntity implements ISkinMutable {
     public static final EntityType<CustomHeadEntity> CUSTOM_HEAD_ENTITY_TYPE = Registry.register(
             Registries.ENTITY_TYPE,
             FzmmClient.CUSTOM_HEAD_ENTITY,
-            FabricEntityTypeBuilder.<CustomHeadEntity>create(SpawnGroup.MISC)
+            EntityType.Builder.<CustomHeadEntity>create((type, world) -> new CustomHeadEntity(world), SpawnGroup.MISC)
                     .disableSaving()
                     .disableSummon()
-                    .dimensions(EntityDimensions.fixed(0.8f, 0.8f))
-                    .trackRangeBlocks(32)
-                    .trackedUpdateRate(2)
-                    .entityFactory((type, world) -> new CustomHeadEntity(world))
+                    .dimensions(0.8f, 0.8f)
+                    .maxTrackingRange(32)
                     .build()
     );
 
@@ -29,6 +26,7 @@ public class CustomHeadEntity extends MobEntity implements ISkinMutable {
 
     public CustomHeadEntity(World world) {
         super(CUSTOM_HEAD_ENTITY_TYPE, world);
+        this.setSkin(DefaultSkinHelper.getTexture(), false);
     }
 
     @Override

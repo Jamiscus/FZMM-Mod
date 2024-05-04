@@ -26,8 +26,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -56,8 +54,6 @@ public class ImagetextSignTab implements IImagetextTab {
 
     @Override
     public void execute(ImagetextLogic logic) {
-        assert MinecraftClient.getInstance().player != null;
-
         int color = FzmmClient.CONFIG.colors.imagetextMessages().rgb();
 
         List<ItemStack> signContainers = ContainerBuilder.builder()
@@ -102,7 +98,7 @@ public class ImagetextSignTab implements IImagetextTab {
 
     public List<ItemStack> getSignItems(ImagetextLogic logic) {
         List<SignBuilder> signBuilders = new ArrayList<>();
-        NbtList imagetext = logic.get();
+        List<Text> imagetext = logic.get();
         int width = logic.getWidth();
         int height = logic.getHeight();
 
@@ -125,7 +121,7 @@ public class ImagetextSignTab implements IImagetextTab {
                 for (int i = 0; i != SignBuilder.MAX_ROWS; i++) {
                     int imagetextIndex = (y * SignBuilder.MAX_ROWS + i) * horizontalSigns + x;
                     if (imagetext.size() > imagetextIndex)
-                        signBuilder.addFrontLine((NbtString) imagetext.get(imagetextIndex), maxTextWidth);
+                        signBuilder.addFrontLine(imagetext.get(imagetextIndex), maxTextWidth);
                 }
             }
         }

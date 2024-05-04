@@ -3,6 +3,7 @@ package fzmm.zailer.me.client.gui.head_gallery;
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntity;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.GiveItemComponent;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
@@ -11,7 +12,6 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.client.logic.head_gallery.HeadGalleryResources;
 import fzmm.zailer.me.client.logic.head_gallery.MinecraftHeadsData;
-import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntity;
 import fzmm.zailer.me.config.FzmmConfig;
 import fzmm.zailer.me.utils.HeadUtils;
 import io.wispforest.owo.ui.component.*;
@@ -164,7 +164,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
         }
         this.tagButton.active = false;
 
-        HeadGalleryResources.getCategory(category).thenAccept(categoryData -> this.client.execute(() -> {
+        HeadGalleryResources.getCategory(category).thenAccept(categoryData ->
             this.client.execute(() -> {
                 this.selectedCategory = category;
                 this.categoryHeads.clear();
@@ -185,8 +185,8 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
                 } else {
                     callback.run();
                 }
-            });
-        })).whenComplete((unused, throwable) -> this.client.execute(() -> {
+            })
+        ).whenComplete((unused, throwable) -> this.client.execute(() -> {
             if (throwable == null) {
                 this.errorLabel.text(Text.empty());
                 return;

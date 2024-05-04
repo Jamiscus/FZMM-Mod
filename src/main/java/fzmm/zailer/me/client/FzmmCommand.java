@@ -9,7 +9,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.utils.FzmmUtils;
-import fzmm.zailer.me.utils.InventoryUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
 import fzmm.zailer.me.utils.skin.GetSkinFromCache;
@@ -17,28 +16,34 @@ import fzmm.zailer.me.utils.skin.GetSkinFromMineskin;
 import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.ItemStackArgument;
 import net.minecraft.command.argument.ItemStackArgumentType;
-import net.minecraft.command.argument.RegistryEntryArgumentType;
+import net.minecraft.command.argument.RegistryEntryReferenceArgumentType;
 import net.minecraft.command.argument.TextArgumentType;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
+import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.ContainerLock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 // I want to remove all the commands so that the mod can be used only through gui
@@ -52,7 +57,7 @@ public class FzmmCommand {
 
         fzmmCommand.then(ClientCommandManager.literal("name")
                 .executes(ctx -> sendHelpMessage("commands.fzmm.name.help", BASE_COMMAND + " name <item name>"))
-                .then(ClientCommandManager.argument("name", TextArgumentType.text()).executes(ctx -> {
+                .then(ClientCommandManager.argument("name", TextArgumentType.text(registryAccess)).executes(ctx -> {
 
                     Text name = ctx.getArgument("name", Text.class);
 
@@ -65,7 +70,7 @@ public class FzmmCommand {
                 .executes(ctx -> sendHelpMessage("commands.fzmm.lore.help", BASE_COMMAND + " lore add/remove"))
                 .then(ClientCommandManager.literal("add")
                         .executes(ctx -> sendHelpMessage("commands.fzmm.lore.add.help", BASE_COMMAND + " lore add <message>"))
-                        .then(ClientCommandManager.argument("id", TextArgumentType.text()).executes(ctx -> {
+                        .then(ClientCommandManager.argument("id", TextArgumentType.text(registryAccess)).executes(ctx -> {
 
                             Text message = ctx.getArgument("id", Text.class);
 
@@ -108,7 +113,7 @@ public class FzmmCommand {
 
         fzmmCommand.then(ClientCommandManager.literal("enchant")
                 .executes(ctx -> sendHelpMessage("commands.fzmm.enchant.help", BASE_COMMAND + " enchant <enchantment> <level>"))
-                .then(ClientCommandManager.argument("enchantment", RegistryEntryArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT)).executes(ctx -> {
+                .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT)).executes(ctx -> {
                     @SuppressWarnings("unchecked")
                     Enchantment enchant = ((RegistryEntry.Reference<Enchantment>) ctx.getArgument("enchantment", RegistryEntry.Reference.class)).value();
 
@@ -128,7 +133,7 @@ public class FzmmCommand {
 
         fzmmCommand.then(ClientCommandManager.literal("fakeenchant")
                 .executes(ctx -> sendHelpMessage("commands.fzmm.fakeenchant.help", BASE_COMMAND + " fakeenchant <enchantment> <level>"))
-                .then(ClientCommandManager.argument("enchantment", RegistryEntryArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT)).executes(ctx -> {
+                .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT)).executes(ctx -> {
 
                     @SuppressWarnings("unchecked")
                     Enchantment enchant = ((RegistryEntry.Reference<Enchantment>) ctx.getArgument("enchantment", RegistryEntry.Reference.class)).value();
@@ -175,27 +180,27 @@ public class FzmmCommand {
                             return 1;
 
                         }).then(ClientCommandManager.literal("cache")
-                            .executes(ctx -> {
+                                .executes(ctx -> {
 
-                                String skullOwner = ctx.getArgument("skull owner", String.class);
-                                getHead(new GetSkinFromCache(), skullOwner);
+                                    String skullOwner = ctx.getArgument("skull owner", String.class);
+                                    getHead(new GetSkinFromCache(), skullOwner);
 
-                                return 1;
-                            })).then(ClientCommandManager.literal("mineskin")
-                            .executes(ctx -> {
+                                    return 1;
+                                })).then(ClientCommandManager.literal("mineskin")
+                                .executes(ctx -> {
 
-                                String skullOwner = ctx.getArgument("skull owner", String.class);
-                                getHead(new GetSkinFromMineskin().setCacheSkin(skullOwner), skullOwner);
+                                    String skullOwner = ctx.getArgument("skull owner", String.class);
+                                    getHead(new GetSkinFromMineskin().setCacheSkin(skullOwner), skullOwner);
 
-                                return 1;
-                            })).then(ClientCommandManager.literal("mojang")
-                            .executes(ctx -> {
+                                    return 1;
+                                })).then(ClientCommandManager.literal("mojang")
+                                .executes(ctx -> {
 
-                                String skullOwner = ctx.getArgument("skull owner", String.class);
-                                getHead(new GetSkinFromMojang(), skullOwner);
+                                    String skullOwner = ctx.getArgument("skull owner", String.class);
+                                    getHead(new GetSkinFromMojang(), skullOwner);
 
-                                return 1;
-                            }))
+                                    return 1;
+                                }))
                 )
         );
 
@@ -279,38 +284,39 @@ public class FzmmCommand {
 
         assert MinecraftClient.getInstance().player != null;
         ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
-        NbtCompound tag = stack.getOrCreateNbt();
-        NbtList enchantments = new NbtList();
 
-        if (tag.contains(ItemStack.ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
-            enchantments = tag.getList(ItemStack.ENCHANTMENTS_KEY, NbtElement.COMPOUND_TYPE);
-        }
-        enchantments.add(EnchantmentHelper.createNbt(EnchantmentHelper.getEnchantmentId(enchant), level));
+        stack.apply(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT, component -> {
+            ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(component);
+            builder.add(enchant, level);
+            return builder.build();
+        });
 
-        tag.put(ItemStack.ENCHANTMENTS_KEY, enchantments);
-        stack.setNbt(tag);
         FzmmUtils.giveItem(stack);
     }
 
     private static void addFakeEnchant(Enchantment enchant, int level) {
         assert MinecraftClient.getInstance().player != null;
         ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
-        MutableText enchantMessage = (MutableText) enchant.getName(level);
 
-        Style style = enchantMessage.getStyle().withItalic(false);
-        enchantMessage.getSiblings().forEach(text -> {
-            if (!text.getString().isBlank())
-                ((MutableText) text).setStyle(style);
+        stack.apply(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, null, component -> true);
+
+        stack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, component -> {
+            List<Text> lines = new ArrayList<>();
+
+            MutableText enchantMessage = enchant.getName(level).copy();
+            enchantMessage = enchant.getName(level).copy().setStyle(enchantMessage.getStyle().withItalic(false));
+            Style style = enchantMessage.getStyle();
+
+            enchantMessage.getSiblings().forEach(text -> {
+                if (!text.getString().isBlank())
+                    ((MutableText) text).setStyle(style);
+            });
+
+            lines.add(enchantMessage);
+            lines.addAll(component.lines());
+
+            return new LoreComponent(List.copyOf(lines));
         });
-
-        stack = DisplayBuilder.of(stack).addLore(enchantMessage).get();
-
-        NbtCompound tag = stack.getOrCreateNbt();
-        if (!tag.contains(ItemStack.ENCHANTMENTS_KEY, NbtElement.LIST_TYPE)) {
-            NbtList enchantments = new NbtList();
-            enchantments.add(new NbtCompound());
-            tag.put(ItemStack.ENCHANTMENTS_KEY, enchantments);
-        }
 
         FzmmUtils.giveItem(stack);
     }
@@ -319,14 +325,17 @@ public class FzmmCommand {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
         ItemStack stack = client.player.getInventory().getMainHandStack();
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
 
-        if (!stack.hasNbt()) {
+        ComponentChanges components = stack.getComponentChanges();
+        if (components.isEmpty() || !(stack.encode(registryManager) instanceof NbtCompound nbt) ||
+                !nbt.contains(TagsConstant.ENCODE_STACK_COMPONENTS)) {
+
             ctx.getSource().sendError(Text.translatable("commands.fzmm.item.withoutNbt"));
             return;
-        };
+        }
 
-        assert stack.getNbt() != null;
-        Text nbtMessage = NbtHelper.toPrettyPrintedText(stack.getNbt());
+        Text nbtMessage = toPrettyPrintedComponent(nbt.getCompound(TagsConstant.ENCODE_STACK_COMPONENTS));
         String nbtString = nbtMessage.getString();
         Text clickToCopyMessage = Text.translatable("commands.fzmm.nbt.click");
 
@@ -344,6 +353,31 @@ public class FzmmCommand {
                 .setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR));
 
         client.inGameHud.getChatHud().addMessage(message.append("\n").append(lengthMessage));
+    }
+
+    public static Text toPrettyPrintedComponent(NbtCompound nbt) {
+        MutableText result = Text.literal("[");
+        List<Text> componentsText = new ArrayList<>();
+
+        for (var key : nbt.getKeys()) {
+            MutableText text = Text.empty();
+
+            text.append(Text.literal(key).setStyle(Style.EMPTY.withFormatting(Formatting.DARK_AQUA)));
+            text.append(Text.literal("="));
+            text.append(NbtHelper.toPrettyPrintedText(nbt.get(key)));
+
+            componentsText.add(text);
+        }
+
+        for (int i = 0; i != componentsText.size(); i++) {
+            result.append(componentsText.get(i));
+
+            if (i != componentsText.size() - 1) {
+                result.append(", ");
+            }
+        }
+
+        return result.append("]");
     }
 
     private static void amount(int amount) {
@@ -371,103 +405,76 @@ public class FzmmCommand {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        //{BlockEntityTag:{Items:[{Slot:0b,id:"minecraft:stone",Count:1b}]}}
-
-        ItemStack containerItemStack = client.player.getInventory().getMainHandStack();
+        ItemStack containerStack = client.player.getMainHandStack();
         ItemStack itemStack = client.player.getOffHandStack();
 
-        NbtCompound tag = new NbtCompound();
-        NbtCompound blockEntityTag = new NbtCompound();
-        NbtList items = fillSlots(new NbtList(), itemStack, slotsToFill, firstSlots);
-
-        blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
-        blockEntityTag.putString("id", containerItemStack.getItem().toString());
-
-        if (!(containerItemStack.getNbt() == null)) {
-            tag = containerItemStack.getNbt();
-
-            if (!(containerItemStack.getNbt().getCompound(TagsConstant.BLOCK_ENTITY) == null)) {
-                items = fillSlots(tag.getCompound(TagsConstant.BLOCK_ENTITY).getList(ShulkerBoxBlockEntity.ITEMS_KEY, 10), itemStack, slotsToFill, firstSlots);
-                blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
+        containerStack.apply(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT, component -> {
+            List<ItemStack> stacksCopy = new ArrayList<>(component.stream().toList());
+            int finalSlot = firstSlots + slotsToFill;
+            if (slotsToFill > stacksCopy.size()) {
+                for (int i = stacksCopy.size(); i < finalSlot; i++) {
+                    stacksCopy.add(ItemStack.EMPTY);
+                }
             }
-        }
 
-        tag.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
-        containerItemStack.setNbt(tag);
-        FzmmUtils.giveItem(containerItemStack);
-    }
+            for (int i = firstSlots; i != finalSlot; i++) {
+                stacksCopy.set(i, itemStack);
+            }
 
-    private static NbtList fillSlots(NbtList slotsList, ItemStack stack, int slotsToFill, int firstSlot) {
-        for (int i = 0; i != slotsToFill; i++) {
-            InventoryUtils.addSlot(slotsList, stack, i + firstSlot);
-        }
-        return slotsList;
+            return ContainerComponent.fromStacks(stacksCopy);
+        });
+
+        FzmmUtils.giveItem(containerStack);
     }
 
     private static void lockContainer(String key) {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        //{BlockEntityTag:{Lock:"abc"}}
+        ItemStack containerStack = client.player.getMainHandStack();
+        ItemStack lockStack = client.player.getOffHandStack();
 
-        ItemStack containerItemStack = client.player.getInventory().getMainHandStack();
-        ItemStack itemStack = client.player.getOffHandStack();
+        containerStack.apply(DataComponentTypes.LOCK, ContainerLock.EMPTY, component -> new ContainerLock(key));
 
-        NbtCompound tag = new NbtCompound();
-        NbtCompound blockEntityTag = new NbtCompound();
+        lockStack.apply(DataComponentTypes.CUSTOM_NAME, Text.empty(), component -> Text.literal(key));
 
-        if (containerItemStack.hasNbt() || tag.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE)) {
-            tag = containerItemStack.getNbt();
-            assert tag != null;
-
-            if (tag.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE)) {
-                tag.getCompound(TagsConstant.BLOCK_ENTITY).putString("Lock", key);
-            }
-
-        } else {
-            blockEntityTag.putString("Lock", key);
-            tag.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
-        }
-
-        containerItemStack.setNbt(tag);
-        itemStack.setCustomName(Text.literal(key));
-
-        FzmmUtils.giveItem(containerItemStack);
+        FzmmUtils.giveItem(containerStack);
         assert client.interactionManager != null;
-        client.interactionManager.clickCreativeStack(itemStack, PlayerInventory.OFF_HAND_SLOT + PlayerInventory.getHotbarSize());
+        client.interactionManager.clickCreativeStack(lockStack, PlayerInventory.OFF_HAND_SLOT + PlayerInventory.getHotbarSize());
     }
 
     private static void removeLore() {
         assert MinecraftClient.getInstance().player != null;
         ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
 
-        NbtCompound display = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
-        if (display.contains(ItemStack.LORE_KEY, NbtElement.LIST_TYPE)) {
-            removeLore(display.getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE).size() - 1);
+        LoreComponent loreComponent = stack.getComponents().get(DataComponentTypes.LORE);
+        if (loreComponent != null) {
+            removeLore(loreComponent.lines().size() - 1);
         }
     }
 
     private static void removeLore(int lineToRemove) {
         assert MinecraftClient.getInstance().player != null;
 
-        //{display:{Lore:['{"text":"1"}','{"text":"2"}','[{"text":"3"},{"text":"4"}]']}}
+        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
 
-        ItemStack itemStack = MinecraftClient.getInstance().player.getMainHandStack();
-
-        NbtCompound display = itemStack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
-
-        if (!display.contains(ItemStack.LORE_KEY, NbtElement.LIST_TYPE))
+        if (!stack.getComponents().contains(DataComponentTypes.LORE)) {
             return;
+        }
 
-        NbtList lore = display.getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE);
-        if (lore.size() < lineToRemove)
-            return;
+        stack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, component -> {
+            List<Text> lines = new ArrayList<>(component.lines());
 
-        lore.remove(lineToRemove);
-        display.put(ItemStack.LORE_KEY, lore);
+            if (lines.size() < lineToRemove) {
+                return component;
+            }
 
-        itemStack.setSubNbt(ItemStack.DISPLAY_KEY, display);
-        FzmmUtils.giveItem(itemStack);
+            lines.remove(lineToRemove);
+
+            return new LoreComponent(List.copyOf(lines));
+        });
+
+        FzmmUtils.giveItem(stack);
     }
 
     private static void swapItemWithHand(EquipmentSlot slot) {

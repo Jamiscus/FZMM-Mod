@@ -1,7 +1,6 @@
 package fzmm.zailer.me.client.gui.main.components;
 
 import fzmm.zailer.me.client.gui.main.MainIcon;
-import io.wispforest.owo.mixin.ui.access.ClickableWidgetAccessor;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
@@ -43,7 +42,7 @@ public class MainButtonComponent extends ButtonComponent {
         if (this.icon != null)
             this.icon.render(context, centerX - this.icon.getWidth() / 2, this.getY() + 22, mouseX, mouseY, delta);
 
-        var tooltip = ((ClickableWidgetAccessor)this).owo$getTooltip();
+        var tooltip = this.getTooltip();
         if (this.hovered && tooltip != null)
             context.drawTooltip(textRenderer, tooltip.getLines(MinecraftClient.getInstance()), HoveredTooltipPositioner.INSTANCE, mouseX, mouseY);
     }

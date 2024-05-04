@@ -4,11 +4,10 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.Pair;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -16,13 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ImagetextLogic {
-    private NbtList imagetext;
+    private List<Text> imagetext;
     private int width;
     private int height;
     private int lineWidth;
 
     public ImagetextLogic() {
-        this.imagetext = new NbtList();
+        this.imagetext = new ArrayList<>();
         this.width = 0;
         this.height = 0;
         this.lineWidth = 0;
@@ -36,16 +35,14 @@ public class ImagetextLogic {
         this.width = data.width();
         this.height = data.height();
 
-        NbtList linesList = new NbtList();
         List<MutableText> rawLinesList = algorithm.get(this, data, lineSplitInterval);
-        linesList.addAll(rawLinesList.stream()
-                .map(mutableText -> FzmmUtils.toNbtString(mutableText, false))
-                .toList()
-        );
+        List<Text> linesList = rawLinesList.stream()
+                .map(mutableText -> FzmmUtils.disableItalicConfig(mutableText, false))
+                .toList();
 
-        Text firstLine = linesList.isEmpty() ? Text.empty() : Text.Serialization.fromJson(linesList.get(0).asString());
+        Text firstLine = linesList.isEmpty() ? Text.empty() : linesList.get(0);
         this.lineWidth = MinecraftClient.getInstance().textRenderer.getWidth(firstLine);
-        this.imagetext = linesList;
+        this.imagetext = new ArrayList<>(linesList);
     }
 
     public BufferedImage resizeImage(BufferedImage image, int width, int height, boolean smoothRescaling) {
@@ -64,13 +61,13 @@ public class ImagetextLogic {
      * @param height               Height of which you want to preserve the aspect ratio.
      * @param referenceSide        The side that is used as a reference for the new resolution.
      * @param referenceSideIsWidth If the variable referenceSide is width (true) otherwise it is height (false).
-     * @return Vec2f.x = width, Vec2f.y = height
+     * @return Pair left = width, Pair right = height
      * <p>
      */
-    public static Vec2f changeResolutionKeepingAspectRatio(int width, int height, int referenceSide, boolean referenceSideIsWidth) {
+    public static Pair<Integer, Integer> changeResolutionKeepingAspectRatio(int width, int height, int referenceSide, boolean referenceSideIsWidth) {
         int modifiedSide = (int) ((double) referenceSide / (referenceSideIsWidth ? width : height) * (referenceSideIsWidth ? height : width));
 
-        return referenceSideIsWidth ? new Vec2f(referenceSide, modifiedSide) : new Vec2f(modifiedSide, referenceSide);
+        return referenceSideIsWidth ? new Pair<>(referenceSide, modifiedSide) : new Pair<>(modifiedSide, referenceSide);
     }
 
     public void addResolution() {
@@ -78,7 +75,7 @@ public class ImagetextLogic {
         int color = FzmmClient.CONFIG.colors.imagetextMessages().rgb();
         Text text = Text.translatable(message)
                 .setStyle(Style.EMPTY.withColor(color));
-        this.imagetext.add(FzmmUtils.toNbtString(text, true));
+        this.imagetext.add(FzmmUtils.disableItalicConfig(text, true));
     }
 
     public int getWidth() {
@@ -89,32 +86,21 @@ public class ImagetextLogic {
         return this.height;
     }
 
-    public NbtList get() {
+    public List<Text> get() {
         return this.imagetext;
     }
 
     public Text getText() {
         MutableText text = Text.empty();
 
-        List<Text> textList = this.getTextList();
-        int size = textList.size();
+        int size = this.imagetext.size();
         for (int i = 0; i != size; i++) {
-            text.append(textList.get(i));
+            text.append(this.imagetext.get(i));
             if (i != size - 1)
                 text.append("\n");
         }
 
         return text;
-    }
-
-    public List<Text> getTextList() {
-        List<Text> textList = new ArrayList<>();
-
-        for (var line : this.imagetext) {
-            textList.add(Text.Serialization.fromJson(line.asString()));
-        }
-
-        return textList;
     }
 
     public boolean isEmpty() {

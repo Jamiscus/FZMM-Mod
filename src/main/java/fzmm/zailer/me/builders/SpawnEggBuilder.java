@@ -1,24 +1,24 @@
 package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.TagsConstant;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
-import org.jetbrains.annotations.Nullable;
 
 public class SpawnEggBuilder {
 
     private ItemStack stack;
-    @Nullable
     private EntityType<?> entityType;
     private NbtCompound entityTag;
 
     private SpawnEggBuilder() {
         this.stack = Items.BAT_SPAWN_EGG.getDefaultStack();
-        this.entityType = null;
+        this.entityType = EntityType.BAT;
         this.entityTag = new NbtCompound();
     }
 
@@ -43,10 +43,8 @@ public class SpawnEggBuilder {
     }
 
     public ItemStack get() {
-        if (this.entityType != null)
-            this.entityTag.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getId(this.entityType).getPath());
-
-        this.stack.setSubNbt(EntityType.ENTITY_TAG_KEY, this.entityTag);
+        this.entityTag.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getId(this.entityType).getPath());
+        this.stack.apply(DataComponentTypes.ENTITY_DATA, null, component -> NbtComponent.of(this.entityTag));
 
         return this.stack;
     }

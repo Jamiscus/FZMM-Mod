@@ -6,14 +6,19 @@ import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
-import io.wispforest.owo.ui.component.*;
+import fzmm.zailer.me.utils.FzmmUtils;
+import io.wispforest.owo.ui.component.ButtonComponent;
+import io.wispforest.owo.ui.component.Components;
+import io.wispforest.owo.ui.component.ItemComponent;
+import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
@@ -118,7 +123,7 @@ public class SelectItemScreen extends BaseFzmmScreen {
             this.addItemCallback(FzmmHistory.getAllItems(), true);
         });
 
-        ItemGroups.updateDisplayContext(this.client.player.networkHandler.getEnabledFeatures(), true, this.client.player.getWorld().getRegistryManager());
+        ItemGroups.updateDisplayContext(this.client.player.networkHandler.getEnabledFeatures(), true, FzmmUtils.getRegistryManager());
         ButtonComponent allButton = rootComponent.childById(ButtonComponent.class, ALL_BUTTON_ID);
         checkNull(allButton, "button", ALL_BUTTON_ID);
         allButton.onPress(buttonComponent -> {
@@ -163,8 +168,9 @@ public class SelectItemScreen extends BaseFzmmScreen {
 
         ItemComponent itemComponent = (ItemComponent) Components.item(stack)
                 .tooltip(stack.getTooltip(
+                        Item.TooltipContext.DEFAULT,
                         this.client.player,
-                        this.client.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.BASIC
+                        this.client.options.advancedItemTooltips ? TooltipType.Default.ADVANCED : TooltipType.Default.BASIC
                 ));
 
         itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
@@ -218,8 +224,9 @@ public class SelectItemScreen extends BaseFzmmScreen {
 
             itemComponent.stack(stack);
             itemComponent.tooltip(stack.getTooltip(
+                    Item.TooltipContext.DEFAULT,
                     this.client.player,
-                    this.client.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.BASIC
+                    this.client.options.advancedItemTooltips ? TooltipType.Default.ADVANCED : TooltipType.Default.BASIC
             ));
         }
         return itemComponent;

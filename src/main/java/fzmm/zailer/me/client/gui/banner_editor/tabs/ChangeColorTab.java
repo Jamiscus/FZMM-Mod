@@ -2,27 +2,24 @@ package fzmm.zailer.me.client.gui.banner_editor.tabs;
 
 import fzmm.zailer.me.builders.BannerBuilder;
 import fzmm.zailer.me.client.gui.banner_editor.BannerEditorScreen;
-import fzmm.zailer.me.utils.TagsConstant;
 import io.wispforest.owo.ui.component.ItemComponent;
 import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.item.Item;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ShieldItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ChangeColorTab extends AbstractModifyPatternsTab {
 
     private static final String PATTERNS_LAYOUT = "change-color-layout";
+
     @Override
     public String getId() {
         return "changeColor";
@@ -39,103 +36,94 @@ public class ChangeColorTab extends AbstractModifyPatternsTab {
     }
 
     @Override
-    protected void onItemComponentCreated(BannerEditorScreen parent, ItemComponent itemComponent, NbtElement pattern, BannerBuilder currentBanner, DyeColor color) {
+    protected void onItemComponentCreated(BannerEditorScreen parent, ItemComponent itemComponent,
+                                          BannerPatternsComponent.Layer componentLayer, BannerBuilder currentBanner,
+                                          DyeColor componentColor) {
         ItemStack itemComponentStack = itemComponent.stack();
         List<TooltipComponent> tooltipComponents = itemComponent.tooltip() == null ? List.of() : itemComponent.tooltip();
 
         itemComponent.tooltip(tooltipComponents);
 
-        NbtList patterns = currentBanner.patterns();
+        List<BannerPatternsComponent.Layer> layers = currentBanner.layers();
         int index = -1;
-        int patternsSize = patterns.size();
+        int patternsSize = layers.size();
 
         for (int i = 0; i != patternsSize; i++) {
-            if (patterns.get(i) == pattern) {
+            if (layers.get(i) == componentLayer) {
                 index = i;
                 break;
             }
         }
 
-        boolean isBannerColor = index == -1;
+        boolean isBaseBanner = index == -1;
 
         itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            this.componentExecute(parent, currentBanner, color, pattern, isBannerColor, patterns);
+            this.componentExecute(parent, currentBanner, componentColor, componentLayer);
             return true;
         });
 
         ItemStack modifiedStack;
-        if (isBannerColor) {
-            NbtCompound modifiedNbt = itemComponentStack.copy().getNbt();
-            Item modifiedItem;
-            if (currentBanner.isShield()) {
-                modifiedItem = itemComponentStack.getItem();
-                if (modifiedNbt != null && modifiedNbt.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE)) {
-                    modifiedNbt.getCompound(TagsConstant.BLOCK_ENTITY).putInt(ShieldItem.BASE_KEY, color.getId());
-                }
-            } else {
-                modifiedItem = BannerBuilder.getBannerByDye(color);
-            }
-            modifiedStack = modifiedItem.getDefaultStack();
-            modifiedStack.setNbt(modifiedNbt);
+        if (isBaseBanner && currentBanner.isShield()) {
+            modifiedStack = itemComponentStack.copy();
+            modifiedStack.apply(DataComponentTypes.BASE_COLOR, null, dyeColor -> componentColor);
+        } else if (isBaseBanner) {
+            modifiedStack = itemComponentStack.copyComponentsToNewStack(BannerBuilder.getBannerByDye(componentColor), itemComponentStack.getCount());
         } else {
             modifiedStack = itemComponentStack.copy();
-            NbtCompound blockEntityTag = modifiedStack.getSubNbt(TagsConstant.BLOCK_ENTITY);
-            if (blockEntityTag == null)
-                return;
-            NbtList modifiedPatterns = blockEntityTag.getList(TagsConstant.BANNER_PATTERN, NbtElement.COMPOUND_TYPE);
-            if (modifiedPatterns == null)
-                return;
-            NbtCompound modifiedPattern = (NbtCompound) modifiedPatterns.get(index);
-            modifiedPattern.putInt(TagsConstant.BANNER_PATTERN_COLOR, color.getId());
+            int finalIndex = index;
+
+            modifiedStack.apply(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT, component -> {
+               List<BannerPatternsComponent.Layer> layersCopy = new ArrayList<>(component.layers());
+
+               if (layersCopy.size() < finalIndex) {
+                   return component;
+               }
+
+               BannerPatternsComponent.Layer layer = layersCopy.get(finalIndex);
+               BannerPatternsComponent.Layer modifiedLayer = new BannerPatternsComponent.Layer(layer.pattern(), componentColor);
+
+               layersCopy.set(finalIndex, modifiedLayer);
+
+                return new BannerPatternsComponent(layersCopy);
+            });
         }
 
         itemComponent.mouseEnter().subscribe(() -> itemComponent.stack(modifiedStack));
         itemComponent.mouseLeave().subscribe(() -> itemComponent.stack(itemComponentStack));
     }
 
-    private void componentExecute(BannerEditorScreen parent, BannerBuilder currentBanner, DyeColor color,
-                                     NbtElement pattern, boolean isBannerColor, NbtList patterns) {
+    private void componentExecute(BannerEditorScreen parent, BannerBuilder currentBanner, DyeColor selectedColor,
+                                  BannerPatternsComponent.Layer componentLayer) {
         UISounds.playButtonSound();
 
         parent.addUndo(currentBanner);
 
-        if (!(pattern instanceof NbtCompound selectedPatternCompound))
-            return;
+        DyeColor componentColor = componentLayer.color();
+        boolean isBaseBannerColor = currentBanner.baseBannerColor() == componentColor;
 
         if (Screen.hasShiftDown()) {
-            int selectedColorId = selectedPatternCompound.getInt(TagsConstant.BANNER_PATTERN_COLOR);
-
-            if (currentBanner.bannerColor().getId() == selectedColorId)
-                currentBanner.bannerColor(color);
-
-            for (var patternElement : patterns) {
-                if (patternElement instanceof NbtCompound bannerPatternCompound &&
-                        bannerPatternCompound.getInt(TagsConstant.BANNER_PATTERN_COLOR) == selectedColorId) {
-
-                    bannerPatternCompound.putInt(TagsConstant.BANNER_PATTERN_COLOR, color.getId());
-                }
+            if (isBaseBannerColor) {
+                currentBanner.baseBannerColor(selectedColor);
             }
-        } else if (isBannerColor) {
-            currentBanner.bannerColor(color);
+
+            currentBanner.replaceColors(componentColor, selectedColor);
+        } else if (isBaseBannerColor) {
+            currentBanner.baseBannerColor(selectedColor);
         } else {
-            selectedPatternCompound.putInt(TagsConstant.BANNER_PATTERN_COLOR, color.getId());
+            currentBanner.replaceColor(componentLayer, selectedColor);
         }
 
         parent.updatePreview(currentBanner);
     }
 
     @Override
-    protected Optional<Text> getTooltip(BannerEditorScreen parent, NbtElement pattern, BannerBuilder currentBanner, DyeColor color) {
-        Optional<Text> defaultTooltip = super.getTooltip(parent, pattern, currentBanner, color);
-        if (defaultTooltip.isPresent()) {
-            MutableText result  = defaultTooltip.get().copy();
+    protected Text getTooltip(BannerPatternsComponent.Layer layer) {
+        Text defaultTooltip = super.getTooltip(layer);
+        MutableText result = defaultTooltip.copy();
 
-            result.append("\n\n")
+        result.append("\n\n")
                 .append(Text.translatable("fzmm.gui.bannerEditor.tab.changeColor.shiftHotkey"));
 
-            return Optional.of(result);
-        }
-
-        return Optional.empty();
+        return result;
     }
 }

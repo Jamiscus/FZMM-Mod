@@ -18,8 +18,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
@@ -114,11 +114,13 @@ public class FzmmUtils {
         return new DecimalFormat("#,##0.0").format(length / 1024f);
     }
 
+
     public static long getLengthInBytes(ItemStack stack) {
         ByteCountDataOutput byteCountDataOutput = ByteCountDataOutput.getInstance();
 
         try {
-            stack.writeNbt(new NbtCompound()).write(byteCountDataOutput);
+            DynamicRegistryManager registryManager = getRegistryManager();
+            NbtIo.write(stack.encode(registryManager), byteCountDataOutput);
         } catch (Exception ignored) {
             return 0;
         }
@@ -128,15 +130,14 @@ public class FzmmUtils {
         return count;
     }
 
-    public static NbtString toNbtString(String string, boolean useDisableItalicConfig) {
-        Text text = Text.of(string);
-        return toNbtString(text, useDisableItalicConfig);
+    public static Text disableItalicConfig(String string, boolean useDisableItalicConfig) {
+        return disableItalicConfig(Text.of(string), useDisableItalicConfig);
     }
 
-    public static NbtString toNbtString(Text text, boolean useDisableItalicConfig) {
+    public static Text disableItalicConfig(Text text, boolean useDisableItalicConfig) {
         if (useDisableItalicConfig)
             disableItalicConfig(text);
-        return NbtString.of(Text.Serialization.toJsonString(text));
+        return text;
     }
 
     public static String getPlayerUuid(String name) throws IOException, JsonIOException {
@@ -262,5 +263,10 @@ public class FzmmUtils {
         }
 
         return sortedArray;
+    }
+
+    public static DynamicRegistryManager getRegistryManager() {
+        assert MinecraftClient.getInstance().player != null;
+        return MinecraftClient.getInstance().player.getRegistryManager();
     }
 }

@@ -3,25 +3,19 @@ package fzmm.zailer.me.client.gui.banner_editor.tabs;
 import fzmm.zailer.me.builders.BannerBuilder;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.banner_editor.BannerEditorScreen;
-import fzmm.zailer.me.utils.TagsConstant;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.ItemComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.CursorStyle;
 import io.wispforest.owo.ui.core.Sizing;
-import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.block.entity.BannerPatterns;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class AbstractModifyPatternsTab implements IBannerEditorTab {
 
@@ -43,42 +37,37 @@ public abstract class AbstractModifyPatternsTab implements IBannerEditorTab {
         List<Component> bannerList = new ArrayList<>();
         BannerBuilder builder = currentBanner.copy().clearPatterns();
 
-        NbtList patterns = currentBanner.patterns();
+        List<BannerPatternsComponent.Layer> layers = currentBanner.layers();
         if (this.shouldAddBaseColor()) {
-            patterns = currentBanner.copy()
+            layers = currentBanner.copy()
                     .clearPatterns()
-                    .addPattern(currentBanner.bannerColor(), BannerPatterns.BASE)
-                    .addPatterns(patterns)
-                    .patterns();
+                    .addLayer(currentBanner.baseBannerColor(), BannerPatterns.BASE)
+                    .addLayers(layers)
+                    .layers();
         }
 
-        for (var pattern : patterns) {
-            builder.addPattern(pattern);
+        for (var layer : layers) {
+            builder.addLayer(layer);
 
             ItemComponent itemComponent = Components.item(builder.copy().get());
             itemComponent.sizing(Sizing.fixed(32), Sizing.fixed(32));
 
-            this.onItemComponentCreated(parent, itemComponent, pattern, currentBanner, color);
+            this.onItemComponentCreated(parent, itemComponent, layer, currentBanner, color);
             itemComponent.cursorStyle(CursorStyle.HAND);
 
-            Optional<Text> tooltip = this.getTooltip(parent, pattern, currentBanner, color);
-            tooltip.ifPresent(itemComponent::tooltip);
+            Text tooltip = this.getTooltip(layer);
+            itemComponent.tooltip(tooltip);
 
             bannerList.add(itemComponent);
         }
         this.patternsLayout.children(bannerList);
     }
 
-    protected abstract void onItemComponentCreated(BannerEditorScreen parent, ItemComponent itemComponent, NbtElement pattern, BannerBuilder currentBanner, DyeColor color);
+    protected abstract void onItemComponentCreated(BannerEditorScreen parent, ItemComponent itemComponent,
+                                                   BannerPatternsComponent.Layer componentLayer,
+                                                   BannerBuilder currentBanner, DyeColor selectedColor);
 
-    protected Optional<Text> getTooltip(BannerEditorScreen parent, NbtElement pattern, BannerBuilder currentBanner, DyeColor color) {
-        if (pattern instanceof NbtCompound patternCompound) {
-            DyeColor patternColor = DyeColor.byId(patternCompound.getInt(TagsConstant.BANNER_PATTERN_COLOR));
-            RegistryEntry<BannerPattern> patternRegistry = BannerPattern.byId(patternCompound.getString(TagsConstant.BANNER_PATTERN_VALUE));
-
-            return Optional.of(BannerBuilder.tooltipOf(patternColor, patternRegistry));
-        }
-
-        return Optional.empty();
+    protected Text getTooltip(BannerPatternsComponent.Layer layer) {
+        return BannerBuilder.tooltipOf(layer);
     }
 }

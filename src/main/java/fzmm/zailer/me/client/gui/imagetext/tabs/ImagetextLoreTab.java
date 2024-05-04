@@ -13,7 +13,9 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.text.Text;
+
+import java.util.List;
 
 public class ImagetextLoreTab implements IImagetextTab {
     private static final String LORE_MODE_ID = "loreMode";
@@ -29,7 +31,7 @@ public class ImagetextLoreTab implements IImagetextTab {
         assert MinecraftClient.getInstance().player != null;
         ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
         LoreOption loreOption = (LoreOption) this.loreModeOption.getValue();
-        NbtList imagetext = logic.get();
+        List<Text> imagetext = logic.get();
 
         if (stack.isEmpty())
             stack = FzmmUtils.getItem(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();

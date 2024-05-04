@@ -9,10 +9,13 @@ import fzmm.zailer.me.client.logic.player_statue.statue_head_skin.*;
 import fzmm.zailer.me.client.toast.LoadingPlayerStatueToast;
 import fzmm.zailer.me.utils.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.joml.Vector3f;
@@ -120,31 +123,42 @@ public class PlayerStatue {
         float y = pos.y() - 0.1f;
         float z = pos.z() + 0.5f;
 
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+
+        Text nameText = Text.of(name);
         if (name != null && !name.isEmpty()) {
             try {
-                Text.Serialization.fromJson(name);
-            } catch (Exception e) {
+                nameText = Text.Serialization.fromJson(name, registryManager);
+                if (nameText == null) {
+                    throw new IllegalArgumentException(String.format("[PlayerStatue] 'name' is not a valid JSON string: %s", name));
+                }
+            } catch (Exception ignored) {
                 if (name.length() > 100)
                     name = name.substring(0, 99);
-                name = Text.Serialization.toJsonString(Text.of(name));
+                nameText = Text.of(name);
             }
         }
 
-        ItemStack nameTagStack = ArmorStandBuilder.builder().setPos(x, y, z).setAsHologram(name).getItem("Name tag");
-        NbtCompound fzmmTag = new NbtCompound();
-        NbtCompound playerStatueTag = new NbtCompound();
+        ItemStack nameTagStack = ArmorStandBuilder.builder().setPos(x, y, z).setAsHologram(nameText).getItem("Name tag");
 
-        playerStatueTag.putByte(StatuePart.PlayerStatueTags.NAME_TAG, (byte) 1);
-        fzmmTag.put(TagsConstant.FZMM_PLAYER_STATUE, playerStatueTag);
-        nameTagStack.setSubNbt(TagsConstant.FZMM, fzmmTag);
+        nameTagStack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(new NbtCompound()), component -> {
+            NbtCompound result = component.copyNbt();
+            NbtCompound fzmmTag = new NbtCompound();
+            NbtCompound playerStatueTag = new NbtCompound();
+
+            playerStatueTag.putByte(StatuePart.PlayerStatueTags.NAME_TAG, (byte) 1);
+            fzmmTag.put(TagsConstant.FZMM_PLAYER_STATUE, playerStatueTag);
+            result.put(TagsConstant.FZMM, fzmmTag);
+
+            return NbtComponent.of(result);
+        });
 
         return nameTagStack;
     }
 
     public static boolean isNameTag(ItemStack stack) {
-        if (!stack.hasNbt())
-            return false;
-        NbtCompound fzmmTag = stack.getOrCreateSubNbt(TagsConstant.FZMM);
+        NbtCompound customData = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(new NbtCompound())).copyNbt();
+        NbtCompound fzmmTag = customData.getCompound(TagsConstant.FZMM);
 
         if (!fzmmTag.contains(TagsConstant.FZMM_PLAYER_STATUE, NbtElement.COMPOUND_TYPE))
             return false;

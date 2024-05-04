@@ -38,7 +38,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
 
         ItemStack stack = this.client.player.getMainHandStack();
 
-        if (this.client.player.isSneaking() || !this.client.player.isCreative() && stack.hasNbt()) {
+        if (this.client.player.isSneaking() || !this.client.player.isCreative() && !stack.getComponents().isEmpty()) {
             return true;
         }
 

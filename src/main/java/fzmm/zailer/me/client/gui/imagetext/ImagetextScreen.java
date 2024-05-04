@@ -3,13 +3,16 @@ package fzmm.zailer.me.client.gui.imagetext;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.BooleanButton;
-import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
-import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
-import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.components.SliderWidget;
 import fzmm.zailer.me.client.gui.components.image.ImageButtonComponent;
 import fzmm.zailer.me.client.gui.components.image.ImageMode;
-import fzmm.zailer.me.client.gui.components.row.*;
+import fzmm.zailer.me.client.gui.components.row.BooleanRow;
+import fzmm.zailer.me.client.gui.components.row.ButtonRow;
+import fzmm.zailer.me.client.gui.components.row.ScreenTabRow;
+import fzmm.zailer.me.client.gui.components.row.SliderRow;
+import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
+import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
+import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.ImagetextAlgorithms;
@@ -23,7 +26,7 @@ import fzmm.zailer.me.config.FzmmConfig;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -128,9 +131,9 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         BufferedImage image = imageOptional.get();
 
         int configValue = (int) config.parsedValue();
-        Vec2f rescaledSize = ImagetextLogic.changeResolutionKeepingAspectRatio(image.getWidth(), image.getHeight(), configValue, isWidth);
+        Pair<Integer, Integer> rescaledSize = ImagetextLogic.changeResolutionKeepingAspectRatio(image.getWidth(), image.getHeight(), configValue, isWidth);
 
-        int newValue = (int) (isWidth ? rescaledSize.y : rescaledSize.x);
+        int newValue = isWidth ? rescaledSize.getRight() : rescaledSize.getLeft();
 
         if (newValue > configToChange.max())
             newValue = (int) configToChange.max();

@@ -4,7 +4,7 @@ import fzmm.zailer.me.builders.BannerBuilder;
 import fzmm.zailer.me.client.gui.banner_editor.BannerEditorScreen;
 import io.wispforest.owo.ui.component.ItemComponent;
 import io.wispforest.owo.ui.util.UISounds;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.util.DyeColor;
 
 public class RemovePatternsTab extends AbstractModifyPatternsTab {
@@ -26,12 +26,14 @@ public class RemovePatternsTab extends AbstractModifyPatternsTab {
     }
 
     @Override
-    protected void onItemComponentCreated(BannerEditorScreen parent, ItemComponent itemComponent, NbtElement pattern, BannerBuilder currentBanner, DyeColor color) {
+    protected void onItemComponentCreated(BannerEditorScreen parent, ItemComponent itemComponent,
+                                          BannerPatternsComponent.Layer componentLayer,
+                                          BannerBuilder currentBanner, DyeColor selectedColor) {
         itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
             UISounds.playButtonSound();
             parent.addUndo(currentBanner);
 
-            currentBanner.removePattern(pattern);
+            currentBanner.removeLayer(componentLayer);
 
             parent.updatePreview(currentBanner);
             return true;

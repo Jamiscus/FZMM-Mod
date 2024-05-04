@@ -1,36 +1,37 @@
 package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.utils.TagsConstant;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.block.AbstractBannerBlock;
 import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.block.entity.BannerPatterns;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.item.*;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class BannerBuilder {
 
-    private final NbtList patterns;
+    private final List<BannerPatternsComponent.Layer> layers;
     private Item item;
     private boolean isShield;
-    private NbtCompound nbt;
 
     private BannerBuilder() {
-        this.patterns = new NbtList();
+        this.layers = new ArrayList<>();
         this.item = Items.WHITE_BANNER;
         this.isShield = false;
-        this.nbt = new NbtCompound();
     }
 
     public static BannerBuilder builder() {
@@ -39,44 +40,45 @@ public class BannerBuilder {
 
     public static BannerBuilder of(ItemStack stack) {
         stack = stack.copy();
-        // don't ask me why air can and has nbt
-        NbtCompound nbt = stack.isEmpty() ? new NbtCompound() : stack.getOrCreateNbt();
-        NbtCompound blockEntityTag = nbt.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE) ? nbt.getCompound(TagsConstant.BLOCK_ENTITY) : new NbtCompound();
-        NbtList patterns = new NbtList();
 
-        if (blockEntityTag.contains(TagsConstant.BANNER_PATTERN, NbtElement.LIST_TYPE))
-            patterns = blockEntityTag.getList(TagsConstant.BANNER_PATTERN, NbtElement.COMPOUND_TYPE);
+        ComponentMap components = stack.getComponents();
+        List<BannerPatternsComponent.Layer> layers = components.getOrDefault(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT).layers();
+        DyeColor baseColor = components.getOrDefault(DataComponentTypes.BASE_COLOR, null);
 
         Item item = stack.getItem();
         boolean isShield = item instanceof ShieldItem;
-        if (isShield)
-            item = getBannerByDye(ShieldItem.getColor(stack));
+
+        if (baseColor != null) {
+            item = getBannerByDye(baseColor);
+        }
 
         return builder()
-                .addPatterns(patterns)
+                .addLayers(layers)
                 .item(item instanceof BannerItem ? item : Items.WHITE_BANNER)
-                .isShield(isShield)
-                .nbt(nbt);
+                .isShield(isShield);
     }
 
     public ItemStack get() {
         ItemStack stack = this.item.getDefaultStack();
-        NbtCompound blockEntityTag = new NbtCompound();
-        NbtList patterns = new NbtList();
 
         if (this.isShield) {
             stack = Items.SHIELD.getDefaultStack();
-            int color = this.bannerColor().getId();
-            blockEntityTag.putInt(ShieldItem.BASE_KEY, color);
+            stack.apply(DataComponentTypes.BASE_COLOR, null, component -> this.baseBannerColor());
         }
 
-        this.formatPatterns();
-        patterns.addAll(this.patterns);
+        stack.apply(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT, component -> {
+            List<BannerPatternsComponent.Layer> layers = new ArrayList<>(this.layers);
+            DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
 
-        blockEntityTag.put(TagsConstant.BANNER_PATTERN, patterns);
-        this.nbt.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
+            registryManager.get(RegistryKeys.BANNER_PATTERN).getEntry(BannerPatterns.BASE).ifPresent(entry -> {
+                if (!layers.isEmpty() && layers.get(0).pattern() == entry) {
+                    layers.remove(0);
+                }
+            });
 
-        stack.setNbt(this.nbt);
+            return new BannerPatternsComponent(layers);
+        });
+
         return stack;
     }
 
@@ -94,75 +96,57 @@ public class BannerBuilder {
         return this.isShield;
     }
 
-    public BannerBuilder nbt(NbtCompound nbt) {
-        this.nbt = nbt;
-        return this;
-    }
+    public BannerBuilder addLayer(DyeColor color, RegistryKey<BannerPattern> patternRegistry) {
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+        Optional<RegistryEntry.Reference<BannerPattern>> pattern = registryManager.get(RegistryKeys.BANNER_PATTERN).getEntry(patternRegistry);
 
-    public BannerBuilder addPattern(DyeColor color, RegistryKey<BannerPattern> patternRegistry) {
-        BannerPattern pattern = Registries.BANNER_PATTERN.get(patternRegistry);
-
-        if (pattern == null) {
+        if (pattern.isEmpty()) {
             FzmmClient.LOGGER.error("[Banner builder] No banner pattern found '{}'", patternRegistry.getValue());
             return this;
         }
 
-        return this.addPattern(color, pattern);
+        return this.addLayer(color, pattern.get());
     }
 
-    public BannerBuilder addPattern(DyeColor color, BannerPattern pattern) {
-        return this.addPattern(color.getId(), pattern.getId());
-    }
-
-    public BannerBuilder addPattern(int color, String pattern) {
-        this.addPattern(this.getPattern(color, pattern));
+    public BannerBuilder addLayer(DyeColor color, RegistryEntry<BannerPattern> pattern) {
+        this.addLayer(new BannerPatternsComponent.Layer(pattern, color));
         return this;
     }
 
-    public void addPattern(NbtElement pattern) {
-        this.patterns.add(pattern);
+    public void addLayer(BannerPatternsComponent.Layer layer) {
+        this.layers.add(layer);
     }
 
-    public BannerBuilder addPatterns(NbtList patterns) {
-        this.patterns.addAll(patterns);
+    public BannerBuilder addLayers(List<BannerPatternsComponent.Layer> layers) {
+        this.layers.addAll(layers);
         return this;
     }
 
-    public void removePattern(NbtElement pattern) {
-        this.patterns.remove(pattern);
+    public void removeLayer(BannerPatternsComponent.Layer layer) {
+        this.layers.remove(layer);
     }
 
-    private NbtCompound getPattern(int color, String pattern) {
-        NbtCompound patternCompound = new NbtCompound();
-
-        patternCompound.putInt(TagsConstant.BANNER_PATTERN_COLOR, color);
-        patternCompound.putString(TagsConstant.BANNER_PATTERN_VALUE, pattern);
-
-        return patternCompound;
-    }
-
-    public NbtList patterns() {
-        return this.patterns;
-    }
-
-    private void formatPatterns() {
-        BannerPattern basePattern = Registries.BANNER_PATTERN.get(BannerPatterns.BASE);
-        if (basePattern == null || this.patterns.isEmpty())
-            return;
-
-        NbtElement firstPatternElement = this.patterns.get(0);
-        if (!(firstPatternElement instanceof NbtCompound firstPattern))
-            return;
-
-        if (firstPattern.getString(TagsConstant.BANNER_PATTERN_VALUE).equals(basePattern.getId())) {
-            int color = firstPattern.getInt(TagsConstant.BANNER_PATTERN_COLOR);
-            this.bannerColor(DyeColor.byId(color));
-            this.patterns.remove(firstPatternElement);
+    public void replaceColor(BannerPatternsComponent.Layer layer, DyeColor color) {
+        int index = this.layers.indexOf(layer);
+        if (index != -1) {
+            this.layers.set(index, new BannerPatternsComponent.Layer(layer.pattern(), color));
         }
     }
 
+    public void replaceColors(DyeColor colorToReplace, DyeColor newColor) {
+        for (int i = 0; i != this.layers.size(); i++) {
+            if (this.layers.get(i).color() == colorToReplace) {
+                this.layers.set(i, new BannerPatternsComponent.Layer(this.layers.get(i).pattern(), newColor));
+            }
+        }
+    }
+
+    public List<BannerPatternsComponent.Layer> layers() {
+        return this.layers;
+    }
+
     public BannerBuilder clearPatterns() {
-        this.patterns.clear();
+        this.layers.clear();
 
         return this;
     }
@@ -172,10 +156,8 @@ public class BannerBuilder {
                 .item(this.item)
                 .isShield(this.isShield);
 
-        for (var pattern : this.patterns) {
-            if (pattern instanceof NbtCompound patternCompound) {
-                copy.addPattern(patternCompound.getInt(TagsConstant.BANNER_PATTERN_COLOR), patternCompound.getString(TagsConstant.BANNER_PATTERN_VALUE));
-            }
+        for (var layer : this.layers) {
+            copy.addLayer(new BannerPatternsComponent.Layer(layer.pattern(), layer.color()));
         }
 
         return copy;
@@ -190,30 +172,26 @@ public class BannerBuilder {
         return Items.WHITE_BANNER;
     }
 
-    public void bannerColor(DyeColor color) {
+    public void baseBannerColor(DyeColor color) {
         this.item(getBannerByDye(color));
     }
 
-    public DyeColor bannerColor() {
+    public DyeColor baseBannerColor() {
         if (this.item instanceof BannerItem bannerItem)
             return bannerItem.getColor();
 
         return DyeColor.WHITE;
     }
 
-    public static Text tooltipOf(DyeColor color, @Nullable RegistryEntry<BannerPattern> patternRegistry) {
-        if (patternRegistry == null) {
-            FzmmClient.LOGGER.error("[Banner builder] No banner pattern found");
-            return Text.empty();
-        }
-
-        Optional<String> patternKeyOptional = patternRegistry.getKey().map(key -> key.getValue().toShortTranslationKey());
+    public static Text tooltipOf(BannerPatternsComponent.Layer layer) {
+        Optional<String> patternKeyOptional = layer.pattern().getKey().map(key -> key.getValue().toShortTranslationKey());
 
         if (patternKeyOptional.isEmpty()) {
-            FzmmClient.LOGGER.error("[Banner builder] No banner pattern translation key found");
+            FzmmClient.LOGGER.error("[BannerBuilder] No banner pattern translation key found");
             return Text.empty();
         }
 
-        return Text.translatable("block.minecraft.banner." + patternKeyOptional.get() + "." + color.getName()).formatted(Formatting.GRAY);
+        String dyeId = layer.color().getName();
+        return Text.translatable("block.minecraft.banner." + patternKeyOptional.get() + "." + dyeId).formatted(Formatting.GRAY);
     }
 }

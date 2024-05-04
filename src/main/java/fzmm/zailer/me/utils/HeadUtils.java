@@ -2,21 +2,22 @@ package fzmm.zailer.me.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.SkinTextures;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.PlayerHeadItem;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.math.MathHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Optional;
@@ -148,16 +149,14 @@ public class HeadUtils {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        NbtCompound nbt = stack.getOrCreateNbt();
-        NbtCompound skullOwnerTag = nbt.getCompound(PlayerHeadItem.SKULL_OWNER_KEY);
-        GameProfile gameProfile = NbtHelper.toGameProfile(skullOwnerTag);
-
-        if (gameProfile == null)
+        ProfileComponent profileComponent = stack.get(DataComponentTypes.PROFILE);
+        if (profileComponent == null) {
             return Optional.empty();
+        }
 
         return Optional.of(MinecraftClient.getInstance()
                 .getSkinProvider()
-                .getSkinTextures(gameProfile)
+                .getSkinTextures(profileComponent.gameProfile())
         );
     }
 }

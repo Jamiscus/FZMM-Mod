@@ -4,24 +4,29 @@ import fzmm.zailer.me.builders.ArmorStandBuilder;
 import fzmm.zailer.me.builders.BlockStateItemBuilder;
 import fzmm.zailer.me.builders.CrossbowBuilder;
 import fzmm.zailer.me.builders.DisplayBuilder;
-import fzmm.zailer.me.utils.TagsConstant;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.minecraft.entity.EntityType;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerLootComponent;
+import net.minecraft.component.type.FireworksComponent;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTables;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.item.ItemPredicate;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.registry.*;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.raid.Raid;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,10 +36,9 @@ public class FzmmItemGroup {
     public static final Identifier USEFUL_BLOCK_STATES_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, "useful_block_states");
     public static final Identifier LOOT_CHESTS_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, "loot_chests");
 
-    @SuppressWarnings("UnstableApiUsage")
     public static void register() {
-
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(entries -> {
+            DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
             ArrayList<ItemStack> newEntries = new ArrayList<>();
 
             newEntries.add(Items.DRAGON_EGG.getDefaultStack());
@@ -52,7 +56,11 @@ public class FzmmItemGroup {
             addItemFrames(newEntries);
             addNameTags(newEntries);
             addCrossbows(newEntries);
-            newEntries.add(Raid.getOminousBanner());
+            try {
+                newEntries.add(Raid.getOminousBanner(registryManager.getWrapperOrThrow(RegistryKeys.BANNER_PATTERN)));
+            } catch (Exception e) {
+                FzmmClient.LOGGER.warn("[FzmmItemGroup] Failed to add OminousBanner", e);
+            }
 
             ItemStack elytra = new ItemStack(Items.ELYTRA);
             elytra.setDamage(elytra.getMaxDamage() - 1);
@@ -135,24 +143,22 @@ public class FzmmItemGroup {
                 .displayName(Text.translatable("itemGroup.fzmm.loot_chests"))
                 .icon(() -> new ItemStack(Items.CHEST))
                 .entries((displayContext, entries) -> {
-                    List<String> lootTablesPath = LootTables.getAll().stream()
-                            .map(Identifier::getPath)
-                            .sorted()
+                    List<RegistryKey<LootTable>> lootTablesPath = LootTables.getAll().stream()
+                            .sorted(Comparator.comparing(t -> t.getValue().getPath()))
                             .collect(Collectors.toList());
 
-                    List<String> archeologyLootTablesPath = LootTables.getAll().stream()
-                            .map(Identifier::getPath)
-                            .sorted()
+                    List<RegistryKey<LootTable>> archeologyLootTablesPath = LootTables.getAll().stream()
+                            .sorted(Comparator.comparing(t -> t.getValue().getPath()))
                             .collect(Collectors.toList());
 
-                    archeologyLootTablesPath.removeIf(path -> !path.startsWith("archaeology"));
+                    archeologyLootTablesPath.removeIf(lootTable -> !lootTable.getValue().getPath().startsWith("archaeology"));
 
-                    lootTablesPath.removeIf(path -> path.startsWith("entities"));
+                    lootTablesPath.removeIf(lootTable -> lootTable.getValue().getPath().startsWith("entities"));
                     lootTablesPath.removeIf(archeologyLootTablesPath::contains);
 
-                    addLootChest(entries, Items.SUSPICIOUS_SAND, archeologyLootTablesPath);
-                    addLootChest(entries, Items.SUSPICIOUS_GRAVEL, archeologyLootTablesPath);
-                    addLootChest(entries, Items.CHEST, lootTablesPath);
+                    addLootChest(entries, Items.SUSPICIOUS_SAND, archeologyLootTablesPath, true);
+                    addLootChest(entries, Items.SUSPICIOUS_GRAVEL, archeologyLootTablesPath, true);
+                    addLootChest(entries, Items.CHEST, lootTablesPath, false);
                 }).build();
 
         Registry.register(Registries.ITEM_GROUP, USEFUL_BLOCK_STATES_IDENTIFIER, usefulBlockStatesItemGroup);
@@ -163,18 +169,18 @@ public class FzmmItemGroup {
         String baseTranslation = "armorStand.";
         ItemStack armorStandWithArms = ArmorStandBuilder.builder()
                 .setShowArms()
-                .getItem(Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + baseTranslation + "arms"));
+                .getItem(FzmmUtils.disableItalicConfig(Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + baseTranslation + "arms"), true));
         entries.add(armorStandWithArms);
 
         ItemStack smallArmorStand = ArmorStandBuilder.builder()
                 .setSmall()
-                .getItem(Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + baseTranslation + "small"));
+                .getItem(FzmmUtils.disableItalicConfig(Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + baseTranslation + "small"), true));
         entries.add(smallArmorStand);
 
         ItemStack smallArmorStandWithArms = ArmorStandBuilder.builder()
                 .setSmall()
                 .setShowArms()
-                .getItem(Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + baseTranslation + "smallWithArms"));
+                .getItem(FzmmUtils.disableItalicConfig(Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + baseTranslation + "smallWithArms"), true));
         entries.add(smallArmorStandWithArms);
     }
 
@@ -182,16 +188,19 @@ public class FzmmItemGroup {
         ItemStack itemFrame = new ItemStack(Items.ITEM_FRAME);
         ItemStack glowItemFrame = new ItemStack(Items.GLOW_ITEM_FRAME);
         NbtCompound entityTag = new NbtCompound();
-
         entityTag.putBoolean("Invisible", true);
-        itemFrame.setSubNbt(EntityType.ENTITY_TAG_KEY, entityTag);
-        glowItemFrame.setSubNbt(EntityType.ENTITY_TAG_KEY, entityTag);
 
-        String itemFrameName = Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + "invisibleItemFrame").getString();
-        String glowItemFrameName = Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + "." + "invisibleGlowItemFrame").getString();
+        itemFrame.apply(DataComponentTypes.ENTITY_DATA, null, nbtComponent -> NbtComponent.of(entityTag));
+        glowItemFrame.apply(DataComponentTypes.ENTITY_DATA, null, nbtComponent -> NbtComponent.of(entityTag));
 
-        itemFrame.setCustomName(Text.literal(itemFrameName).setStyle(Style.EMPTY.withItalic(false)));
-        glowItemFrame.setCustomName(Text.literal(glowItemFrameName).setStyle(Style.EMPTY.withItalic(false)));
+        itemFrame.apply(DataComponentTypes.CUSTOM_NAME, null, component -> {
+            Text translation = Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + ".invisibleItemFrame");
+            return FzmmUtils.disableItalicConfig(translation.getString(), true);
+        });
+        glowItemFrame.apply(DataComponentTypes.CUSTOM_NAME, null, component -> {
+            Text translation = Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + ".invisibleGlowItemFrame");
+            return FzmmUtils.disableItalicConfig(translation.getString(), true);
+        });
 
         entries.add(itemFrame);
         entries.add(glowItemFrame);
@@ -231,21 +240,17 @@ public class FzmmItemGroup {
     }
 
     private static void addCrossbows(List<ItemStack> entries) {
-        CrossbowBuilder crossbowArrow = CrossbowBuilder.builder()
-                .setCharged(true)
-                .putProjectile(new ItemStack(Items.ARROW));
+        CrossbowBuilder crossbowArrow = CrossbowBuilder.builder().putProjectile(new ItemStack(Items.ARROW));
 
         entries.add(crossbowArrow.get());
 
         ItemStack firework = new ItemStack(Items.FIREWORK_ROCKET);
 
-        NbtCompound fireworkTag = new NbtCompound();
-        fireworkTag.putInt(FireworkRocketItem.FLIGHT_KEY, 2);
-        firework.setSubNbt(FireworkRocketItem.FIREWORKS_KEY, fireworkTag);
+        firework.apply(DataComponentTypes.FIREWORKS, null,
+                component -> new FireworksComponent(2, new ArrayList<>())
+        );
 
-        CrossbowBuilder crossbowFirework = CrossbowBuilder.builder()
-                .setCharged(true)
-                .putProjectile(firework);
+        CrossbowBuilder crossbowFirework = CrossbowBuilder.builder().putProjectile(firework);
 
         entries.add(crossbowFirework.get());
     }
@@ -311,16 +316,34 @@ public class FzmmItemGroup {
         return ItemPredicate.Builder.create().tag(tag).build().test(new ItemStack(item));
     }
 
-    private static void addLootChest(ItemGroup.Entries entries, Item item, List<String> pathList) {
-        for (var path : pathList) {
-            ItemStack chest = new ItemStack(item);
-            NbtCompound blockEntityTag = new NbtCompound();
+    private static void addLootChest(ItemGroup.Entries entries, Item item, List<RegistryKey<LootTable>> lootTableList,
+                                     boolean isBrushable) {
+        for (var lootTable : lootTableList) {
+            ItemStack stack = new ItemStack(item);
 
-            blockEntityTag.putString("LootTable", path);
+            String identifierString = lootTable.getValue().toString();
 
-            chest.setCustomName(Text.literal("LootChest: " + path));
-            chest.setSubNbt(TagsConstant.BLOCK_ENTITY, blockEntityTag);
-            entries.add(chest);
+            // Brushable blocks (suspicious sand and suspicious gravel) do not use the
+            // container_loot component like other lootable blocks in 1.20.5
+            // https://bugs.mojang.com/browse/MC-271530
+            if (isBrushable) {
+                stack.apply(DataComponentTypes.BLOCK_ENTITY_DATA, NbtComponent.DEFAULT, component -> {
+                    NbtCompound result = component.copyNbt();
+
+                    BlockEntity.writeIdToNbt(result, BlockEntityType.BRUSHABLE_BLOCK);
+
+                    result.putString("LootTable", identifierString);
+
+                    return NbtComponent.of(result);
+                });
+            } else {
+                stack.apply(DataComponentTypes.CONTAINER_LOOT, null,
+                        containerLootComponent -> new ContainerLootComponent(lootTable, 0));
+            }
+
+            stack.apply(DataComponentTypes.CUSTOM_NAME, null, text -> Text.literal(identifierString));
+
+            entries.add(stack);
         }
     }
 }

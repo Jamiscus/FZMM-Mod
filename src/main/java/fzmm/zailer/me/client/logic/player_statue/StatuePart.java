@@ -9,6 +9,8 @@ import fzmm.zailer.me.client.logic.player_statue.statue_head_skin.HeadModelSkin;
 import fzmm.zailer.me.utils.HeadUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import fzmm.zailer.me.utils.position.PosF;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -100,7 +102,9 @@ public class StatuePart {
     }
 
     public static StatuePart ofItem(ItemStack stack) {
-        NbtCompound fzmmTag = stack.getOrCreateSubNbt(TagsConstant.FZMM);
+        NbtCompound customDataTag = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(new NbtCompound())).copyNbt();
+        NbtCompound fzmmTag = customDataTag.getCompound(TagsConstant.FZMM);
+
         NbtCompound playerStatueTag = fzmmTag.getCompound(TagsConstant.FZMM_PLAYER_STATUE);
         NbtCompound zFight = playerStatueTag.getCompound(PlayerStatueTags.Z_FIGHT);
 
@@ -117,9 +121,8 @@ public class StatuePart {
     }
 
     public static boolean isStatue(ItemStack stack) {
-        if (!stack.hasNbt())
-            return false;
-        NbtCompound fzmmTag = stack.getOrCreateSubNbt(TagsConstant.FZMM);
+        NbtCompound customDataTag = stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(new NbtCompound())).copyNbt();
+        NbtCompound fzmmTag = customDataTag.getCompound(TagsConstant.FZMM);
 
         if (!fzmmTag.contains(TagsConstant.FZMM_PLAYER_STATUE, NbtElement.COMPOUND_TYPE))
             return false;
@@ -173,7 +176,13 @@ public class StatuePart {
                 .setRightHandItem(HeadBuilder.builder().skinValue(this.skinValue).get())
                 .getItem(this.name);
 
-        statuePart.setSubNbt(TagsConstant.FZMM, this.writeFzmmTag());
+        statuePart.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbtComponent -> {
+            NbtCompound result = nbtComponent.copyNbt();
+
+            result.put(TagsConstant.FZMM, this.writeFzmmTag());
+
+            return NbtComponent.of(result);
+        });
         return statuePart;
     }
 

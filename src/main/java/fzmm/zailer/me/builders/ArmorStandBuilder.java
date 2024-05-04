@@ -2,10 +2,13 @@ package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.TagsConstant;
-import net.minecraft.entity.EntityType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -16,23 +19,11 @@ public class ArmorStandBuilder {
 
     private ArmorStandBuilder() {
         this.entityTag = new NbtCompound();
+        this.entityTag.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getDefaultId().toString());
     }
 
     public static ArmorStandBuilder builder() {
         return new ArmorStandBuilder();
-    }
-
-    public NbtCompound getItemNbt(@Nullable Text itemName) {
-        NbtCompound tag = new NbtCompound();
-
-        if (itemName != null) {
-            NbtCompound display = new NbtCompound();
-            display.put(ItemStack.NAME_KEY, FzmmUtils.toNbtString(itemName.getString(), true));
-            tag.put(ItemStack.DISPLAY_KEY, display);
-        }
-
-        tag.put(EntityType.ENTITY_TAG_KEY, entityTag);
-        return tag;
     }
 
     public ItemStack getItem(@Nullable String itemName) {
@@ -41,13 +32,17 @@ public class ArmorStandBuilder {
 
     public ItemStack getItem(@Nullable Text itemName) {
         ItemStack armorStand = new ItemStack(Items.ARMOR_STAND);
-        armorStand.setNbt(this.getItemNbt(itemName));
+
+        armorStand.apply(DataComponentTypes.CUSTOM_NAME, null, component -> itemName);
+        armorStand.apply(DataComponentTypes.ENTITY_DATA, null, component -> NbtComponent.of(this.entityTag));
         return armorStand;
     }
 
-    public ArmorStandBuilder setAsHologram(String name) {
+    public ArmorStandBuilder setAsHologram(Text name) {
+        String text = Text.Serialization.toJsonString(name, FzmmUtils.getRegistryManager());
+
         this.setImmutableAndInvisible();
-        this.entityTag.putString("CustomName", name);
+        this.entityTag.putString("CustomName", text);
         this.entityTag.putBoolean("CustomNameVisible", true);
         return this;
     }
@@ -75,7 +70,10 @@ public class ArmorStandBuilder {
 
     public ArmorStandBuilder setRightHandItem(ItemStack stack) {
         NbtList handItem = new NbtList();
-        NbtCompound itemTag = stack.writeNbt(new NbtCompound());
+
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+        NbtElement itemTag = stack.encode(registryManager);
+
         handItem.add(itemTag);
 
         this.entityTag.put("HandItems", handItem);

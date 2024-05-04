@@ -1,23 +1,11 @@
 package fzmm.zailer.me.utils;
 
-import fzmm.zailer.me.mixin.focused_slot_getter.HandledScreenAccessor;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class InventoryUtils {
 
@@ -26,7 +14,7 @@ public class InventoryUtils {
 
     public InventoryUtils(ItemStack container) {
         this.container = container;
-        this.items = getItemsFromContainer(this.container);
+        this.items = getItemsFromContainer(container);
     }
 
     public InventoryUtils addItem(List<ItemStack> items) {
@@ -35,93 +23,14 @@ public class InventoryUtils {
     }
 
     public ItemStack get() {
-        NbtCompound blockEntityTag = new NbtCompound();
-        NbtList items = new NbtList();
+        this.container.apply(DataComponentTypes.CONTAINER, null, component -> ContainerComponent.fromStacks(this.items));
 
-        int itemsLength = this.items.size();
-        for (int i = 0; i != itemsLength; i++) {
-            NbtCompound slotTag = getSlotTag(this.items.get(i), i);
-            items.add(slotTag);
-        }
-
-        blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
-        this.container.setSubNbt(TagsConstant.BLOCK_ENTITY, blockEntityTag);
         return this.container;
     }
 
-    public static void addSlot(NbtList slotList, ItemStack itemToAdd, int slot) {
-        slotList.add(getSlotTag(itemToAdd, slot));
-    }
-
-    public static NbtCompound getSlotTag(ItemStack stack, int slot) {
-        NbtCompound slotTag = stack.writeNbt(new NbtCompound());
-        slotTag.putByte(TagsConstant.INVENTORY_SLOT, (byte) slot);
-        return slotTag;
-    }
-
-
     public static List<ItemStack> getItemsFromContainer(ItemStack container) {
-        List<ItemStack> items = new ArrayList<>();
+        ContainerComponent result = container.getOrDefault(DataComponentTypes.CONTAINER, ContainerComponent.fromStacks(new ArrayList<>()));
 
-        NbtCompound blockEntityTag = container.getOrCreateSubNbt(TagsConstant.BLOCK_ENTITY);
-        if (blockEntityTag.contains(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.LIST_TYPE)) {
-            NbtList itemsTag = blockEntityTag.getList(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.COMPOUND_TYPE);
-
-            for (NbtElement itemTag : itemsTag) {
-                if (itemTag instanceof NbtCompound itemCompound) {
-                    try {
-
-                        if (!itemCompound.contains(TagsConstant.INVENTORY_ID, NbtElement.STRING_TYPE))
-                            continue;
-                        String idString = itemCompound.getString(TagsConstant.INVENTORY_ID);
-                        Item item = Registries.ITEM.get(new Identifier(idString));
-
-                        if (!itemCompound.contains(TagsConstant.INVENTORY_COUNT, NbtElement.BYTE_TYPE))
-                            continue;
-                        byte count = itemCompound.getByte(TagsConstant.INVENTORY_COUNT);
-
-                        if (!itemCompound.contains(TagsConstant.INVENTORY_SLOT, NbtElement.BYTE_TYPE))
-                            continue;
-
-                        ItemStack stack = new ItemStack(item);
-                        stack.setCount(count);
-
-                        if (itemCompound.contains(TagsConstant.INVENTORY_TAG, NbtElement.COMPOUND_TYPE)) {
-                            NbtCompound tag = itemCompound.getCompound(TagsConstant.INVENTORY_TAG);
-                            stack.setNbt(tag);
-                        }
-
-                        items.add(stack);
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-        }
-
-        return items;
-    }
-
-    public static Optional<ItemStack> getFocusedItem() {
-        Optional<Slot> slot = getFocusedSlot();
-        return slot.map(Slot::getStack);
-    }
-
-    public static Optional<Slot> getFocusedSlot() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof HandledScreen<?> screen))
-            return Optional.empty();
-
-        return Optional.of(((HandledScreenAccessor) screen).getFocusedSlot());
-    }
-
-    public static ItemStack getInItemFrame(ItemStack stack, boolean glowing) {
-        ItemStack itemFrame = new ItemStack(glowing ? Items.GLOW_ITEM_FRAME : Items.ITEM_FRAME);
-        NbtCompound itemTag = stack.writeNbt(new NbtCompound());
-        NbtCompound entityTag = new NbtCompound();
-
-        entityTag.put(TagsConstant.ITEM_FRAME_ITEM, itemTag);
-        itemFrame.setSubNbt(EntityType.ENTITY_TAG_KEY, entityTag);
-
-        return itemFrame;
+        return result.stream().toList();
     }
 }

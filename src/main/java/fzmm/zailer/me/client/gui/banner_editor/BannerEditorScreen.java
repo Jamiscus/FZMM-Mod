@@ -21,7 +21,10 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.*;
+import net.minecraft.item.BannerItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import org.jetbrains.annotations.Nullable;
@@ -209,8 +212,8 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         BannerBuilder currentBanner = this.bannerBuilder.copy();
 
         if (this.undoArray.isEmpty()) {
-            if (!this.bannerBuilder.patterns().isEmpty()) {
-                this.bannerBuilder.patterns().clear();
+            if (!this.bannerBuilder.layers().isEmpty()) {
+                this.bannerBuilder.layers().clear();
                 this.updatePreview(this.bannerBuilder);
                 this.redoArray.addFirst(currentBanner);
             }
@@ -223,7 +226,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         this.redoArray.addFirst(currentBanner);
 
         this.redoButton.active = true;
-        if (this.undoArray.isEmpty() && bannerBuilder.patterns().isEmpty())
+        if (this.undoArray.isEmpty() && bannerBuilder.layers().isEmpty())
             this.undoButton.active = false;
     }
 

@@ -2,9 +2,9 @@ package fzmm.zailer.me.client.gui.text_format.tabs;
 
 import fzmm.zailer.me.client.gui.components.SliderWidget;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
-import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.text_format.TextFormatScreen;
 import fzmm.zailer.me.client.gui.text_format.components.ColorListContainer;
+import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.TextFormatLogic;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Color;

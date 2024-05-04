@@ -1,8 +1,8 @@
 package fzmm.zailer.me.client.gui.text_format.tabs;
 
 import fzmm.zailer.me.client.gui.components.row.ColorRow;
-import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.text_format.TextFormatScreen;
+import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.TextFormatLogic;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.container.FlowLayout;

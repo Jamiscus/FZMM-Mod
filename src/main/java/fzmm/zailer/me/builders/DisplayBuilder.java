@@ -2,29 +2,27 @@ package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class DisplayBuilder {
-    private NbtCompound nbt;
-    private Item item;
-    private int count;
+    private ItemStack stack;
+    private List<Text> lore = new ArrayList<>();
+    @Nullable
+    private Text customName = null;
 
     public DisplayBuilder() {
-        this.nbt = new NbtCompound();
-        this.item = Items.STONE;
-        this.count = 1;
+        this.stack = Items.STONE.getDefaultStack();
     }
 
     public static DisplayBuilder builder() {
@@ -32,100 +30,84 @@ public class DisplayBuilder {
     }
 
     public static DisplayBuilder of(ItemStack stack) {
-        stack = stack.copy();
-        return builder()
-                .nbt(stack.hasNbt() ? stack.getNbt() : new NbtCompound())
-                .item(stack.getItem())
-                .count(stack.getCount());
+        return builder().stack(stack.copy());
     }
 
     public static void addLoreToHandItem(Text text) {
         MinecraftClient mc = MinecraftClient.getInstance();
         assert mc.player != null;
 
-        ItemStack stack = of(mc.player.getMainHandStack()).addLore(text).get();
+        ItemStack stack = of(mc.player.getMainHandStack())
+                .addLore(FzmmUtils.disableItalicConfig(text))
+                .get();
+
         FzmmUtils.giveItem(stack);
     }
 
     public static void renameHandItem(Text text) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
 
-        ItemStack stack = mc.player.getInventory().getMainHandStack();
-        stack.setCustomName(FzmmUtils.disableItalicConfig(text));
+        ItemStack stack = client.player.getInventory().getMainHandStack();
+
+        stack.apply(DataComponentTypes.CUSTOM_NAME, null, component -> FzmmUtils.disableItalicConfig(text));
         FzmmUtils.giveItem(stack);
     }
 
-    public DisplayBuilder nbt(NbtCompound nbt) {
-        this.nbt = nbt;
-        return this;
-    }
-
     public DisplayBuilder item(Item item) {
-        this.item = item;
+        return this.stack(item.getDefaultStack());
+    }
+
+    public DisplayBuilder stack(ItemStack stack) {
+        this.stack = stack.copy();
+        this.lore = new ArrayList<>(stack.getComponents().getOrDefault(DataComponentTypes.LORE, LoreComponent.DEFAULT).lines());
+        this.customName = stack.getComponents().getOrDefault(DataComponentTypes.CUSTOM_NAME, null);
+
+        if (this.customName != null) {
+            this.customName = this.customName.copy();
+        }
+
         return this;
     }
 
-    public DisplayBuilder count(int count) {
-        this.count = count;
-        return this;
-    }
-
-    public NbtCompound getDisplay() {
-        return this.nbt.contains(ItemStack.DISPLAY_KEY, NbtElement.COMPOUND_TYPE) ? this.nbt.getCompound(ItemStack.DISPLAY_KEY) : new NbtCompound();
-    }
-
-    public NbtList getLore() {
-        NbtCompound display = this.getDisplay();
-        return display.contains(ItemStack.LORE_KEY, NbtElement.LIST_TYPE) ? display.getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE) : new NbtList();
+    public Text getName() {
+        return this.customName == null ? Text.empty() : this.customName;
     }
 
     public List<Text> getLoreText() {
-        NbtList lore = this.getLore();
-        List<Text> result = new ArrayList<>();
+        List<Text> result = this.stack.getComponents().getOrDefault(DataComponentTypes.LORE, LoreComponent.DEFAULT).lines();
 
-        for (int i = 0; i < lore.size(); i++) {
-            result.add(Text.Serialization.fromJson(lore.getString(i)));
-        }
-
-        return result;
-    }
-
-    public Optional<String> getName() {
-        NbtCompound display = this.getDisplay();
-        return display.contains(ItemStack.NAME_KEY, NbtElement.STRING_TYPE) ? Optional.of(display.getString(ItemStack.NAME_KEY)) : Optional.empty();
+        return new ArrayList<>(result);
     }
 
     public ItemStack get() {
-        ItemStack stack = new ItemStack(this.item);
-        stack.setCount(this.count);
-        stack.setNbt(this.nbt);
+        if (!this.lore.isEmpty()) {
+            this.stack.apply(DataComponentTypes.LORE, null, component -> new LoreComponent(List.copyOf(this.lore)));
+        }
 
-        return stack;
+        if (this.customName != null) {
+            this.stack.apply(DataComponentTypes.CUSTOM_NAME, null, component -> this.customName.copy());
+        }
+
+        return this.stack;
     }
 
-    public NbtCompound getNbt() {
-        return this.nbt;
-    }
-
-    public DisplayBuilder setLore(NbtList lore) {
-        NbtCompound display = this.getDisplay();
-
-        display.put(ItemStack.LORE_KEY, lore);
-        this.nbt.put(ItemStack.DISPLAY_KEY, display);
+    public DisplayBuilder setLore(List<Text> lore) {
+        this.lore = lore;
         return this;
     }
 
-    public DisplayBuilder setName(NbtString name) {
-        NbtCompound display = this.getDisplay();
-
-        display.put(ItemStack.NAME_KEY, name);
-        this.nbt.put(ItemStack.DISPLAY_KEY, display);
+    public DisplayBuilder setName(Text name) {
+        this.customName = FzmmUtils.disableItalicConfig(name, true);
         return this;
     }
 
     public DisplayBuilder setName(String name) {
-        return this.setName(Text.of(name));
+        return this.setName(name, false);
+    }
+
+    public DisplayBuilder setName(String name, boolean useDisableItalicConfig) {
+        return this.setName(FzmmUtils.disableItalicConfig(name, useDisableItalicConfig));
     }
 
     public DisplayBuilder setName(Text name, int color) {
@@ -136,24 +118,17 @@ public class DisplayBuilder {
         return this.setName(Text.literal(name).setStyle(Style.EMPTY.withColor(color)));
     }
 
-    public DisplayBuilder setName(Text name) {
-        return this.setName(FzmmUtils.toNbtString(name, true));
-    }
-
-    public DisplayBuilder addLore(NbtList lore) {
-        NbtList oldLore = this.getLore();
-
-        oldLore.addAll(lore);
-        this.setLore(oldLore);
+    public DisplayBuilder addLore(List<Text> lore) {
+        this.lore.addAll(lore);
         return this;
     }
 
     public DisplayBuilder addLore(String[] loreArr) {
-        NbtList nbtList = new NbtList();
-        for (String loreLine : loreArr)
-            nbtList.add(FzmmUtils.toNbtString(loreLine, true));
+        List<Text> loreList = Arrays.stream(loreArr)
+                .map(loreLine -> FzmmUtils.disableItalicConfig(loreLine, true))
+                .toList();
 
-        return this.addLore(nbtList);
+        return this.addLore(loreList);
     }
 
     public DisplayBuilder addLore(String lore) {
@@ -161,10 +136,7 @@ public class DisplayBuilder {
     }
 
     public DisplayBuilder addLore(Text lore) {
-        NbtList oldLore = this.getLore();
-
-        oldLore.add(FzmmUtils.toNbtString(lore, true));
-        this.setLore(oldLore);
+        this.lore.add(lore);
         return this;
     }
 

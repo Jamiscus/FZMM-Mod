@@ -1,6 +1,9 @@
 package fzmm.zailer.me.client.logic.copy_text_algorithm.algorithms;
 
 import fzmm.zailer.me.client.logic.copy_text_algorithm.AbstractCopyTextAlgorithm;
+import fzmm.zailer.me.utils.FzmmUtils;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -23,6 +26,8 @@ public class CopyTextAsJson extends AbstractCopyTextAlgorithm {
             text.getSiblings().addAll(siblings);
         }
 
-        stringBuilder.append(Text.Serialization.toJsonString(text));
+        assert MinecraftClient.getInstance().player != null;
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+        stringBuilder.append(Text.Serialization.toJsonString(text, registryManager));
     }
 }

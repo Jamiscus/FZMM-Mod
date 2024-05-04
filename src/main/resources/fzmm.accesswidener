@@ -2,4 +2,5 @@ accessWidener v1 named
 
 accessible method net/minecraft/client/util/ScreenshotRecorder getScreenshotFilename (Ljava/io/File;)Ljava/io/File;
 accessible method net/minecraft/client/MinecraftClient doItemUse ()V
+accessible method net/minecraft/component/type/WrittenBookContentComponent exceedsSerializedLengthLimit (Lnet/minecraft/text/Text;Lnet/minecraft/registry/RegistryWrapper$WrapperLookup;)Z
 accessible field net/minecraft/client/gui/screen/ingame/BookScreen MAX_TEXT_WIDTH I
