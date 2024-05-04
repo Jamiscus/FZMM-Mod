@@ -37,11 +37,6 @@ public class AutoPlacerHud {
 
         List<Requirement> allRequirements = getRequirements(requirements);
 
-        // Activate the HUD, as due to errors in the owo-lib,
-        // it is added or removed incorrectly if the HUD is hidden.
-        // If the HUD is activated immediately after the change, it has no effect,
-        // as owo-lib makes the HUD change when an event is called.
-        MinecraftClient.getInstance().options.hudHidden = false;
         Hud.add(HUD_IDENTIFIER, () -> {
             FlowLayout mainLayout = Containers.verticalFlow(Sizing.fill(70), Sizing.fill(70));
 
@@ -57,7 +52,7 @@ public class AutoPlacerHud {
             requirementLayout.horizontalAlignment(HorizontalAlignment.CENTER);
 
             LabelComponent sneakLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.label.sneakInfo"));
-            LabelComponent cancelLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.label.cancel", FzmmClient.OPEN_MAIN_GUI_KEYBINDING.getBoundKeyLocalizedText()));
+            LabelComponent cancelLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.label.cancel", FzmmClient.OPEN_MAIN_GUI_KEYBINDING.getBoundKeyLocalizedText().getString()));
 
             FlowLayout bottomTextLayout = Containers.verticalFlow(Sizing.fill(100), Sizing.content());
             bottomTextLayout.positioning(Positioning.relative(0, 100));
@@ -140,11 +135,6 @@ public class AutoPlacerHud {
 
     public static void removeHud() {
         isHudActive = false;
-        // Activate the HUD, as due to errors in the owo-lib,
-        // it is added or removed incorrectly if the HUD is hidden.
-        // If the HUD is activated immediately after the change, it has no effect,
-        // as owo-lib makes the HUD change when an event is called.
-        MinecraftClient.getInstance().options.hudHidden = false;
         Hud.remove(HUD_IDENTIFIER);
     }
 
