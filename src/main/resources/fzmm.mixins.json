@@ -11,7 +11,8 @@
     "item_group.operator_utilities_without_op.ItemGroupMixin",
     "item_stack.auto_placer.ClientPlayerInteractionManagerMixin",
     "item_stack.tooltip.ItemStackMixin",
-    "modify_fzmm_command.ChatScreenMixin",
+    "modify_fzmm_command.allow_paragraphs_symbol.TextFieldWidgetMixin",
+    "modify_fzmm_command.modify_chat.ChatScreenMixin",
     "screenshot_hud.ChatHudMixin",
     "screenshot_hud.GameRendererMixin",
     "social_interactions_head_button.SocialInteractionsPlayerListEntryMixin"
