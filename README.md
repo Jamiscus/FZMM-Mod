@@ -29,7 +29,7 @@ Easily customize your character's head in seconds and instantly apply the new sk
 The default resource pack currently includes:
 
 - 222 texture heads
-- 42 model heads
+- 44 model heads
 
 For instructions on how to add your own custom heads to the head generator, please refer to the [Head Generator Wiki](docs/en/wiki/head_generator/README.md)
 
