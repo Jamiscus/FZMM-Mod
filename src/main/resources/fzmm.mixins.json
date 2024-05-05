@@ -4,8 +4,11 @@
   "package": "fzmm.zailer.me.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "block_state_editor.VerticallyAttachableBlockItemAccessor",
     "cache_skin_getter.PlayerSkinTextureAccessor",
     "combined_inventory_getter.PlayerInventoryAccessor",
+    "custom_model_data_editor.BakedOverrideAccessor",
+    "custom_model_data_editor.ModelOverrideListAccessor",
     "entity.force_invisible_item_frame.ItemFrameEntityRendererMixin",
     "focused_slot_getter.HandledScreenAccessor",
     "item_group.fix_translations_update.ItemGroupDisplayContextMixin",
