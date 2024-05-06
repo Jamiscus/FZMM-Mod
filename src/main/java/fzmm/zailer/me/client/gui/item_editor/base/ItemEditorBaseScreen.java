@@ -55,6 +55,7 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
     private static final String CONTENT_ID = "content";
     private static Class<? extends IItemEditorScreen> selectedEditor = null;
     protected final List<IItemEditorScreen> itemEditorScreens;
+    protected final IItemEditorScreen defaultEditorScreen;
     private FlowLayout basePanelLayout;
     private FlowLayout requiredItemsLayout;
     private FlowLayout applicableEditorsLayout;
@@ -69,12 +70,14 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
 
     public ItemEditorBaseScreen(@Nullable Screen parent) {
         super("item_editor/base", "itemEditor", parent);
-        this.itemEditorScreens = this.getItemEditorScreens();
+        this.defaultEditorScreen = new ItemSelectEditor();
+        this.itemEditorScreens = this.getItemEditorScreens(this.defaultEditorScreen);
     }
 
-    private List<IItemEditorScreen> getItemEditorScreens() {
+    private List<IItemEditorScreen> getItemEditorScreens(IItemEditorScreen defaultEditorScreen) {
         List<IItemEditorScreen> itemEditorScreens = new ArrayList<>();
 
+        itemEditorScreens.add(defaultEditorScreen);
         itemEditorScreens.add(new ArmorEditorScreen());
         itemEditorScreens.add(new BannerEditorScreen());
         itemEditorScreens.add(new BlockStateEditor());
@@ -88,7 +91,6 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
         itemEditorScreens.add(new EnchantEditor());
         itemEditorScreens.add(new FilledMapEditor());
         itemEditorScreens.add(new HideFlagsEditor());
-        itemEditorScreens.add(new ItemSelectEditor());
         itemEditorScreens.add(new SkullEditor());
 
         return itemEditorScreens;
@@ -158,7 +160,7 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
             }
         });
 
-        this.selectEditor();
+        this.selectEditor(this.getSelectedEditor());
     }
 
     @Override
@@ -190,25 +192,28 @@ public class ItemEditorBaseScreen extends BaseFzmmScreen implements ICollapsible
         return listBuilder.build();
     }
 
-    private void selectEditor() {
-        boolean stackEmpty = this.selectedItem.isEmpty();
-        if (selectedEditor != null) {
+    /**
+     * Returns the selected item editor screen.
+     * If no item is selected, returns the default editor screen.
+     * If a specific editor is selected and applicable to the selected item, returns that editor.
+     * Otherwise, returns the default editor screen.
+     */
+    private IItemEditorScreen getSelectedEditor() {
+        boolean selectedEditorIsDefault = selectedEditor != null && selectedEditor == this.defaultEditorScreen.getClass();
+
+        if (this.selectedItem.isEmpty()) {
+            return this.defaultEditorScreen;
+        }
+
+        if (selectedEditor != null && !selectedEditorIsDefault) {
             for (var editor : this.itemEditorScreens) {
-                if (editor.getClass() == selectedEditor && editor.isApplicable(this.selectedItem) || stackEmpty) {
-                    this.selectEditor(editor);
-                    return;
+                if (editor.getClass() == selectedEditor && editor.isApplicable(this.selectedItem)) {
+                    return editor;
                 }
             }
         }
 
-        for (var editor : this.itemEditorScreens) {
-            if (editor.isApplicable(this.selectedItem) || stackEmpty) {
-                this.selectEditor(editor);
-                return;
-            }
-        }
-
-        this.selectEditor(this.itemEditorScreens.get(0));
+        return this.defaultEditorScreen;
     }
 
     public void selectEditor(IItemEditorScreen editor) {
