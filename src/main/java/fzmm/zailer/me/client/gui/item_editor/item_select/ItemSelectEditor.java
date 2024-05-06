@@ -83,7 +83,7 @@ public class ItemSelectEditor implements IItemEditorScreen {
     }
 
     public void selectItem(Item item) {
-        ItemStack newStack = item.getDefaultStack();
+        ItemStack newStack = new ItemStack(item);
         int count = this.stack.getCount();
         newStack.setCount(count <= 0 ? 1 : count);
         newStack.setNbt(this.stack.getNbt());
@@ -157,8 +157,9 @@ public class ItemSelectEditor implements IItemEditorScreen {
     }
 
     private FlowLayout getGroupsItemsLayout() {
-        if (this.groupsItemsLayout != null)
+        if (this.groupsItemsLayout != null) {
             return this.groupsItemsLayout;
+        }
 
         FlowLayout result = Containers.verticalFlow(Sizing.content(), Sizing.content());
         result.gap(4);
@@ -179,8 +180,12 @@ public class ItemSelectEditor implements IItemEditorScreen {
         List<ButtonComponent> groupButtonList = new ArrayList<>();
 
         for (var group : ItemGroups.getGroups()) {
-            if (!group.getDisplayStacks().isEmpty())
-                groupLayout.child(this.getGroupButton(group, this.groupContentLayout, groupButtonList));
+            if (!group.getDisplayStacks().isEmpty()) {
+                List<Item> groupItems = this.getItemGroupsItems(group);
+                if (!groupItems.isEmpty()) {
+                    groupLayout.child(this.getGroupButton(group, groupItems, this.groupContentLayout, groupButtonList));
+                }
+            }
         }
 
         groupButtonList.get(0).onPress();
@@ -194,8 +199,16 @@ public class ItemSelectEditor implements IItemEditorScreen {
         return result;
     }
 
+    private List<Item> getItemGroupsItems(ItemGroup group) {
+        return group.getDisplayStacks().stream()
+                .filter(stack -> !stack.hasNbt())
+                .map(ItemStack::getItem)
+                .distinct()
+                .toList();
+    }
+
     @NotNull
-    private Component getGroupButton(ItemGroup group, FlowLayout content, List<ButtonComponent> groupButtonList) {
+    private Component getGroupButton(ItemGroup group, List<Item> groupItems, FlowLayout content, List<ButtonComponent> groupButtonList) {
         StackLayout stackLayout = Containers.stack(Sizing.fixed(20), Sizing.fixed(20));
         stackLayout.margins(Insets.right(4));
         stackLayout.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
@@ -203,11 +216,7 @@ public class ItemSelectEditor implements IItemEditorScreen {
         ButtonComponent groupButton = Components.button(Text.empty(), button -> {
         });
         groupButton.onPress(button -> {
-            this.updateGroupItems(content, group.getDisplayStacks().stream()
-                    .map(ItemStack::getItem)
-                    .distinct()
-                    .toList()
-            );
+            this.updateGroupItems(content, groupItems);
 
             for (var buttonComponent : groupButtonList)
                 buttonComponent.active = true;
@@ -255,7 +264,7 @@ public class ItemSelectEditor implements IItemEditorScreen {
     }
 
     private ItemComponent getItemComponent(Item item) {
-        ItemComponent itemComponent = Components.item(item.getDefaultStack());
+        ItemComponent itemComponent = Components.item(new ItemStack(item));
         itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
             this.selectItem(item);
             this.updateItemPreview();
