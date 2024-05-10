@@ -50,7 +50,11 @@ public class RequestedItemComponent extends FlowLayout implements ICollapsible {
         );
         this.selectItemButton.horizontalSizing(Sizing.fixed(100));
 
-        this.giveButton = Components.button(GIVE_ITEM_TEXT, button -> FzmmUtils.giveItem(requestedItem.stack()));
+        this.giveButton = Components.button(GIVE_ITEM_TEXT, button -> {
+            // some editors may not make a copy each time RequestedItem#setStack is used,
+            // and so it would not be added to the history in case the give is used several times
+            FzmmUtils.giveItem(requestedItem.stack().copy());
+        });
         this.giveButton.horizontalSizing(Sizing.fixed(30));
 
         requestedItem.setUpdatePreviewConsumer(itemStack ->
