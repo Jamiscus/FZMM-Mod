@@ -199,9 +199,14 @@ public class ItemSelectEditor implements IItemEditorScreen {
         return result;
     }
 
+    /**
+     * Get the items of the item group but removing the ones that have nbt, and it is not the default nbt,
+     * this is to remove things like 'useful block states' or 'loot container' item group added by fzmm,
+     * since the nbt will not be applied and in this editor, as only the item itself is important
+     */
     private List<Item> getItemGroupsItems(ItemGroup group) {
         return group.getDisplayStacks().stream()
-                .filter(stack -> !stack.hasNbt())
+                .filter(stack -> !stack.hasNbt() || ItemStack.areEqual(stack, stack.getItem().getDefaultStack()))
                 .map(ItemStack::getItem)
                 .distinct()
                 .toList();
