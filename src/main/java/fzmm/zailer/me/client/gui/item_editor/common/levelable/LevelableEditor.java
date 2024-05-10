@@ -130,8 +130,7 @@ public abstract class LevelableEditor<V, D extends ILevelable<V>, B extends ILev
         ConfigTextBox setLevelToAllTextBox = editorLayout.childById(ConfigTextBox.class, "set-level-to-all");
         BaseFzmmScreen.checkNull(setLevelToAllTextBox, "text-box", "set-level-to-all");
         setLevelToAllTextBox.configureForNumber(Integer.class);
-        setLevelToAllTextBox.setText("1");
-        setLevelToAllTextBox.setCursorToStart(false);
+        setLevelToAllTextBox.text("1");
         setLevelToAllTextBox.applyPredicate(s -> {
             try {
                 int value = Integer.parseInt(s);

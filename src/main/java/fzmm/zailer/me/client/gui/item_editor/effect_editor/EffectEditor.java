@@ -81,8 +81,7 @@ public class EffectEditor extends LevelableEditor<StatusEffect, EffectBuilder.Ef
         ConfigTextBox setDurationsTextBox = new ConfigTextBox();
         AppliedEffectComponent.configureForTime(setDurationsTextBox);
         setDurationsTextBox.horizontalSizing(Sizing.fixed(40));
-        setDurationsTextBox.setText("10s");
-        setDurationsTextBox.setCursorToStart(false);
+        setDurationsTextBox.text("10s");
         setDurationsTextBox.onChanged().subscribe(value -> this.setDurationsExecute(setDurationsTextBox));
 
         topOptionsLayout.child(labelComponent);

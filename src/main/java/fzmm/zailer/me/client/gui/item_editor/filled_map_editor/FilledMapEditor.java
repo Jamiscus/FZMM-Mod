@@ -105,10 +105,7 @@ public class FilledMapEditor extends SelectableEditor<MapComponent> {
 
     @Override
     protected void select(MapComponent component) {
-        component.getMapData().ifPresent(filledMapData -> {
-            this.mapIdTextBox.setText(String.valueOf(filledMapData.id()));
-            this.mapIdTextBox.setCursorToStart(false);
-        });
+        component.getMapData().ifPresent(filledMapData -> this.mapIdTextBox.text(String.valueOf(filledMapData.id())));
     }
 
     @Override
@@ -137,10 +134,7 @@ public class FilledMapEditor extends SelectableEditor<MapComponent> {
     @Override
     public void selectItemAndUpdateParameters(ItemStack stack) {
         this.builder.of(stack);
-        this.builder.id().ifPresent(integer -> {
-            this.mapIdTextBox.setText(String.valueOf(integer));
-            this.mapIdTextBox.setCursorToStart(false);
-        });
+        this.builder.id().ifPresent(integer -> this.mapIdTextBox.text(String.valueOf(integer)));
     }
     @Override
     protected void updateComponent(Component component, int index) {

@@ -132,8 +132,7 @@ public class AppliedEffectComponent extends AppliedLevelableComponent<StatusEffe
     }
 
     public void setDuration(String duration) {
-        this.durationTextBox.setText(duration);
-        this.durationTextBox.setCursorToStart(false);
+        this.durationTextBox.text(duration);
     }
 
     public void setDuration(int duration) {

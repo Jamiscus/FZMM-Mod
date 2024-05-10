@@ -148,7 +148,7 @@ public class ColorEditor implements IItemEditorScreen {
 
         if (hasTag) {
             int color = AutoDetectColorAlgorithm.algorithm.getColor(stack);
-            this.colorComponent.setText(Color.ofRgb(color).asHexString(false));
+            this.colorComponent.text(Color.ofRgb(color).asHexString(false));
         }
 
         this.checkboxComponent.checked(hasTag);

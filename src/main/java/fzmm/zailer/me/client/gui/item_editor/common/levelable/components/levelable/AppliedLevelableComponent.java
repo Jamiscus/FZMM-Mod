@@ -34,9 +34,8 @@ public class AppliedLevelableComponent<V, D extends ILevelable<V>, B extends ILe
     @Override
     protected List<? extends Component> getOptions() {
         ConfigTextBox textBox = new ConfigTextBox().configureForNumber(Integer.class);
-        textBox.setText(String.valueOf(this.getLevelable().getLevel()));
+        textBox.text(String.valueOf(this.getLevelable().getLevel()));
         textBox.horizontalSizing(Sizing.fixed(40));
-        textBox.setCursorToStart(false);
         this.textBox = textBox;
 
         this.textBox.onChanged().subscribe(value -> this.onLevelChanged());
@@ -113,7 +112,7 @@ public class AppliedLevelableComponent<V, D extends ILevelable<V>, B extends ILe
         int parsedValue = this.getLevel();
         if (!this.textBox.isValid() && !this.textBox.getText().isEmpty()) {
             parsedValue = MathHelper.clamp(parsedValue, this.minLevel, this.maxLevel);
-            this.textBox.setText(String.valueOf(parsedValue));
+            this.textBox.text(String.valueOf(parsedValue));
         }
 
         this.textBox.setEditableColor(this.textBox.validColor());
