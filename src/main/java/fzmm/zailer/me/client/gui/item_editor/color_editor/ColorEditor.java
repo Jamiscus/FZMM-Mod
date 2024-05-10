@@ -77,7 +77,11 @@ public class ColorEditor implements IItemEditorScreen {
             return true;
         });
 
-        this.colorComponent = ColorRow.setup(editorLayout, "color", Color.WHITE, false, 500, s -> this.updateItemPreview());
+        this.colorComponent = ColorRow.setup(editorLayout, "color", Color.WHITE, false, 500, s -> {
+            this.checkboxComponent.checked(true);
+
+            this.updateItemPreview();
+        });
 
         this.colorButtons = new ArrayList<>();
         this.colorableStack = Items.AIR.getDefaultStack();
@@ -141,12 +145,13 @@ public class ColorEditor implements IItemEditorScreen {
         this.colorableStack = stack.copy();
 
         boolean hasTag = AutoDetectColorAlgorithm.algorithm.hasTag(stack);
-        this.checkboxComponent.checked(hasTag);
 
         if (hasTag) {
             int color = AutoDetectColorAlgorithm.algorithm.getColor(stack);
             this.colorComponent.setText(Color.ofRgb(color).asHexString(false));
         }
+
+        this.checkboxComponent.checked(hasTag);
     }
 
 }
