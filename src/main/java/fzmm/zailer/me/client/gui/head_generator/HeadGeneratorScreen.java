@@ -238,19 +238,19 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             return;
         }
 
-        List<AbstractHeadEntry> headEntriesList = HeadResourcesLoader.getPreloaded();
+        List<HeadComponentEntry> headComponentList = this.getHeadComponents(HeadResourcesLoader.getPreloaded());
 
-        if (headEntriesList.isEmpty()) {
+        if (headComponentList.isEmpty()) {
             this.addNoResultsMessage(rootComponent);
             return;
         }
 
-        this.headComponentEntries.addAll(this.getHeadComponents(headEntriesList));
+        this.headComponentEntries.addAll(headComponentList);
         this.applyFilters();
     }
 
     private List<HeadComponentEntry> getHeadComponents(List<AbstractHeadEntry> headEntriesList) {
-        List<HeadComponentEntry> headEntries = new ArrayList<>(headEntriesList.size());
+        List<HeadComponentEntry> headEntries = new ArrayList<>();
 
         for (AbstractHeadEntry entry : headEntriesList) {
             HeadComponentEntry headComponentEntry = new HeadComponentEntry(entry, this);
@@ -269,6 +269,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     }
 
     private void addNoResultsMessage(FlowLayout parent) {
+        FzmmClient.LOGGER.warn("[HeadGeneratorScreen] No head entries found");
         Component label = Components.label(Text.translatable("fzmm.gui.headGenerator.label.noResults")
                         .setStyle(Style.EMPTY.withColor(0xD83F27)))
                 .horizontalTextAlignment(HorizontalAlignment.CENTER)
