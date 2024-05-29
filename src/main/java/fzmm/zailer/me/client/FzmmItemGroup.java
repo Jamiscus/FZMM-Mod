@@ -5,6 +5,7 @@ import fzmm.zailer.me.builders.BlockStateItemBuilder;
 import fzmm.zailer.me.builders.CrossbowBuilder;
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.TagsConstant;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.entity.BlockEntity;
@@ -13,6 +14,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ContainerLootComponent;
 import net.minecraft.component.type.FireworksComponent;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.*;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.LootTables;
@@ -190,8 +192,16 @@ public class FzmmItemGroup {
         NbtCompound entityTag = new NbtCompound();
         entityTag.putBoolean("Invisible", true);
 
-        itemFrame.apply(DataComponentTypes.ENTITY_DATA, null, nbtComponent -> NbtComponent.of(entityTag));
-        glowItemFrame.apply(DataComponentTypes.ENTITY_DATA, null, nbtComponent -> NbtComponent.of(entityTag));
+        itemFrame.apply(DataComponentTypes.ENTITY_DATA, null, nbtComponent -> {
+            NbtCompound result = entityTag.copy();
+            result.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getId(EntityType.ITEM_FRAME).getPath());
+            return NbtComponent.of(result);
+        });
+        glowItemFrame.apply(DataComponentTypes.ENTITY_DATA, null, nbtComponent -> {
+            NbtCompound result = entityTag.copy();
+            result.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getId(EntityType.GLOW_ITEM_FRAME).getPath());
+            return NbtComponent.of(result);
+        });
 
         itemFrame.apply(DataComponentTypes.CUSTOM_NAME, null, component -> {
             Text translation = Text.translatable(OPERATOR_BASE_TRANSLATION_KEY + ".invisibleItemFrame");
