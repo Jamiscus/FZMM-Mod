@@ -10,6 +10,7 @@ import org.apache.http.client.HttpResponseException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ public class HeadGalleryResources {
     }
 
     private static ObjectArrayList<MinecraftHeadsData> fetchUrl(String url, String category, boolean cacheCategories) throws Exception {
-        URL obj = new URL(url);
+        URL obj = URI.create(url).toURL();
         HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
         conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
         conn.setRequestMethod("GET");
