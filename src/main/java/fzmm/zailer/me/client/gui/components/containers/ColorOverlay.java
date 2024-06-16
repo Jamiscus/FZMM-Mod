@@ -86,9 +86,54 @@ public class ColorOverlay extends OverlayContainer<FlowLayout> {
         ScrollContainer<FlowLayout> favoriteColorsScroll = Containers.verticalScroll(Sizing.content(), Sizing.fill(75), favoriteColorsComponent);
         favoriteColorsScroll.scrollbar(ScrollContainer.Scrollbar.flat(Color.WHITE));
 
-        ButtonComponent removeColorButton = Components.button(Text.translatable("fzmm.gui.button.remove"), button -> {
-            if (this.selectedColor == null)
+        ButtonComponent removeColorButton = Components.button(Text.translatable("fzmm.gui.button.remove"),
+                this.removeFavoriteExecute(favoriteColorsComponent, config));
+        removeColorButton.sizing(Sizing.fixed(50), Sizing.fixed(15))
+                .zIndex(300)
+                .id("remove-favorite-button");
+
+        ButtonComponent addColorButton = Components.button(Text.translatable("fzmm.gui.button.add"),
+                this.addFavoriteExecute(picker, favoriteColorsComponent, config));
+
+        addColorButton.sizing(Sizing.fixed(50), Sizing.fixed(15))
+                .zIndex(300)
+                .id("add-favorite-button");
+
+        FlowLayout buttonsLayout = this.getButtonsLayout(removeColorButton, addColorButton);
+
+        layout.children(List.of(labelComponent, favoriteColorsScroll, buttonsLayout));
+
+        return layout;
+    }
+
+    private Consumer<ButtonComponent> addFavoriteExecute(ColorPickerComponent picker, FlowLayout favoriteColorsComponent, FzmmConfig.Colors config) {
+        return button -> {
+            Color selectedColor = picker.selectedColor();
+            if (this.getFavoriteList(favoriteColorsComponent).stream().anyMatch(color -> color.equals(selectedColor))) {
                 return;
+            }
+
+            FlowLayout colorLayout = (FlowLayout) this.newColorBox(picker, selectedColor);
+
+            this.colorsLayouts.add(colorLayout);
+            favoriteColorsComponent.child(colorLayout);
+            this.updateSelected(selectedColor, colorLayout);
+
+            config.favoriteColors(this.getFavoriteList(favoriteColorsComponent));
+            FzmmClient.CONFIG.save();
+        };
+    }
+
+    private Consumer<ButtonComponent> removeFavoriteExecute(FlowLayout favoriteColorsComponent, FzmmConfig.Colors config) {
+        return button -> {
+            if (this.selectedColor == null) {
+                return;
+            }
+
+            List<Color> updatedFavoriteColors = new ArrayList<>(config.favoriteColors());
+            if (!updatedFavoriteColors.removeIf(color -> color.equals(this.selectedColor))) {
+                return;
+            }
 
             List<Component> favoriteColorsComponentList = List.copyOf(favoriteColorsComponent.children());
             for (var favoriteColor : favoriteColorsComponentList) {
@@ -100,40 +145,12 @@ public class ColorOverlay extends OverlayContainer<FlowLayout> {
                     this.colorsLayouts.remove(favoriteColor);
                 }
             }
+
             this.updateSelected(null, null);
 
-            config.favoriteColors(this.getFavoriteList(favoriteColorsComponent));
+            config.favoriteColors(updatedFavoriteColors);
             FzmmClient.CONFIG.save();
-        });
-        removeColorButton.sizing(Sizing.fixed(50), Sizing.fixed(15))
-                .zIndex(300)
-                .id("remove-favorite-button");
-
-        ButtonComponent addColorButton = Components.button(Text.translatable("fzmm.gui.button.add"),
-                button -> {
-                    Color selectedColor = picker.selectedColor();
-                    FlowLayout colorLayout = (FlowLayout) this.newColorBox(picker, picker.selectedColor());
-                    List<Component> favoriteColorsList = favoriteColorsComponent.children();
-
-                    if (!favoriteColorsList.contains(colorLayout)) {
-                        this.colorsLayouts.add(colorLayout);
-                        favoriteColorsComponent.child(colorLayout);
-                        this.updateSelected(selectedColor, colorLayout);
-
-                        config.favoriteColors(this.getFavoriteList(favoriteColorsComponent));
-                        FzmmClient.CONFIG.save();
-                    }
-                });
-
-        addColorButton.sizing(Sizing.fixed(50), Sizing.fixed(15))
-                .zIndex(300)
-                .id("add-favorite-button");
-
-        FlowLayout buttonsLayout = this.getButtonsLayout(removeColorButton, addColorButton);
-
-        layout.children(List.of(labelComponent, favoriteColorsScroll, buttonsLayout));
-
-        return layout;
+        };
     }
 
     private List<Color> getFavoriteList(FlowLayout favoriteColorsComponent) {
