@@ -30,6 +30,7 @@ public abstract class AbstractHeadComponentEntry extends FlowLayout implements I
     protected AbstractHeadEntry entry;
     private EntityComponent<Entity> previewComponent;
     private NativeImageBackedTexture previewTexture;
+    private BufferedImage previewHead;
     protected final HeadGeneratorScreen parentScreen;
     protected OverlayContainer<FlowLayout> overlayContainer;
     private boolean isBodyPreview;
@@ -109,17 +110,29 @@ public abstract class AbstractHeadComponentEntry extends FlowLayout implements I
     }
 
     public void update(BufferedImage baseSkin, boolean isSlim) {
-        BufferedImage previewSkin;
-
         this.close();
+
+        if (this.updateHead(baseSkin)) {
+            this.updatePreview(isSlim);
+        }
+    }
+
+    public boolean updateHead(BufferedImage baseSkin) {
         try {
-            previewSkin = this.entry.getHeadSkin(baseSkin);
+            this.previewHead = this.entry.getHeadSkin(baseSkin);
         } catch (Exception e) {
-            FzmmClient.LOGGER.error("Failed to update preview skin of '{}'", this.entry.getKey(), e);
-            return;
+            FzmmClient.LOGGER.error("[AbstractHeadListEntry] Failed to update preview skin of '{}'", this.entry.getKey(), e);
+            return false;
         }
 
-        this.updatePreview(previewSkin, isSlim);
+        return true;
+    }
+
+    public void updatePreview(boolean isSlim) {
+        if (this.previewHead != null) {
+            this.updatePreview(this.previewHead, isSlim);
+            this.previewHead = null;
+        }
     }
 
     public void updatePreview(BufferedImage previewSkin, boolean isSlim) {
@@ -150,6 +163,7 @@ public abstract class AbstractHeadComponentEntry extends FlowLayout implements I
 
         this.previewTexture.close();
         this.previewTexture = null;
+        this.previewHead = null;
     }
 
     public BufferedImage getPreview() {

@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.entity.custom_skin;
 
 import fzmm.zailer.me.client.FzmmClient;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -25,7 +26,7 @@ public class CustomHeadEntity extends MobEntity implements ISkinMutable {
                     .build()
     );
 
-    private Identifier customHeadTexture;
+    private Identifier customHeadTexture = DefaultSkinHelper.getTexture();
 
     public CustomHeadEntity(World world) {
         super(CUSTOM_HEAD_ENTITY_TYPE, world);
