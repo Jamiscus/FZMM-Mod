@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 
@@ -63,7 +64,7 @@ public class ImageUtils {
     }
 
     public static Optional<BufferedImage> getImageFromUrl(String urlLocation) throws IOException {
-        URL url = new URL(urlLocation);
+        URL url = URI.create(urlLocation).toURL();
         return Optional.ofNullable(ImageIO.read(url));
     }
 

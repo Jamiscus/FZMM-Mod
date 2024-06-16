@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,7 +75,7 @@ public class HeadUtils {
                 ImageIO.write(headSkin, "png", baos);
                 byte[] skin = baos.toByteArray();
 
-                URL url = new URL(MINESKIN_API + "generate/upload");
+                URL url = URI.create(MINESKIN_API + "generate/upload").toURL();
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setDoOutput(true);
                 conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
