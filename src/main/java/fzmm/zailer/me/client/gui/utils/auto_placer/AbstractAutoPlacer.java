@@ -73,7 +73,7 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
         assert this.client != null;
         assert this.client.player != null;
         this.client.execute(() -> {
-            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
             PlayerStatuePlacerScreen.isActive = true;
             this.cancelButton.active = false;
 
@@ -113,6 +113,8 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
 
                 sneakToggled.setValue(isSneakToggled);
                 this.client.options.sneakKey.setPressed(false);
+
+                scheduler.shutdownNow();
             }, (containerItemsSize + 2) * (long) DELAY_IN_MILLISECONDS, TimeUnit.MILLISECONDS);
 
             scheduler.shutdown();
