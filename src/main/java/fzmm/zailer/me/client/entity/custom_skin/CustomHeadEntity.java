@@ -22,11 +22,10 @@ public class CustomHeadEntity extends MobEntity implements ISkinMutable {
                     .build()
     );
 
-    private Identifier customHeadTexture;
+    private Identifier customHeadTexture = DefaultSkinHelper.getTexture();
 
     public CustomHeadEntity(World world) {
         super(CUSTOM_HEAD_ENTITY_TYPE, world);
-        this.setSkin(DefaultSkinHelper.getTexture(), false);
     }
 
     @Override
