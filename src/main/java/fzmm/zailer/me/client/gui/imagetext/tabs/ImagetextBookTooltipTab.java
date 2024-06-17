@@ -11,7 +11,6 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.client.toast.BookNbtOverflowToast;
-import fzmm.zailer.me.exceptions.BookNbtOverflow;
 import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -44,36 +43,34 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
         String author = this.bookTooltipAuthor.getText();
         String bookMessage = this.bookTooltipMessage.getText();
 
-        try {
-            BookBuilder bookBuilder = bookOption.getBookBuilder()
-                    .author(author)
-                    .addPage(Text.literal(Formatting.BLUE + bookMessage)
-                            .setStyle(Style.EMPTY
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, logic.getText()))
-                            )
-                    );
+        BookBuilder bookBuilder = bookOption.getBookBuilder()
+                .author(author)
+                .addPage(Text.literal(Formatting.BLUE + bookMessage)
+                        .setStyle(Style.EMPTY
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, logic.getText()))
+                        )
+                );
 
-            ItemStack book = bookBuilder.get();
+        ItemStack book = bookBuilder.get();
 
-            WrittenBookContentComponent bookContent = book.getComponents().get(DataComponentTypes.WRITTEN_BOOK_CONTENT);
-            DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+        WrittenBookContentComponent bookContent = book.getComponents().get(DataComponentTypes.WRITTEN_BOOK_CONTENT);
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
 
-            if (bookContent == null) {
-                FzmmClient.LOGGER.warn("[ImagetextBookTooltipTab] Book has no written book content component");
+        if (bookContent == null) {
+            FzmmClient.LOGGER.warn("[ImagetextBookTooltipTab] Book has no written book content component");
+            return;
+        }
+
+        for (var pageFilteredPair : bookContent.pages()) {
+            Text pageText = pageFilteredPair.raw();
+            if (pageText != null && WrittenBookContentComponent.exceedsSerializedLengthLimit(pageText, registryManager)) {
+                int length = Text.Serialization.toJsonString(pageText, registryManager).length();
+                MinecraftClient.getInstance().getToastManager().add(new BookNbtOverflowToast(length));
                 return;
             }
-
-            for (var pageFilteredPair : bookContent.pages()) {
-                Text pageText = pageFilteredPair.raw();
-                if (pageText != null && WrittenBookContentComponent.exceedsSerializedLengthLimit(pageText, registryManager)) {
-                    throw new BookNbtOverflow(pageText.getString().length());
-                }
-            }
-
-            FzmmUtils.giveItem(book);
-        } catch (BookNbtOverflow e) {
-            MinecraftClient.getInstance().getToastManager().add(new BookNbtOverflowToast(e));
         }
+
+        FzmmUtils.giveItem(book);
     }
 
     @Override
