@@ -2,19 +2,19 @@ package fzmm.zailer.me.client.toast;
 
 import fzmm.zailer.me.client.FzmmIcons;
 import fzmm.zailer.me.client.toast.status.IStatus;
-import fzmm.zailer.me.exceptions.BookNbtOverflow;
 import io.wispforest.owo.itemgroup.Icon;
+import net.minecraft.component.type.WrittenBookContentComponent;
 import net.minecraft.text.Text;
 
 public class BookNbtOverflowToast extends AbstractStatusToast {
 
     private final IStatus status;
 
-    public BookNbtOverflowToast(BookNbtOverflow bookNbtOverflow) {
+    public BookNbtOverflowToast(int pageLength) {
         this.status = new IStatus() {
             @Override
             public Text getStatusTranslation() {
-                return Text.translatable("fzmm.toast.bookTooltip.overflow.title", bookNbtOverflow.getBookNbtSize(), BookNbtOverflow.MAX_BOOK_NBT_SIZE);
+                return Text.translatable("fzmm.toast.bookTooltip.overflow.title", pageLength, WrittenBookContentComponent.MAX_SERIALIZED_PAGE_LENGTH);
             }
 
             @Override
