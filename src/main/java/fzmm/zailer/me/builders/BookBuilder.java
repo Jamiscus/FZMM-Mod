@@ -87,8 +87,16 @@ public class BookBuilder {
     public ItemStack get() {
         ItemStack stack = new ItemStack(Items.WRITTEN_BOOK);
 
-        stack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, WrittenBookContentComponent.DEFAULT, component ->
-                new WrittenBookContentComponent(this.title, this.author, this.generation, this.pages, this.resolved));
+
+        stack.apply(DataComponentTypes.WRITTEN_BOOK_CONTENT, WrittenBookContentComponent.DEFAULT, component -> {
+            RawFilteredPair<String> titleCopy = this.title;
+            if (titleCopy.get(false).length() > WrittenBookContentComponent.MAX_TITLE_LENGTH) {
+                titleCopy = RawFilteredPair.of(titleCopy.get(false)
+                        .substring(0, WrittenBookContentComponent.MAX_TITLE_LENGTH));
+            }
+
+            return new WrittenBookContentComponent(titleCopy, this.author, this.generation, this.pages, this.resolved);
+        });
 
         return stack;
     }
