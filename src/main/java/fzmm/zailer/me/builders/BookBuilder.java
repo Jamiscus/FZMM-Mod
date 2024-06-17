@@ -99,8 +99,12 @@ public class BookBuilder {
         tag.put(WrittenBookItem.PAGES_KEY, this.pages);
         tag.putInt(WrittenBookItem.GENERATION_KEY, this.generation);
         tag.putString(WrittenBookItem.AUTHOR_KEY, this.author);
-        if (this.title != null)
+        if (this.title != null) {
+            if (this.title.length() > WrittenBookItem.MAX_TITLE_VIEW_LENGTH) {
+                this.title = this.title.substring(0, WrittenBookItem.MAX_TITLE_VIEW_LENGTH);
+            }
             tag.putString(WrittenBookItem.TITLE_KEY, this.title);
+        }
 
         stack.setNbt(tag);
 
