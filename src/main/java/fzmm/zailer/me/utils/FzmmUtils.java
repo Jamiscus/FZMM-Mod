@@ -7,6 +7,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.FzmmHistory;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -19,6 +21,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.*;
@@ -73,10 +77,13 @@ public class FzmmUtils {
             return;
         }
 
-        if (Items.PLAYER_HEAD == stack.getItem())
-            FzmmHistory.addGeneratedHeads(stack);
-        else
-            FzmmHistory.addGeneratedItems(stack);
+        FzmmHistory.add(stack);
+
+        if (FzmmClient.CONFIG.general.checkValidCodec() && !isCodecValid(stack)) {
+            mc.player.sendMessage(Text.translatable("fzmm.giveItem.codecError").setStyle(Style.EMPTY.withColor(Formatting.RED)));
+            FzmmClient.LOGGER.warn("[FzmmUtils] An item with an invalid codec was found: {}", stack.getComponents().toString());
+            return;
+        }
 
         if (!isAllowedToGive()) {
             mc.player.sendMessage(Text.translatable("fzmm.item.error.notAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
@@ -89,6 +96,19 @@ public class FzmmUtils {
             playerInventory.addPickBlock(stack);
             updateHand(stack);
         }
+    }
+
+    public static boolean isCodecValid(ItemStack stack) {
+        try {
+            CreativeInventoryActionC2SPacket packet = new CreativeInventoryActionC2SPacket(0, stack);
+            ByteBuf buf = Unpooled.buffer();
+            RegistryByteBuf registryByteBuf = new RegistryByteBuf(buf, getRegistryManager());
+            CreativeInventoryActionC2SPacket.CODEC.encode(registryByteBuf, packet);
+            CreativeInventoryActionC2SPacket.CODEC.decode(registryByteBuf);
+        } catch (Exception ignored) {
+            return false;
+        }
+        return true;
     }
 
     public static void updateHand(ItemStack stack) {
@@ -177,7 +197,6 @@ public class FzmmUtils {
     }
 
     /**
-     *
      * @param widthGetter Object is either StringVisitable or OrderedText
      */
     public static <T> int getMaxWidth(Collection<T> collection, Function<T, Object> widthGetter) {
@@ -206,7 +225,7 @@ public class FzmmUtils {
     }
 
     public static DyeColor[] getDyeColorsInOrder() {
-        DyeColor[] result = new DyeColor[] {
+        DyeColor[] result = new DyeColor[]{
                 DyeColor.WHITE,
                 DyeColor.LIGHT_GRAY,
                 DyeColor.GRAY,
@@ -229,7 +248,7 @@ public class FzmmUtils {
     }
 
     public static Formatting[] getFormattingColorsInOrder() {
-        Formatting[] result = new Formatting[] {
+        Formatting[] result = new Formatting[]{
                 Formatting.WHITE,
                 Formatting.GRAY,
                 Formatting.DARK_GRAY,

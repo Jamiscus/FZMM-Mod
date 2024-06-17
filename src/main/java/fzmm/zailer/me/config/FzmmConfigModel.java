@@ -50,6 +50,7 @@ public class FzmmConfigModel {
         public boolean giveClientSide = false;
         public boolean showSymbolButton = true;
         public boolean showItemSize = true;
+        public boolean checkValidCodec = true;
     }
 
     public static class ItemEditorBannerNest {
