@@ -1,6 +1,8 @@
 package fzmm.zailer.me.client.gui.imagetext.algorithms;
 
+import fzmm.zailer.me.client.gui.components.BooleanButton;
 import fzmm.zailer.me.client.gui.components.SliderWidget;
+import fzmm.zailer.me.client.gui.components.row.BooleanRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
@@ -17,10 +19,12 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     private static final String[] BRAILLE_CHARACTERS;
     private static final String EDGE_THRESHOLD_ID = "edgeThreshold";
     private static final String EDGE_DISTANCE_ID = "edgeDistance";
+    private static final String INVERT_ID = "invert";
     private static final byte BRAILLE_CHARACTER_WIDTH = 2;
     private static final byte BRAILLE_CHARACTER_HEIGHT = 4;
     private SliderWidget edgeThresholdSlider;
     private SliderWidget edgeDistanceSlider;
+    private BooleanButton invertBooleanButton;
 
     @Override
     public String getId() {
@@ -51,6 +55,7 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     public void setupComponents(FlowLayout rootComponent) {
         this.edgeThresholdSlider = SliderRow.setup(rootComponent, EDGE_THRESHOLD_ID, 30, 1, 255, Integer.class, 0, 1, null);
         this.edgeDistanceSlider = SliderRow.setup(rootComponent, EDGE_DISTANCE_ID, 2, 1, 5, Integer.class, 0, 1, null);
+        this.invertBooleanButton = BooleanRow.setup(rootComponent, INVERT_ID, false, null);
     }
 
     @Override
@@ -81,40 +86,33 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
      *                      and height multiply of {@link ImagetextBrailleAlgorithm#BRAILLE_CHARACTER_HEIGHT}
      */
     public String getBrailleCharacter(BufferedImage grayScaleImage, int x, int y, int edgeThreshold, int edgeDistance) {
-        int index = 0B11111111;
+        int index = BRAILLE_CHARACTERS.length - 1;
         int yOffset = y;
 
-        if (this.isEdge(grayScaleImage, x, yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(0);
-
-        if (this.isEdge(grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(1);
-
-        if (this.isEdge(grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(2);
-
-        if (this.isEdge(grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(3);
+        index -= this.getBrailleCharacterIndex(0, grayScaleImage, x, yOffset, edgeThreshold, edgeDistance);
+        index -= this.getBrailleCharacterIndex(1, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
+        index -= this.getBrailleCharacterIndex(2, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
+        index -= this.getBrailleCharacterIndex(3, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
 
         yOffset = y;
 
-        if (this.isEdge(grayScaleImage, ++x, yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(4);
+        index -= this.getBrailleCharacterIndex(4, grayScaleImage, ++x, yOffset, edgeThreshold, edgeDistance);
+        index -= this.getBrailleCharacterIndex(5, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
+        index -= this.getBrailleCharacterIndex(6, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
+        index -= this.getBrailleCharacterIndex(7, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
 
-        if (this.isEdge(grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(5);
-
-        if (this.isEdge(grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(6);
-
-        if (this.isEdge(grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance))
-            index -= this.getBrailleCharacterIndex(7);
+        if (this.invertBooleanButton.enabled()) {
+            index = BRAILLE_CHARACTERS.length - 1 - index;
+        }
 
         return BRAILLE_CHARACTERS[index];
     }
 
-    private int getBrailleCharacterIndex(int index) {
-        return 1 << index;
+    private int getBrailleCharacterIndex(int index, BufferedImage grayScaleImage, int x, int y, int edgeThreshold, int edgeDistance) {
+        if (this.isEdge(grayScaleImage, x, y, edgeThreshold, edgeDistance))
+            return 1 << index;
+
+        return 0;
     }
 
     // pain
@@ -162,7 +160,11 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
 
     @Override
     public IMementoObject createMemento() {
-        return new BrailleAlgorithmMementoTab((int) this.edgeThresholdSlider.discreteValue(), (int) this.edgeDistanceSlider.discreteValue());
+        return new BrailleAlgorithmMementoTab(
+                (int) this.edgeThresholdSlider.discreteValue(),
+                (int) this.edgeDistanceSlider.discreteValue(),
+                this.invertBooleanButton.enabled()
+        );
     }
 
     @Override
@@ -170,9 +172,10 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
         BrailleAlgorithmMementoTab memento = (BrailleAlgorithmMementoTab) mementoObject;
         this.edgeThresholdSlider.setFromDiscreteValue(memento.edgeThreshold);
         this.edgeDistanceSlider.setFromDiscreteValue(memento.edgeDistance);
+        this.invertBooleanButton.enabled(memento.invert);
     }
 
-    private record BrailleAlgorithmMementoTab(int edgeThreshold, int edgeDistance) implements IMementoObject {
+    private record BrailleAlgorithmMementoTab(int edgeThreshold, int edgeDistance, boolean invert) implements IMementoObject {
     }
 
     static {
