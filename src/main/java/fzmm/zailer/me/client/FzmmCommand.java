@@ -169,7 +169,7 @@ public class FzmmCommand {
                 .executes(ctx -> sendHelpMessage("commands.fzmm.enchant.help", BASE_COMMAND + " enchant <enchantment> <level>"))
                 .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT)).executes(ctx -> {
                     @SuppressWarnings("unchecked")
-                    Enchantment enchant = ((RegistryEntry.Reference<Enchantment>) ctx.getArgument("enchantment", RegistryEntry.Reference.class)).value();
+                    RegistryEntry.Reference<Enchantment> enchant = ctx.getArgument("enchantment", RegistryEntry.Reference.class);
 
                     addEnchant(enchant, (short) 1);
                     return 1;
@@ -177,7 +177,7 @@ public class FzmmCommand {
                 }).then(ClientCommandManager.argument("level", IntegerArgumentType.integer(0, 255)).executes(ctx -> {
 
                     @SuppressWarnings("unchecked")
-                    Enchantment enchant = ((RegistryEntry.Reference<Enchantment>) ctx.getArgument("enchantment", RegistryEntry.Reference.class)).value();
+                    RegistryEntry.Reference<Enchantment> enchant = ctx.getArgument("enchantment", RegistryEntry.Reference.class);
                     int level = ctx.getArgument("level", int.class);
 
                     addEnchant(enchant, (short) level);
@@ -190,7 +190,7 @@ public class FzmmCommand {
                 .then(ClientCommandManager.argument("enchantment", RegistryEntryReferenceArgumentType.registryEntry(registryAccess, RegistryKeys.ENCHANTMENT)).executes(ctx -> {
 
                     @SuppressWarnings("unchecked")
-                    Enchantment enchant = ((RegistryEntry.Reference<Enchantment>) ctx.getArgument("enchantment", RegistryEntry.Reference.class)).value();
+                    RegistryEntry.Reference<Enchantment> enchant = ctx.getArgument("enchantment", RegistryEntry.Reference.class);
 
                     addFakeEnchant(enchant, 1);
                     return 1;
@@ -198,7 +198,7 @@ public class FzmmCommand {
                 }).then(ClientCommandManager.argument("level", IntegerArgumentType.integer()).executes(ctx -> {
 
                     @SuppressWarnings("unchecked")
-                    Enchantment enchant = ((RegistryEntry.Reference<Enchantment>) ctx.getArgument("enchantment", RegistryEntry.Reference.class)).value();
+                    RegistryEntry.Reference<Enchantment> enchant = ctx.getArgument("enchantment", RegistryEntry.Reference.class);
                     int level = ctx.getArgument("level", int.class);
 
                     addFakeEnchant(enchant, level);
@@ -414,7 +414,7 @@ public class FzmmCommand {
     }
 
 
-    private static void addEnchant(Enchantment enchant, short level) {
+    private static void addEnchant(RegistryEntry.Reference<Enchantment> enchant, short level) {
         //{Enchantments:[{message:"minecraft:aqua_affinity",lvl:1s}]}
 
         assert MinecraftClient.getInstance().player != null;
@@ -429,7 +429,7 @@ public class FzmmCommand {
         FzmmUtils.giveItem(stack);
     }
 
-    private static void addFakeEnchant(Enchantment enchant, int level) {
+    private static void addFakeEnchant(RegistryEntry.Reference<Enchantment>  enchant, int level) {
         assert MinecraftClient.getInstance().player != null;
         ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
 
@@ -438,8 +438,8 @@ public class FzmmCommand {
         stack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, component -> {
             List<Text> lines = new ArrayList<>();
 
-            MutableText enchantMessage = enchant.getName(level).copy();
-            enchantMessage = enchant.getName(level).copy().setStyle(enchantMessage.getStyle().withItalic(false));
+            MutableText enchantMessage = Enchantment.getName(enchant, level).copy();
+            enchantMessage = Enchantment.getName(enchant, level).copy().setStyle(enchantMessage.getStyle().withItalic(false));
             Style style = enchantMessage.getStyle();
 
             enchantMessage.getSiblings().forEach(text -> {

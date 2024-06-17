@@ -145,6 +145,6 @@ public class FzmmConfigModel {
 
     @SuppressWarnings("unused")
     public static boolean predicateItem(String value) {
-        return Registries.ITEM.getOrEmpty(new Identifier(value)).isPresent();
+        return Registries.ITEM.getOrEmpty(Identifier.of(value)).isPresent();
     }
 }

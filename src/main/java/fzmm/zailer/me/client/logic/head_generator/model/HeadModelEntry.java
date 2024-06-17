@@ -182,7 +182,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
 
             if (defaultValue != null) {
                 //TODO: HeadResourcesLoader
-                Identifier textureIdentifier = new Identifier(defaultValue);
+                Identifier textureIdentifier = Identifier.of(defaultValue);
                 texture = ImageUtils.getBufferedImgFromIdentifier(textureIdentifier).orElseThrow(() -> new IllegalArgumentException(defaultValue));
             } else {
                 texture = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);

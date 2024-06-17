@@ -2,11 +2,11 @@ package fzmm.zailer.me.mixin.item_stack.tooltip;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.utils.FzmmUtils;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;

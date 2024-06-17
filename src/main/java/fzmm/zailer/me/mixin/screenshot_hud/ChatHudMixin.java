@@ -12,8 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ChatHudMixin {
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void fzmm$removeHandInScreenshotHud(DrawContext context, int currentTick, int mouseX, int mouseY, boolean focused, CallbackInfo ci) {
-        if (ScreenshotSource.hasInstance())
+    private void fzmm$removeChatInScreenshotHud(DrawContext context, int currentTick, int mouseX, int mouseY, boolean focused, CallbackInfo ci) {
+        if (ScreenshotSource.hasInstance()) {
             ci.cancel();
+        }
     }
 }

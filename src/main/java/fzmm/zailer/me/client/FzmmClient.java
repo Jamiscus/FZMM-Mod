@@ -27,21 +27,21 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Environment(EnvType.CLIENT)
 public class FzmmClient implements ClientModInitializer {
 
-    public static final  String MOD_ID = "fzmm";
-    public static final Logger LOGGER = LogManager.getLogger("FZMM");
+    public static final String MOD_ID = "fzmm";
+    public static final Logger LOGGER = LoggerFactory.getLogger("FZMM");
     public static final FzmmConfig CONFIG = FzmmConfig.createAndLoad();
     public static final KeyBinding OPEN_MAIN_GUI_KEYBINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.fzmm.mainGui", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Z, "key.category.fzmm"));
     public static final int CHAT_BASE_COLOR = 0x478e47;
     public static final int CHAT_WHITE_COLOR = 0xb7b7b7;
-    public static final Identifier CUSTOM_HEAD_ENTITY = new Identifier(FzmmClient.MOD_ID, "custom_head");
+    public static final Identifier CUSTOM_HEAD_ENTITY = Identifier.of(FzmmClient.MOD_ID, "custom_head");
     public static final EntityModelLayer MODEL_CUSTOM_HEAD_LAYER = new EntityModelLayer(CUSTOM_HEAD_ENTITY, "main");
     public static final String HTTP_USER_AGENT = "FZMM/1.0";
 
@@ -67,7 +67,7 @@ public class FzmmClient implements ClientModInitializer {
 
         FabricLoader.getInstance().getModContainer(MOD_ID)
                 .map(container -> ResourceManagerHelper.registerBuiltinResourcePack(
-                        new Identifier(MOD_ID, "fzmm_default_heads"),
+                        Identifier.of(MOD_ID, "fzmm_default_heads"),
                         container,
                         Text.literal("FZMM: Head generator"),
                         ResourcePackActivationType.DEFAULT_ENABLED

@@ -61,17 +61,17 @@ public class TextFormatPlaceholderApiTab implements ITextFormatTab {
         List<Component> componentList = new ArrayList<>();
 
         examples.add("<yellow>Yellow, <aqua>aqua, <light_purple>and light purple message");
-        examples.add("<color:#AA0060>Custom <color:#80D000>colors <color:#00C0C0>message");
+        examples.add("<color #AA0060>Custom</color> <color #80D000>colors</color> <color #00C0C0>message</color>");
         examples.add("<strikethrough>strikethrough</strikethrough> <underline>underline</underline>");
         examples.add("<italic>italic</italic> <bold>bold</bold> <obfuscated>obfuscated</obfuscated>");
         examples.add("<st>strikethrough <underlined>underline <i>italic <b>bold <obf>obfuscated");
-        examples.add("<font:default>Default minecraft font, <font:uniform>uniform font, <font:alt>alt font");
-        examples.add("<green><underline><lang:" + Items.KNOWLEDGE_BOOK.getTranslationKey() + "></underline></green>");
-        examples.add("<gr:#306ACF:#4530CF:#30BACF><b>gradient message</b></gr>");
-        examples.add("<hgr:#306ACF:#4530CF:#30BACF><b>hard gradient message</b></hgr>");
+        examples.add("<font default>Default minecraft font, <font uniform>uniform font, <font alt>alt font");
+        examples.add("<green><underline><lang '" + Items.KNOWLEDGE_BOOK.getTranslationKey() + "'></underline></green>");
+        examples.add("<gr #306ACF #4530CF #30BACF><b>gradient message</b></gr>");
+        examples.add("<hgr #306ACF #4530CF #30BACF><b>hard gradient message</b></hgr>");
         examples.add("<rainbow>Rainbow message</rainbow>");
-        examples.add("<rb:0.8:0.7:0>parameters of rainbow are: frequency, saturation, offset</rb>");
-        examples.add("<red><b><underline>Hello<r> world");
+        examples.add("<rb 0.8 0.7 0>parameters of rainbow are: frequency, saturation, offset</rb>");
+        examples.add("<red><b><underline>Hello</></> world");
 
         componentList.add(Components.label(Text.translatable("fzmm.gui.textFormat.label.placeholderApi.examples")));
 

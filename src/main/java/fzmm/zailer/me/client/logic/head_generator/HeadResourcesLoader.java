@@ -56,7 +56,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
 
     @Override
     public Identifier getFabricId() {
-        return new Identifier(FzmmClient.MOD_ID, "head-resources-loader");
+        return Identifier.of(FzmmClient.MOD_ID, "head-resources-loader");
     }
 
     @Override

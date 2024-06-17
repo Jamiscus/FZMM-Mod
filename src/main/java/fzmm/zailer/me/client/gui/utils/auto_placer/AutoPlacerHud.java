@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 
 public class AutoPlacerHud {
     public static boolean isHudActive = false;
-    private static final Identifier HUD_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, "auto_placer_hud");
+    private static final Identifier HUD_IDENTIFIER = Identifier.of(FzmmClient.MOD_ID, "auto_placer_hud");
     private static final List<Activation> activationList = new ArrayList<>();
 
     private static void addHud(Screen screen, List<Requirement> requirements) {

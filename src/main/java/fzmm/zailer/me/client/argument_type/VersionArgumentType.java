@@ -55,7 +55,10 @@ public class VersionArgumentType implements ArgumentType<Pair<String, Integer>> 
     private static List<Pair<String, Integer>> initVersions() {
         List<Pair<String, Integer>> result = new ArrayList<>();
 
-        //result.add(new Pair<>("1.20.5", 3837));
+        //result.add(new Pair<>("1.21", 3953));
+
+        result.add(new Pair<>("1.20.6", 3839));
+        result.add(new Pair<>("1.20.5", 3837));
         result.add(new Pair<>("1.20.4", 3700));
         result.add(new Pair<>("1.20.3", 3698));
         result.add(new Pair<>("1.20.2", 3578));

@@ -4,7 +4,7 @@ import io.wispforest.owo.itemgroup.Icon;
 import net.minecraft.util.Identifier;
 
 public class FzmmIcons {
-    public static final Identifier TEXTURE = new Identifier(FzmmClient.MOD_ID, "textures/gui/widgets.png");
+    public static final Identifier TEXTURE = Identifier.of(FzmmClient.MOD_ID, "textures/gui/widgets.png");
     public static final Icon ERROR;
     public static final Icon SUCCESSFUL;
     public static final Icon LOADING;

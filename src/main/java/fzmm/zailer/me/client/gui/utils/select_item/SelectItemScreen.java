@@ -16,11 +16,11 @@ import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.util.collection.DefaultedList;
 import org.jetbrains.annotations.Nullable;
 

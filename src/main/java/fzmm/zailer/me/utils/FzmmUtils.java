@@ -156,7 +156,7 @@ public class FzmmUtils {
     }
 
     public static Item getItem(String value) {
-        return Registries.ITEM.getOrEmpty(new Identifier(value)).orElse(Items.STONE);
+        return Registries.ITEM.getOrEmpty(Identifier.of(value)).orElse(Items.STONE);
     }
 
     public static boolean isAllowedToGive() {

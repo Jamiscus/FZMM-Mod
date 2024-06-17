@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 public class FzmmItemGroup {
     public static final String OPERATOR_BASE_TRANSLATION_KEY = "itemGroup.op";
     public static final String USEFUL_BLOCK_STATES_BASE_TRANSLATION_KEY = "itemGroup.fzmm.useful_block_states";
-    public static final Identifier USEFUL_BLOCK_STATES_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, "useful_block_states");
-    public static final Identifier LOOT_CHESTS_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, "loot_chests");
+    public static final Identifier USEFUL_BLOCK_STATES_IDENTIFIER = Identifier.of(FzmmClient.MOD_ID, "useful_block_states");
+    public static final Identifier LOOT_CHESTS_IDENTIFIER = Identifier.of(FzmmClient.MOD_ID, "loot_chests");
 
     public static void register() {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(entries -> {

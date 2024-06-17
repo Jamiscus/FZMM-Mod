@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ScreenshotSource implements IInteractiveImageLoader {
-    private static final Identifier HUD_CAPTURE_SCREENSHOT = new Identifier(FzmmClient.MOD_ID, "screenshot_capture");
+    private static final Identifier HUD_CAPTURE_SCREENSHOT = Identifier.of(FzmmClient.MOD_ID, "screenshot_capture");
     private static ScreenshotSource instance;
     private BufferedImage image;
     private Consumer<BufferedImage> consumer;
