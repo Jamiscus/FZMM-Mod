@@ -259,8 +259,14 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
                     List<Component> buttonListCopy = new ArrayList<>(buttonList);
 
                     String valueToLowerCase = value.toLowerCase();
-                    buttonListCopy.removeIf(tagComponent -> tagComponent instanceof ButtonComponent buttonTag
-                            && !buttonTag.getMessage().getString().toLowerCase().contains(valueToLowerCase));
+                    buttonListCopy.removeIf(tagComponent -> {
+                        if (!(tagComponent instanceof ButtonComponent buttonTag)) {
+                            return false;
+                        }
+
+                        String message = buttonTag.getMessage().getString();
+                        return !(message.toLowerCase().contains(valueToLowerCase) || this.selectedTags.contains(message));
+                    });
 
                     tagListLayout.clearChildren();
                     tagListLayout.children(buttonListCopy);
