@@ -77,9 +77,7 @@ public class EncryptbookLogic {
 
     private static ItemStack getBook(int seed, FzmmConfig.Encryptbook config, String bookTitle, String author, List<String> encryptMessage, String encryptMessageString) {
         String translationKeyPrefix = config.translationKeyPrefix();
-        if (bookTitle.contains("%s")) {
-            bookTitle = String.format(bookTitle, translationKeyPrefix + seed);
-        }
+        bookTitle = bookTitle.replaceFirst("%s", translationKeyPrefix + seed);
 
         BookBuilder bookBuilder = BookBuilder.builder()
                 .title(bookTitle)
