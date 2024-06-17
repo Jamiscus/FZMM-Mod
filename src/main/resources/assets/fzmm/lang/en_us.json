@@ -227,6 +227,8 @@
   "fzmm.gui.imagetext.option.bookTooltipMode.tooltip": "Choose how the imagetext will be added to the book.\n\nAdd page: add a page at the end with a message that has the imagetext.\nCreate book: create a book with only the message that has the imagetext.",
   "fzmm.gui.imagetext.option.characters": "Characters",
   "fzmm.gui.imagetext.option.characters.tooltip": "Characters that will be used in the imagetext,\nthis message will be repeated each time it ends until the line is completed\nand it will have the color of the pixel where it is located.\n\nNote: Leaving the default character will replace\nall transparent pixels with spaces to simulate transparency.",
+  "fzmm.gui.imagetext.option.invert": "Invert",
+  "fzmm.gui.imagetext.option.invert.tooltip": "Invert dots of the braille characters.",
   "fzmm.gui.imagetext.option.edgeDistance": "Edge distance",
   "fzmm.gui.imagetext.option.edgeDistance.tooltip": "Distance at which the pixel to which the Edge threshold\nis compared is located.",
   "fzmm.gui.imagetext.option.edgeThreshold": "Edge threshold",
