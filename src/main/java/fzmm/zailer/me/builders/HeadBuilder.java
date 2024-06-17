@@ -43,7 +43,7 @@ public class HeadBuilder {
             propertiesMap.put("textures", new Property("textures", this.skinValue));
 
             return new ProfileComponent(
-                    Optional.ofNullable(this.headName),
+                    safeHeadName(this.headName),
                     Optional.of(this.uuid),
                     propertiesMap
             );
@@ -52,6 +52,20 @@ public class HeadBuilder {
         if (this.addToHeadHistory)
             FzmmHistory.addGeneratedHeads(stack);
         return stack;
+    }
+
+    private static Optional<String> safeHeadName(@Nullable String headName) {
+        if (headName == null) {
+            return Optional.empty();
+        }
+
+        String headNameCopy = headName;
+        // ProfileComponent.PACKET_CODEC max size is 16
+        if (headNameCopy.length() > 16) {
+            headNameCopy = headNameCopy.substring(0, 16);
+        }
+
+        return Optional.of(headNameCopy);
     }
 
     public HeadBuilder skinValue(String skinValue) {
@@ -83,7 +97,7 @@ public class HeadBuilder {
         ItemStack head = Items.PLAYER_HEAD.getDefaultStack();
 
         head.apply(DataComponentTypes.PROFILE, null, component ->
-                new ProfileComponent(Optional.of(username), Optional.empty(), new PropertyMap()));
+                new ProfileComponent(safeHeadName(username), Optional.empty(), new PropertyMap()));
 
         FzmmHistory.addGeneratedHeads(head);
         return head;

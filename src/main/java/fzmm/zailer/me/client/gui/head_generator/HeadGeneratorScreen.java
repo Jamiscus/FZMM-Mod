@@ -108,7 +108,8 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         this.skinElements = ImageRows.setup(rootComponent, SKIN_ID, SKIN_SOURCE_TYPE_ID, ImageMode.NAME);
         this.skinElements.imageButton().setButtonCallback(this::imageCallback);
         this.previousSkinName = "";
-        this.headNameField = TextBoxRow.setup(rootComponent, HEAD_NAME_ID, "", 512);
+        // ProfileComponent.PACKET_CODEC max size is 16
+        this.headNameField = TextBoxRow.setup(rootComponent, HEAD_NAME_ID, "", 16);
         this.skinElements.valueField().onChanged().subscribe(this::onChangeSkinField);
         this.contentLayout = rootComponent.childById(FlowLayout.class, CONTENT_ID);
         checkNull(this.contentLayout, "flow-layout", CONTENT_ID);
