@@ -60,6 +60,9 @@
                                     <fzmm.slider-row>
                                         <id>edgeDistance</id>
                                     </fzmm.slider-row>
+                                    <fzmm.boolean-row>
+                                        <id>invert</id>
+                                    </fzmm.boolean-row>
                                 </children>
                             </fzmm.screen-tab>
 
