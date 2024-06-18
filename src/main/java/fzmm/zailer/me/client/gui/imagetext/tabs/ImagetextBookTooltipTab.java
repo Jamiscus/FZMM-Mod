@@ -15,10 +15,7 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.WrittenBookContentComponent;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -53,20 +50,10 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
 
         ItemStack book = bookBuilder.get();
 
-        WrittenBookContentComponent bookContent = book.getComponents().get(DataComponentTypes.WRITTEN_BOOK_CONTENT);
-        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
-
-        if (bookContent == null) {
-            FzmmClient.LOGGER.warn("[ImagetextBookTooltipTab] Book has no written book content component");
+        int serializedLength = bookBuilder.exceedsSerializedLengthLimit();
+        if (serializedLength != -1) {
+            MinecraftClient.getInstance().getToastManager().add(new BookNbtOverflowToast(serializedLength));
             return;
-        }
-
-        for (var pageFilteredPair : bookContent.pages()) {
-            Text pageText = pageFilteredPair.raw();
-            if (pageText != null && WrittenBookContentComponent.exceedsSerializedLengthLimit(pageText, registryManager)) {
-                int length = Text.Serialization.toJsonString(pageText, registryManager).length();
-                MinecraftClient.getInstance().getToastManager().add(new BookNbtOverflowToast(length));
-            }
         }
 
         FzmmUtils.giveItem(book);

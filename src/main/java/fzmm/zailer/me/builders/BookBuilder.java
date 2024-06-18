@@ -1,10 +1,12 @@
 package fzmm.zailer.me.builders;
 
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.WrittenBookContentComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.RawFilteredPair;
 import net.minecraft.text.Text;
 
@@ -82,6 +84,23 @@ public class BookBuilder {
     public BookBuilder generation(int generation) {
         this.generation = generation;
         return this;
+    }
+
+    /**
+     * Checks if the book exceeds the serialized length limit
+     * @return -1 if the book does not exceed the limit, otherwise the length
+     */
+    public int exceedsSerializedLengthLimit() {
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+
+        for (var pageFilteredPair : this.pages) {
+            Text pageText = pageFilteredPair.raw();
+            if (pageText != null && WrittenBookContentComponent.exceedsSerializedLengthLimit(pageText, registryManager)) {
+                return Text.Serialization.toJsonString(pageText, registryManager).length();
+            }
+        }
+
+        return -1;
     }
 
     public ItemStack get() {
