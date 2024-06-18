@@ -59,7 +59,7 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
         this.authorField = TextBoxRow.setup(rootComponent, AUTHOR_ID, MinecraftClient.getInstance().player.getName().getString(), 512);
         this.titleField = TextBoxRow.setup(rootComponent, TITLE_ID, config.defaultBookTitle(), WrittenBookContentComponent.MAX_TITLE_LENGTH);
         this.maxMessageLengthField = SliderRow.setup(rootComponent, MAX_MESSAGE_LENGTH_ID, config.maxMessageLength(),
-                1, 512, Integer.class, 0, 1,
+                1, 512, Integer.class, 0, 16,
                 aDouble -> this.messageField.setMaxLength(aDouble.intValue())
         );
         //bottom buttons

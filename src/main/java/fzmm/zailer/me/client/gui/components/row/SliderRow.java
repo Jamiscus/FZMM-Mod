@@ -52,7 +52,7 @@ public class SliderRow extends AbstractRow {
         numberSlider.max(max);
         numberSlider.setFromDiscreteValue(defaultValue);
         numberSlider.updateMessage();
-        numberSlider.scrollStep(scrollStep);
+        numberSlider.scrollStep(scrollStep / (max - min));
 
         resetButton.onPress(button -> numberSlider.setFromDiscreteValue(defaultValue));
         resetButton.active = false;
