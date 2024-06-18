@@ -53,7 +53,7 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
 
     @Override
     public void setupComponents(FlowLayout rootComponent) {
-        this.edgeThresholdSlider = SliderRow.setup(rootComponent, EDGE_THRESHOLD_ID, 30, 1, 255, Integer.class, 0, 1, null);
+        this.edgeThresholdSlider = SliderRow.setup(rootComponent, EDGE_THRESHOLD_ID, 30, 1, 255, Integer.class, 0, 5, null);
         this.edgeDistanceSlider = SliderRow.setup(rootComponent, EDGE_DISTANCE_ID, 2, 1, 5, Integer.class, 0, 1, null);
         this.invertBooleanButton = BooleanRow.setup(rootComponent, INVERT_ID, false, null);
     }
