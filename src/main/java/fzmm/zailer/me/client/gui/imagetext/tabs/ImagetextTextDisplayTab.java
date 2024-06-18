@@ -92,13 +92,13 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
     public void setupComponents(FlowLayout rootComponent) {
         assert MinecraftClient.getInstance().player != null;
 
-        this.textOpacity = SliderRow.setup(rootComponent, TEXT_OPACITY_ID, 255, 0, 255, Integer.class, 0, 1, null);
+        this.textOpacity = SliderRow.setup(rootComponent, TEXT_OPACITY_ID, 255, 0, 255, Integer.class, 0, 10, null);
         this.backgroundColor = ColorRow.setup(rootComponent, BACKGROUND_COLOR_ID, Color.ofArgb(DisplayEntity.TextDisplayEntity.INITIAL_BACKGROUND), true, 0, null);
         this.textShadow = BooleanRow.setup(rootComponent, TEXT_SHADOW_ID, false, null);
         this.textSeeThrough = BooleanRow.setup(rootComponent, TEXT_SEE_THROUGH_ID, false, null);
         this.textAlignment = EnumRow.setup(rootComponent, TEXT_ALIGNMENT_ID, TextDisplayAlignmentOption.LEFT, null);
         this.billboard = EnumRow.setup(rootComponent, BILLBOARD_ID, DisplayEntityBillboardOption.FIXED, null);
-        this.rotation = SliderRow.setup(rootComponent, ROTATION_ID, MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getYaw()), -180, 180, Float.class, 1, 0.25d, null);
+        this.rotation = SliderRow.setup(rootComponent, ROTATION_ID, MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getYaw()), -180, 180, Float.class, 1, 30, null);
     }
 
     @Override
