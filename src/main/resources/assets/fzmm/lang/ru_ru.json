@@ -782,6 +782,12 @@
     "commands.fzmm.old_give.help": "Получить предмет из более низкой версии",
     "commands.fzmm.old_give.nbt_required": "Для команды требуется NBT.",
     "commands.fzmm.old_give.success": "'%1$s' из версии %2$s успешно выдан в текущей версии.",
-    "commands.fzmm.version_argument.message": "Неверно выбрана версия, разрешён диапазон с %1$s по %2$s"
+    "commands.fzmm.version_argument.message": "Неверно выбрана версия, разрешён диапазон с %1$s по %2$s",
+    "commands.fzmm.nbt.tooLong": "Слишком длинный NBT для чата",
+    "fzmm.giveItem.codecError": "Не удалось получить предмет, потому что произошла ошибка в кодеках Minecraft. Если вы считаете, что это ошибка, вы можете отключить настройку в FZMM",
+    "text.config.fzmm.option.general.checkValidCodec": "Проверять на корректный кодек (предотвратить кик из-за некорректного предмета)",
+    "text.config.fzmm.option.general.checkValidCodec.tooltip": "Начиная с версии 1.20.5 в Minecraft есть кодеки для компонентов предмета,\\nесли элемент имеет неверный компонент, то он может вызывать кик.\\n\\nПримечание: кодеки - это нечто вроде структур, к которым должны относиться элементы.",
+    "fzmm.gui.imagetext.option.invert": "Инвертирование",
+    "fzmm.gui.imagetext.option.invert.tooltip": "Инвертировать точки символов Брайля."
 }
 
