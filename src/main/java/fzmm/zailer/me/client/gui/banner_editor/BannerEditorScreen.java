@@ -96,7 +96,8 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         for (var dyeColor : dyeColorsInOrder) {
             BoxComponent colorBox = Components.box(Sizing.fixed(16), Sizing.fixed(16));
             colorBox.margins(Insets.of(1));
-            colorBox.color(Color.ofDye(dyeColor));
+            // owo-lib 1.21 workaround of Color.ofDye
+            colorBox.color(Color.ofRgb(dyeColor.getEntityColor()));
             colorBox.fill(true);
             colorBox.cursorStyle(CursorStyle.HAND);
 
