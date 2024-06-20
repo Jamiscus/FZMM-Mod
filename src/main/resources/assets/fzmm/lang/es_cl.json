@@ -782,6 +782,12 @@
     "commands.fzmm.old_give.help": "Obtener un ítem de una versión inferior",
     "commands.fzmm.old_give.nbt_required": "El NBT es requerido en el comando.",
     "commands.fzmm.old_give.success": "Se obtuvo con éxito '%1$s' de la versión %2$s a la versión actual.",
-    "commands.fzmm.version_argument.message": "Versión seleccionada inválida, rango permitido: %1$s a %2$s"
+    "commands.fzmm.version_argument.message": "Versión seleccionada inválida, rango permitido: %1$s a %2$s",
+    "commands.fzmm.nbt.tooLong": "Nbt demasiado largo para el chat",
+    "fzmm.giveItem.codecError": "Se evitó obtener el ítem porque se produjo un error en los codecs de Minecraft. Si crees que esto es un error, puede desactivar la configuración desde FZMM",
+    "text.config.fzmm.option.general.checkValidCodec": "Comprobar codec válido (previene ser expulsado debido a un ítem no válido)",
+    "text.config.fzmm.option.general.checkValidCodec.tooltip": "Desde Minecraft 1.20.5, hay codecs para los componentes de ítem,\\ndonde si un ítem tiene un componente inválido puede causar ser expulsado.\\n\\nNota: los codecs son algo como estructuras a las que deben adherirse los ítems.",
+    "fzmm.gui.imagetext.option.invert": "Invertir",
+    "fzmm.gui.imagetext.option.invert.tooltip": "Invierte los puntos de los caracteres de braille."
 }
 

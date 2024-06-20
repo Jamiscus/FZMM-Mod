@@ -782,6 +782,12 @@
     "commands.fzmm.old_give.help": "Get an item from a lower version",
     "commands.fzmm.old_give.nbt_required": "The NBT is required in the command.",
     "commands.fzmm.old_give.success": "Successfully obtained '%1$s' from version %2$s to the current version.",
-    "commands.fzmm.version_argument.message": "Invalid selected version, allowed range: %1$s to %2$s"
+    "commands.fzmm.version_argument.message": "Invalid selected version, allowed range: %1$s to %2$s",
+    "commands.fzmm.nbt.tooLong": "Nbt too long for chat",
+    "fzmm.giveItem.codecError": "Getting the item was avoided because an error occurred in Minecraft's codecs. If you believe this is a mistake, you can disable the config from FZMM",
+    "text.config.fzmm.option.general.checkValidCodec": "Check for valid codec (prevent kick due to invalid item)",
+    "text.config.fzmm.option.general.checkValidCodec.tooltip": "Since Minecraft 1.20.5, there are codecs for item components,\\nwhere if an item has an invalid component it can cause a kick.\\n\\nNote: codecs are something like structures that items must adhere to.",
+    "fzmm.gui.imagetext.option.invert": "Invert",
+    "fzmm.gui.imagetext.option.invert.tooltip": "Invert dots of the braille characters."
 }
 

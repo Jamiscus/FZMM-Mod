@@ -220,7 +220,7 @@
     "fzmm.gui.imagetext.option.loreMode": "描述模式",
     "fzmm.gui.imagetext.option.loreMode.tooltip": "选择向物品描述中添加字符画的方式。\n\n添加：在原有的文字后另起一行，添加字符画。\n覆盖：覆盖原有的文字。",
     "fzmm.gui.imagetext.option.percentageOfSimilarityToCompress": "压缩相似度（%）",
-    "fzmm.gui.imagetext.option.percentageOfSimilarityToCompress.tooltip": "它的工作方式为：如果一个颜色和上一个颜色有 X% 程度相似，那么它就使用上一个颜色，而不是重新取色。较低的值（例如 2.5%）通常可以降低 NBT 的长度，然而也会有更低的细节质量。",
+    "fzmm.gui.imagetext.option.percentageOfSimilarityToCompress.tooltip": "它的工作方式为：如果某处的颜色和上一个位置的颜色有 X% 程度相近，那么它就使用上一个颜色，而不是重新取色。较低的值（例如 2.5%）通常可以降低 NBT 的长度，但细节质量也会随之降低。",
     "fzmm.gui.imagetext.option.preserveImageAspectRatio": "保持比例",
     "fzmm.gui.imagetext.option.preserveImageAspectRatio.tooltip": "保持原始图片的宽高比。",
     "fzmm.gui.imagetext.option.resolution.tooltip": "设置字符画的分辨率。",
@@ -782,6 +782,12 @@
     "commands.fzmm.old_give.help": "使用低版本的命令获取物品",
     "commands.fzmm.old_give.nbt_required": "命令中需要包含 NBT 标签。",
     "commands.fzmm.old_give.success": "成功使用 “%2$s” 版本的命令获取 “%1$s”。",
-    "commands.fzmm.version_argument.message": "允许的范围：%2$s - %1$s"
+    "commands.fzmm.version_argument.message": "允许的范围：%2$s - %1$s",
+    "commands.fzmm.nbt.tooLong": "NBT 长度超出聊天框限制",
+    "fzmm.giveItem.codecError": "Minecraft 的编解码器出现了错误，因此物品暂时不能获取。如果认为这是误报错，可在配置中禁用该提示。",
+    "text.config.fzmm.option.general.checkValidCodec": "检查编解码器是否有效（避免因物品无效而被踢出）",
+    "text.config.fzmm.option.general.checkValidCodec.tooltip": "Minecraft 1.20.5 以后的版本中，物品信息需要专门的编解码器进行转换，\\n因此如果物品含有非法信息，玩家会因转换出错而被踢出。",
+    "fzmm.gui.imagetext.option.invert": "反向填充",
+    "fzmm.gui.imagetext.option.invert.tooltip": "反向填充盲文字符。"
 }
 
