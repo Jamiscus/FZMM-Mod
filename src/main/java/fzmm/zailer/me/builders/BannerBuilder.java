@@ -127,10 +127,21 @@ public class BannerBuilder {
     }
 
     public void replaceColor(BannerPatternsComponent.Layer layer, DyeColor color) {
-        int index = this.layers.indexOf(layer);
+        // avoid using List#indexOf because what is needed in this case is the reference,
+        // otherwise you will get the wrong index
+        int index = this.indexOf(layer);
         if (index != -1) {
             this.layers.set(index, new BannerPatternsComponent.Layer(layer.pattern(), color));
         }
+    }
+
+    private int indexOf(BannerPatternsComponent.Layer layer) {
+        for (int i = 0; i != this.layers.size(); i++) {
+            if (this.layers.get(i) == layer) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public void replaceColors(DyeColor colorToReplace, DyeColor newColor) {
