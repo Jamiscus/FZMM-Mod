@@ -36,10 +36,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.ContainerLock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.*;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -521,7 +518,11 @@ public class FzmmCommand {
 
         for (var key : nbt.getKeys()) {
             MutableText text = Text.empty();
-            NbtCompound tag = nbt.getCompound(key);
+            NbtElement tag = nbt.get(key);
+
+            if (tag == null) {
+                tag = new NbtCompound();
+            }
 
             text.append(Text.literal(key).setStyle(Style.EMPTY.withFormatting(Formatting.DARK_AQUA)));
             text.append(Text.literal("="));
