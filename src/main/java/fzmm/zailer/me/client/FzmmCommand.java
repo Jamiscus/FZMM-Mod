@@ -662,7 +662,7 @@ public class FzmmCommand {
         assert client.interactionManager != null;
         ClientPlayerEntity player = client.player;
 
-        if (!player.isCreative()) {
+        if (!FzmmUtils.isAllowedToGive()) {
             FzmmClient.LOGGER.warn("[FzmmCommand] Creative mode is necessary to swap items");
             client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.item.error.actionNotAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
             return;

@@ -13,7 +13,6 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -159,9 +158,13 @@ public class FzmmUtils {
     }
 
     public static boolean isAllowedToGive() {
-        PlayerEntity player = MinecraftClient.getInstance().player;
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.interactionManager == null) {
+            return false;
+        }
 
-        return player != null && (player.isCreative() || FzmmClient.CONFIG.general.giveClientSide());
+        return client.interactionManager.getCurrentGameMode().isCreative()
+                || FzmmClient.CONFIG.general.giveClientSide();
     }
 
     /**
