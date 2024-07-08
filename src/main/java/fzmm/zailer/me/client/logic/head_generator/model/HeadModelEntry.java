@@ -3,13 +3,9 @@ package fzmm.zailer.me.client.logic.head_generator.model;
 import fzmm.zailer.me.client.gui.head_generator.category.HeadModelCategory;
 import fzmm.zailer.me.client.gui.head_generator.category.HeadPaintableCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.INestedParameters;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList;
-import fzmm.zailer.me.client.logic.head_generator.model.parameters.ResettableModelParameter;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.*;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
 import fzmm.zailer.me.utils.ImageUtils;
-import io.wispforest.owo.ui.core.Color;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +22,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
     @Nullable
     private ParameterList<BufferedImage> textures = null;
     @Nullable
-    private ParameterList<Color> colors = null;
+    private ParameterList<ColorParameter> colors = null;
     @Nullable
     private ParameterList<OffsetParameter> offsets = null;
     private boolean isPaintable = false;
@@ -41,7 +37,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
 
     public HeadModelEntry(String key, List<IModelStep> steps,
                           @Nullable ParameterList<BufferedImage> textures,
-                          @Nullable ParameterList<Color> colors,
+                          @Nullable ParameterList<ColorParameter> colors,
                           @Nullable ParameterList<OffsetParameter> offsets) {
         super(key);
         this.steps.addAll(steps);
@@ -69,7 +65,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
         Graphics2D destinationGraphics = result.createGraphics();
 
         ModelData data = new ModelData(destinationGraphics, DESTINATION_ID, this.textures,
-                this.colors, this.offsets, baseSkin, Color.WHITE, this.isInvertedLeftAndRight());
+                this.colors, this.offsets, baseSkin, ColorParameter.getDefault(), this.isInvertedLeftAndRight());
 
         this.apply(data, baseSkin, result);
         this.resetOffset(data.offsets());
@@ -170,7 +166,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
     }
 
     @Override
-    public ParameterList<Color> getColorParameters() {
+    public ParameterList<ColorParameter> getColorParameters() {
         return this.colors == null ? new ParameterList<>() : this.colors;
     }
 

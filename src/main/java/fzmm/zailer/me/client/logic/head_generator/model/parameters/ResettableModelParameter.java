@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ResettableModelParameter<VALUE> extends ModelParameter<VALUE> {
     @Nullable
-    private final String  defaultValue;
+    private final String defaultValue;
 
     /**
      * @param defaultValue The default value is a string because it is the value used in the text field

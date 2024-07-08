@@ -183,7 +183,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
 
         JsonObject jsonObject = JsonParser.parseReader(new InputStreamReader(inputStream)).getAsJsonObject();
         Optional<ParameterList<BufferedImage>> textures = getParameterList(jsonObject, "textures", HeadResourcesLoader::textureParser);
-        Optional<ParameterList<Color>> colors = getParameterList(jsonObject, "colors", HeadResourcesLoader::colorParser);
+        Optional<ParameterList<ColorParameter>> colors = getParameterList(jsonObject, "colors", HeadResourcesLoader::colorParser);
         Optional<ParameterList<OffsetParameter>> offsets = getParameterList(jsonObject, "offsets", HeadResourcesLoader::offsetParser);
         boolean isPaintableModel = jsonObject.has("paintable") && jsonObject.get("paintable").getAsBoolean();
         boolean isEditingSkinBody = jsonObject.has("is_editing_skin_body") && jsonObject.get("is_editing_skin_body").getAsBoolean();
@@ -265,7 +265,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         return new ResettableModelParameter<>(id, null, defaultValue, requested);
     }
 
-    public static IParameterEntry<Color> colorParser(JsonObject jsonObject) {
+    public static IParameterEntry<ColorParameter> colorParser(JsonObject jsonObject) {
         String id = HeadResourcesLoader.get(jsonObject, "id").getAsString();
         boolean requested = !jsonObject.has("requested") || jsonObject.get("requested").getAsBoolean();
 
@@ -275,7 +275,9 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
             color = parseColor(colorHex);
         }
 
-        return new ModelParameter<>(id, color, requested);
+        boolean hasAlpha = jsonObject.has("has_alpha") && jsonObject.get("has_alpha").getAsBoolean();
+
+        return new ModelParameter<>(id, new ColorParameter(color, hasAlpha), requested);
     }
 
     public static Color parseColor(String colorHex) {

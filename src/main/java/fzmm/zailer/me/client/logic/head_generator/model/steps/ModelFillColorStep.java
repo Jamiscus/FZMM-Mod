@@ -5,8 +5,8 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelArea;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.fill_color.IFillColorAlgorithm;
-import io.wispforest.owo.ui.core.Color;
 
 import java.awt.image.BufferedImage;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class ModelFillColorStep implements IModelStep {
 
         ModelArea area = this.area.copyWithOffset(data.offsets().parameterList());
         BufferedImage texture = optionalTexture.get();
-        Color selectedColor = data.selectedColor();
+        ColorParameter selectedColor = data.selectedColor();
 
         int posX = area.getXWithOffset();
         int posY = area.getYWithOffset();
@@ -52,7 +52,7 @@ public class ModelFillColorStep implements IModelStep {
         for (int y = posY; y < posY2; y++) {
             for (int x = posX; x < posX2; x++) {
                 int pixelColor = texture.getRGB(x, y);
-                if (!this.algorithm.acceptTransparency() && (pixelColor >> 24) == 0)
+                if (!this.algorithm.acceptTransparentPixel() && (pixelColor >> 24) == 0)
                     continue;
 
                 int colorArgb  = this.algorithm.getColor(selectedColor, pixelColor);

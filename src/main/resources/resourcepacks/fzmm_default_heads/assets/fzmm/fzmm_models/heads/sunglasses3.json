@@ -3,7 +3,8 @@
   "colors": [
     {
       "id": "glass_color",
-      "color_hex": "#3e3e3e"
+      "color_hex": "#D03e3e3e",
+      "has_alpha": true
     }
   ],
   "steps": [
