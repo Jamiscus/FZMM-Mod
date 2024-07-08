@@ -5,6 +5,11 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.toast.status.ImageStatus;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
+import fzmm.zailer.me.utils.skin.GetSkinDecorator;
+import fzmm.zailer.me.utils.skin.GetSkinFromCache;
+import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 
 import java.awt.image.BufferedImage;
 import java.util.Optional;
@@ -22,13 +27,19 @@ public class ImagePlayerNameSource implements IImageLoaderFromText, IImageSugges
         this.image = null;
 
         try {
-            if (!this.predicate(value))
+            boolean isInvalidName = !this.predicateRegex(value);
+            GetSkinDecorator getSkinDecorator;
+            if (isInvalidName && this.predicateOnlinePlayer(value)) {
+                getSkinDecorator = new GetSkinFromCache();
+            } else if (isInvalidName) {
                 return ImageStatus.INVALID_USERNAME;
+            } else {
+                getSkinDecorator = new GetSkinFromCache(new GetSkinFromMojang());
+            }
 
-            Optional<BufferedImage> optionalImage = ImageUtils.getPlayerSkin(value);
+            Optional<BufferedImage> optionalImage = ImageUtils.getPlayerSkin(value, getSkinDecorator);
             optionalImage.ifPresent(image -> this.image = image);
             return optionalImage.isEmpty() ? ImageStatus.INVALID_USERNAME : ImageStatus.IMAGE_LOADED;
-
         } catch (Exception e) {
             FzmmClient.LOGGER.error("Unexpected error loading an image", e);
             return ImageStatus.UNEXPECTED_ERROR;
@@ -42,7 +53,21 @@ public class ImagePlayerNameSource implements IImageLoaderFromText, IImageSugges
 
     @Override
     public boolean predicate(String value) {
+        return this.predicateRegex(value) || this.predicateOnlinePlayer(value);
+    }
+
+    private boolean predicateRegex(String value) {
         return value.matches(REGEX);
+    }
+
+    private boolean predicateOnlinePlayer(String value) {
+        // supports users that are not allowed by the regex, as long as that player is online
+        ClientPlayNetworkHandler networkHandler = MinecraftClient.getInstance().getNetworkHandler();
+        if (networkHandler == null) {
+            return false;
+        }
+
+        return networkHandler.getPlayerListEntry(value) != null;
     }
 
     @Override
