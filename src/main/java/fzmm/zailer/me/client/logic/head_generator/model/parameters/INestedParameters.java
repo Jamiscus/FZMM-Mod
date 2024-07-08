@@ -1,7 +1,6 @@
 package fzmm.zailer.me.client.logic.head_generator.model.parameters;
 
 import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
-import io.wispforest.owo.ui.core.Color;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -39,7 +38,7 @@ public interface INestedParameters {
         return this.getNestedParameters(this::getTextureParameters, INestedParameters::getNestedTextureParameters);
     }
 
-    default ParameterList<Color> getNestedColorParameters() {
+    default ParameterList<ColorParameter> getNestedColorParameters() {
         return this.getNestedParameters(this::getColorParameters, INestedParameters::getNestedColorParameters);
     }
 
@@ -47,7 +46,7 @@ public interface INestedParameters {
 
     ParameterList<BufferedImage> getTextureParameters();
 
-    ParameterList<Color> getColorParameters();
+    ParameterList<ColorParameter> getColorParameters();
 
     List<IModelStep> getSteps();
 }

@@ -1,6 +1,6 @@
 package fzmm.zailer.me.client.logic.head_generator.model.steps.fill_color;
 
-import io.wispforest.owo.ui.core.Color;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParameter;
 
 public interface IFillColorAlgorithm {
     IFillColorAlgorithm DESATURATE = new FillColorDesaturate();
@@ -12,10 +12,10 @@ public interface IFillColorAlgorithm {
     /**
      * @return ARGB color
      */
-    int getColor(Color selectedColor, int pixelColor);
+    int getColor(ColorParameter colorParameter, int pixelColor);
 
     /**
      * @return true if the algorithm supports alpha 0
      */
-    boolean acceptTransparency();
+    boolean acceptTransparentPixel();
 }

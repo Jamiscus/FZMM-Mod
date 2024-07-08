@@ -2,7 +2,8 @@
   "paintable": true,
   "colors": [ {
       "id": "selected_color",
-      "color_hex": "#202020"
+      "color_hex": "#D0202020",
+      "has_alpha": true
     }
   ],
   "steps": [
