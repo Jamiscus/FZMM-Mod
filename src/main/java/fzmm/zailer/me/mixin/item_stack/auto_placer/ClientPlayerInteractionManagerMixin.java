@@ -3,6 +3,7 @@ package fzmm.zailer.me.mixin.item_stack.auto_placer;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import fzmm.zailer.me.client.gui.utils.auto_placer.AutoPlacerHud;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.network.SequencedPacketCreator;
@@ -38,7 +39,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
 
         ItemStack stack = this.client.player.getMainHandStack();
 
-        if (this.client.player.isSneaking() || !this.client.player.isCreative() && !stack.getComponents().isEmpty()) {
+        if (this.client.player.isSneaking() || !FzmmUtils.isAllowedToGive() && !stack.getComponents().isEmpty()) {
             return true;
         }
 
