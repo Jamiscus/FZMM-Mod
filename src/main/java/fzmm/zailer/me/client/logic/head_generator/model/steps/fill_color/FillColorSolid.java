@@ -1,15 +1,15 @@
 package fzmm.zailer.me.client.logic.head_generator.model.steps.fill_color;
 
-import io.wispforest.owo.ui.core.Color;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParameter;
 
 public class FillColorSolid implements IFillColorAlgorithm {
     @Override
-    public int getColor(Color selectedColor, int pixelColor) {
-        return selectedColor.argb();
+    public int getColor(ColorParameter colorParameter, int pixelColor) {
+        return colorParameter.color().argb();
     }
 
     @Override
-    public boolean acceptTransparency() {
+    public boolean acceptTransparentPixel() {
         return true;
     }
 }

@@ -8,7 +8,6 @@ import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 import fzmm.zailer.me.client.logic.head_generator.model.ModelPoint;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.*;
-import io.wispforest.owo.ui.core.Color;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -23,7 +22,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
     @Nullable
     private final ParameterList<BufferedImage> textures;
     @Nullable
-    private final ParameterList<Color> colors;
+    private final ParameterList<ColorParameter> colors;
     @Nullable
     private final ParameterList<OffsetParameter> offsets;
     @Nullable
@@ -31,7 +30,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
     private final boolean isInvertedLeftAndRight;
 
     public ModelFunctionStep(String functionPath, @Nullable ParameterList<BufferedImage> textures,
-                             @Nullable ParameterList<Color> colors, @Nullable ParameterList<OffsetParameter> offsets,
+                             @Nullable ParameterList<ColorParameter> colors, @Nullable ParameterList<OffsetParameter> offsets,
                              ModelPoint pos, boolean isInvertedLeftAndRight) {
         this.functionPath = functionPath;
         this.textures = textures;
@@ -57,7 +56,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
 
         ParameterList<BufferedImage> textures = this.textures != null ? this.textures.copy() : null;
         ParameterList<OffsetParameter> offsets = this.offsets != null ? this.offsets.copy() : new ParameterList<>();
-        ParameterList<Color> colors = this.colors != null ? this.colors.copy() : null;
+        ParameterList<ColorParameter> colors = this.colors != null ? this.colors.copy() : null;
 
         if (this.functionOffsets != null) {
             offsets.put(this.functionOffsets);
@@ -137,7 +136,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
     }
 
     @Override
-    public ParameterList<Color> getColorParameters() {
+    public ParameterList<ColorParameter> getColorParameters() {
         return this.colors == null ? new ParameterList<>() : this.colors;
     }
 
@@ -158,7 +157,7 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
         Optional<ParameterList<BufferedImage>> textures = HeadResourcesLoader.getParameterList(jsonObject,
                 "textures", HeadResourcesLoader::textureParser);
 
-        Optional<ParameterList<Color>> colors = HeadResourcesLoader.getParameterList(jsonObject,
+        Optional<ParameterList<ColorParameter>> colors = HeadResourcesLoader.getParameterList(jsonObject,
                 "colors", HeadResourcesLoader::colorParser);
 
         Optional<ParameterList<OffsetParameter>> offsets = HeadResourcesLoader.getParameterList(jsonObject,

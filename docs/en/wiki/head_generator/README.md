@@ -7,6 +7,9 @@ and with the "models" option you can turn your skin into a plushie/mini version,
 # Versions
 Versions are only added when there was a change, if the version you are using does not appear it means that there were no changes, so you must go to the most recent one.
 
+## [0.2.14](./0.2.14_head_generator.md)
+Add `has_alpha` in Color parameter
+
 ## [0.2.11](./0.2.11_head_generator.md)
 Remove `Desaturate` step (break change)
 

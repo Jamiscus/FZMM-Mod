@@ -15,6 +15,7 @@ import fzmm.zailer.me.client.gui.head_generator.options.SkinPreEditOption;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.INestedParameters;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList;
@@ -183,7 +184,7 @@ public class HeadComponentOverlay extends FlowLayout {
 
     private void addColorParameters(FlowLayout parametersLayout, INestedParameters parametersEntry, String baseTranslation,
                                     AbstractHeadComponentEntry headComponentEntry) {
-        ParameterList<Color> colorParameters = parametersEntry.getNestedColorParameters();
+        ParameterList<ColorParameter> colorParameters = parametersEntry.getNestedColorParameters();
         for (var colorParameter : colorParameters.parameterList()) {
             if (!colorParameter.isRequested())
                 continue;
@@ -191,8 +192,11 @@ public class HeadComponentOverlay extends FlowLayout {
             ColorRow colorRow = new ColorRow(baseTranslation, id, id, false, false);
             parametersLayout.child(colorRow);
 
-            ColorRow.setup(parametersLayout, id, colorParameter.value().orElse(Color.WHITE), false, 300, s -> {
-                colorParameters.update(colorParameter.id(), colorRow.getValue());
+            ColorParameter color = colorParameter.value().orElse(ColorParameter.getDefault());
+            boolean hasAlpha = color.hasAlpha();
+
+            ColorRow.setup(parametersLayout, id, color.color(), hasAlpha, 300, s -> {
+                colorParameters.update(colorParameter.id(), new ColorParameter(colorRow.getValue(), hasAlpha));
                 headComponentEntry.update();
             });
 

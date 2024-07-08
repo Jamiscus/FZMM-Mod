@@ -1,9 +1,9 @@
 package fzmm.zailer.me.client.logic.head_generator.model;
 
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParameter;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList;
-import io.wispforest.owo.ui.core.Color;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
@@ -14,15 +14,15 @@ public final class ModelData {
     private Graphics2D destinationGraphics;
     private String destinationId;
     private final ParameterList<BufferedImage> textures;
-    private final ParameterList<Color> colors;
+    private final ParameterList<ColorParameter> colors;
     private final ParameterList<OffsetParameter> offsets;
     private final boolean isInvertedLeftAndRight;
     private BufferedImage selectedTexture;
-    private Color selectedColor;
+    private ColorParameter selectedColor;
 
     public ModelData(Graphics2D destinationGraphics, String destinationId, @Nullable ParameterList<BufferedImage> textures,
-                     @Nullable ParameterList<Color> colors, @Nullable ParameterList<OffsetParameter> offsets,
-                     BufferedImage selectedTexture, Color selectedColor, boolean isInvertedLeftAndRight) {
+                     @Nullable ParameterList<ColorParameter> colors, @Nullable ParameterList<OffsetParameter> offsets,
+                     BufferedImage selectedTexture, ColorParameter selectedColor, boolean isInvertedLeftAndRight) {
         this.destinationGraphics = destinationGraphics;
         this.destinationId = destinationId;
         this.textures = textures == null ? new ParameterList<>() : textures;
@@ -33,8 +33,8 @@ public final class ModelData {
         this.isInvertedLeftAndRight = isInvertedLeftAndRight;
     }
 
-    public Color getColor(String key) {
-        return this.colors.get(key).orElse(Color.WHITE);
+    public ColorParameter getColor(String key) {
+        return this.colors.get(key).orElse(ColorParameter.getDefault());
     }
 
 
@@ -62,7 +62,7 @@ public final class ModelData {
         return this.textures;
     }
 
-    public ParameterList<Color> colors() {
+    public ParameterList<ColorParameter> colors() {
         return this.colors;
     }
 
@@ -74,7 +74,7 @@ public final class ModelData {
         return this.selectedTexture;
     }
 
-    public Color selectedColor() {
+    public ColorParameter selectedColor() {
         return this.selectedColor;
     }
 
@@ -90,7 +90,7 @@ public final class ModelData {
         this.selectedTexture = texture;
     }
 
-    public void selectedColor(Color color) {
+    public void selectedColor(ColorParameter color) {
         this.selectedColor = color;
     }
 
