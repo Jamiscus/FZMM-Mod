@@ -17,6 +17,7 @@ import fzmm.zailer.me.utils.skin.GetSkinFromMineskin;
 import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -259,7 +260,7 @@ public class FzmmCommand {
                 .executes(ctx -> sendHelpMessage("commands.fzmm.fullcontainer.help", BASE_COMMAND + " fullcontainer <slots to fill> <first slot>"))
                 .then(ClientCommandManager.argument("slots to fill", IntegerArgumentType.integer(1, 27)).executes(ctx -> {
 
-                    fullContainer(ctx.getArgument("slots to fill", int.class), 0);
+                    fullContainer(ctx.getArgument("slots to fill", int.class), -1);
                     return 1;
 
                 }).then(ClientCommandManager.argument("first slot", IntegerArgumentType.integer(0, 27)).executes(ctx -> {
@@ -567,7 +568,10 @@ public class FzmmCommand {
         }));
     }
 
-    private static void fullContainer(int slotsToFill, int firstSlots) {
+    /**
+     * @param firstSlot if -1, it will fill empty slots starting at 0
+     */
+    private static void fullContainer(int slotsToFill, int firstSlot) {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
@@ -576,15 +580,11 @@ public class FzmmCommand {
 
         containerStack.apply(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT, component -> {
             List<ItemStack> stacksCopy = new ArrayList<>(component.stream().toList());
-            int finalSlot = firstSlots + slotsToFill;
-            if (slotsToFill > stacksCopy.size()) {
-                for (int i = stacksCopy.size(); i < finalSlot; i++) {
-                    stacksCopy.add(ItemStack.EMPTY);
-                }
-            }
 
-            for (int i = firstSlots; i != finalSlot; i++) {
-                stacksCopy.set(i, itemStack);
+            if (firstSlot == -1) {
+                fullContainerEmptySlots(stacksCopy, itemStack, slotsToFill);
+            } else {
+                fullContainer(stacksCopy, itemStack, slotsToFill, firstSlot);
             }
 
             return ContainerComponent.fromStacks(stacksCopy);
@@ -592,6 +592,40 @@ public class FzmmCommand {
 
         FzmmUtils.giveItem(containerStack);
     }
+
+    private static void fullContainer(List<ItemStack> stackList, ItemStack stack, int slotsToFill, int firstSlot) {
+        int finalSlot = firstSlot + slotsToFill;
+        if (slotsToFill > stackList.size()) {
+            for (int i = stackList.size(); i < finalSlot; i++) {
+                stackList.add(ItemStack.EMPTY);
+            }
+        }
+
+        for (int i = firstSlot; i != finalSlot; i++) {
+            stackList.set(i, stack);
+        }
+    }
+
+    private static void fullContainerEmptySlots(List<ItemStack> stackList, ItemStack stack, int slotsToFill) {
+        int finalSlot = Math.min(stackList.size() + slotsToFill, ShulkerBoxBlockEntity.INVENTORY_SIZE);
+        if (finalSlot > stackList.size()) {
+            for (int i = stackList.size(); i < finalSlot; i++) {
+                stackList.add(ItemStack.EMPTY);
+            }
+        }
+
+        for (int i = 0; i != finalSlot; i++) {
+            if (stackList.get(i).isEmpty()) {
+                stackList.set(i, stack);
+                slotsToFill--;
+            }
+
+            if (slotsToFill == 0) {
+                break;
+            }
+        }
+    }
+
 
     private static void lockContainer(String key) {
         MinecraftClient client = MinecraftClient.getInstance();
