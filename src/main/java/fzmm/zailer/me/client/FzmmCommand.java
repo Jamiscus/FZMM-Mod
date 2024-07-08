@@ -42,9 +42,10 @@ import net.minecraft.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.util.Formatting;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 
 // I want to remove all the commands so that the mod can be used only through gui
 public class FzmmCommand {
@@ -225,27 +226,27 @@ public class FzmmCommand {
                             return 1;
 
                         }).then(ClientCommandManager.literal("cache")
-                            .executes(ctx -> {
+                                .executes(ctx -> {
 
-                                String skullOwner = ctx.getArgument("skull owner", String.class);
-                                getHead(new GetSkinFromCache(), skullOwner);
+                                    String skullOwner = ctx.getArgument("skull owner", String.class);
+                                    getHead(new GetSkinFromCache(), skullOwner);
 
-                                return 1;
-                            })).then(ClientCommandManager.literal("mineskin")
-                            .executes(ctx -> {
+                                    return 1;
+                                })).then(ClientCommandManager.literal("mineskin")
+                                .executes(ctx -> {
 
-                                String skullOwner = ctx.getArgument("skull owner", String.class);
-                                getHead(new GetSkinFromMineskin().setCacheSkin(skullOwner), skullOwner);
+                                    String skullOwner = ctx.getArgument("skull owner", String.class);
+                                    getHead(new GetSkinFromMineskin().setCacheSkin(skullOwner), skullOwner);
 
-                                return 1;
-                            })).then(ClientCommandManager.literal("mojang")
-                            .executes(ctx -> {
+                                    return 1;
+                                })).then(ClientCommandManager.literal("mojang")
+                                .executes(ctx -> {
 
-                                String skullOwner = ctx.getArgument("skull owner", String.class);
-                                getHead(new GetSkinFromMojang(), skullOwner);
+                                    String skullOwner = ctx.getArgument("skull owner", String.class);
+                                    getHead(new GetSkinFromMojang(), skullOwner);
 
-                                return 1;
-                            }))
+                                    return 1;
+                                }))
                 )
         );
 
@@ -253,7 +254,7 @@ public class FzmmCommand {
                 .executes(ctx -> sendHelpMessage("commands.fzmm.fullcontainer.help", BASE_COMMAND + " fullcontainer <slots to fill> <first slot>"))
                 .then(ClientCommandManager.argument("slots to fill", IntegerArgumentType.integer(1, 27)).executes(ctx -> {
 
-                    fullContainer(ctx.getArgument("slots to fill", int.class), 0);
+                    fullContainer(ctx.getArgument("slots to fill", int.class), -1);
                     return 1;
 
                 }).then(ClientCommandManager.argument("first slot", IntegerArgumentType.integer(0, 27)).executes(ctx -> {
@@ -353,8 +354,8 @@ public class FzmmCommand {
             } else {
                 FzmmUtils.giveItem(result.get());
                 chatHud.addMessage(Text.translatable("commands.fzmm.old_give.success", item.toString(), oldVersion.getLeft())
-                                .withColor(FzmmClient.CHAT_BASE_COLOR)
-                        );
+                        .withColor(FzmmClient.CHAT_BASE_COLOR)
+                );
             }
         });
     }
@@ -481,8 +482,8 @@ public class FzmmCommand {
                 .append(Text.literal(stack.getItem().toString())
                         .setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR))
                 ).append(nbtMessage.copy().setStyle(nbtMessage.getStyle()
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, nbtString))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(nbtStringHover))))
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, nbtString))
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(nbtStringHover))))
                         .append(clickToCopyMessage)
                 );
 
@@ -515,7 +516,10 @@ public class FzmmCommand {
         }));
     }
 
-    private static void fullContainer(int slotsToFill, int firstSlots) {
+    /**
+     * @param firstSlot if -1, it will fill empty slots starting at 0
+     */
+    private static void fullContainer(int slotsToFill, int firstSlot) {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
@@ -524,24 +528,28 @@ public class FzmmCommand {
         ItemStack containerItemStack = client.player.getInventory().getMainHandStack();
         ItemStack itemStack = client.player.getOffHandStack();
 
-        NbtCompound tag = new NbtCompound();
+        NbtCompound nbt = containerItemStack.getOrCreateNbt();
         NbtCompound blockEntityTag = new NbtCompound();
-        NbtList items = fillSlots(new NbtList(), itemStack, slotsToFill, firstSlots);
+        NbtList items;
+        NbtList containerItems = nbt.getCompound(TagsConstant.BLOCK_ENTITY)
+                .getList(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.COMPOUND_TYPE);
+        boolean ignoreSlotsWithItems = firstSlot == -1;
+
+        if (containerItems.isEmpty()) {
+            items = fillSlots(new NbtList(), itemStack, slotsToFill, Math.max(0, firstSlot));
+            blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
+        } else if (ignoreSlotsWithItems) {
+            items = fillSlots(containerItems, itemStack, slotsToFill);
+            blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
+        } else {
+            items = fillSlots(containerItems, itemStack, slotsToFill, firstSlot);
+        }
 
         blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
         blockEntityTag.putString("id", containerItemStack.getItem().toString());
 
-        if (!(containerItemStack.getNbt() == null)) {
-            tag = containerItemStack.getNbt();
-
-            if (!(containerItemStack.getNbt().getCompound(TagsConstant.BLOCK_ENTITY) == null)) {
-                items = fillSlots(tag.getCompound(TagsConstant.BLOCK_ENTITY).getList(ShulkerBoxBlockEntity.ITEMS_KEY, 10), itemStack, slotsToFill, firstSlots);
-                blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
-            }
-        }
-
-        tag.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
-        containerItemStack.setNbt(tag);
+        nbt.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
+        containerItemStack.setNbt(nbt);
         FzmmUtils.giveItem(containerItemStack);
     }
 
@@ -550,6 +558,35 @@ public class FzmmCommand {
             InventoryUtils.addSlot(slotsList, stack, i + firstSlot);
         }
         return slotsList;
+    }
+
+    private static NbtList fillSlots(NbtList slotsList, ItemStack stack, int slotsToFill) {
+        List<Integer> availableSlots = getAvailableSlots(slotsList, ShulkerBoxBlockEntity.INVENTORY_SIZE);
+
+        slotsToFill = Math.min(slotsToFill, availableSlots.size());
+        int remainingSlotsToFill = slotsToFill;
+        for (int i = 0; i != slotsToFill; i++) {
+            InventoryUtils.addSlot(slotsList, stack, availableSlots.get(i));
+
+            remainingSlotsToFill -= 1;
+            if (remainingSlotsToFill == 0) {
+                break;
+            }
+        }
+
+        return slotsList;
+    }
+
+    private static List<Integer> getAvailableSlots(NbtList slotsList, int maxSlots) {
+        List<Integer> filledSlotsList = slotsList.stream()
+                .map(stackCompound -> ((NbtCompound) stackCompound).getInt(TagsConstant.INVENTORY_SLOT))
+                .toList();
+
+        List<Integer> allSlotsList = new ArrayList<>(IntStream.range(0, maxSlots).boxed().toList());
+
+        allSlotsList.removeIf(filledSlotsList::contains);
+
+        return allSlotsList;
     }
 
     private static void lockContainer(String key) {
