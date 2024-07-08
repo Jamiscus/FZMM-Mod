@@ -48,12 +48,12 @@ public class ImageUtils {
     }
 
 
-    public static Optional<BufferedImage> getPlayerSkin(String name) throws NullPointerException, JsonIOException, IOException {
-        GetSkinDecorator getSkinDecorator = new GetSkinFromCache(new GetSkinFromMojang());
+    public static Optional<BufferedImage> getPlayerSkin(String name, GetSkinDecorator getSkinDecorator) throws NullPointerException, JsonIOException, IOException {
         Optional<BufferedImage> skin = getSkinDecorator.getSkin(name);
 
-        if (skin.isEmpty())
+        if (skin.isEmpty()) {
             FzmmClient.LOGGER.warn("[ImageUtils] skin of '{}' was not found", name);
+        }
 
         return skin;
     }
