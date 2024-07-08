@@ -45,7 +45,6 @@ import net.minecraft.util.Formatting;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
 
 // I want to remove all the commands so that the mod can be used only through gui
 public class FzmmCommand {
@@ -257,7 +256,7 @@ public class FzmmCommand {
                     fullContainer(ctx.getArgument("slots to fill", int.class), -1);
                     return 1;
 
-                }).then(ClientCommandManager.argument("first slot", IntegerArgumentType.integer(0, 27)).executes(ctx -> {
+                }).then(ClientCommandManager.argument("first slot", IntegerArgumentType.integer(0, 26)).executes(ctx -> {
 
                     int slotsToFill = ctx.getArgument("slots to fill", int.class);
                     int firstSlot = ctx.getArgument("first slot", int.class);
@@ -530,64 +529,65 @@ public class FzmmCommand {
 
         NbtCompound nbt = containerItemStack.getOrCreateNbt();
         NbtCompound blockEntityTag = new NbtCompound();
-        NbtList items;
         NbtList containerItems = nbt.getCompound(TagsConstant.BLOCK_ENTITY)
                 .getList(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.COMPOUND_TYPE);
-        boolean ignoreSlotsWithItems = firstSlot == -1;
 
-        if (containerItems.isEmpty()) {
-            items = fillSlots(new NbtList(), itemStack, slotsToFill, Math.max(0, firstSlot));
-            blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
-        } else if (ignoreSlotsWithItems) {
-            items = fillSlots(containerItems, itemStack, slotsToFill);
-            blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
+
+
+        if (firstSlot == -1) {
+            fullContainerEmptySlots(containerItems, itemStack, slotsToFill);
         } else {
-            items = fillSlots(containerItems, itemStack, slotsToFill, firstSlot);
+            fullContainer(containerItems, itemStack, slotsToFill, firstSlot);
         }
 
-        blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
+        for (int i = 0; i < containerItems.size(); i++) {
+            ItemStack stack = ItemStack.fromNbt(containerItems.getCompound(i));
+            if (stack.isEmpty() || containerItems.getCompound(i).getInt(TagsConstant.INVENTORY_SLOT) >= ShulkerBoxBlockEntity.INVENTORY_SIZE) {
+                containerItems.remove(i);
+                i--;
+            }
+        }
+
+        blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, containerItems);
         blockEntityTag.putString("id", containerItemStack.getItem().toString());
 
         nbt.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
         containerItemStack.setNbt(nbt);
         FzmmUtils.giveItem(containerItemStack);
     }
-
-    private static NbtList fillSlots(NbtList slotsList, ItemStack stack, int slotsToFill, int firstSlot) {
-        for (int i = 0; i != slotsToFill; i++) {
-            InventoryUtils.addSlot(slotsList, stack, i + firstSlot);
-        }
-        return slotsList;
-    }
-
-    private static NbtList fillSlots(NbtList slotsList, ItemStack stack, int slotsToFill) {
-        List<Integer> availableSlots = getAvailableSlots(slotsList, ShulkerBoxBlockEntity.INVENTORY_SIZE);
-
-        slotsToFill = Math.min(slotsToFill, availableSlots.size());
-        int remainingSlotsToFill = slotsToFill;
-        for (int i = 0; i != slotsToFill; i++) {
-            InventoryUtils.addSlot(slotsList, stack, availableSlots.get(i));
-
-            remainingSlotsToFill -= 1;
-            if (remainingSlotsToFill == 0) {
-                break;
+    private static void fullContainer(NbtList stackList, ItemStack stack, int slotsToFill, int firstSlot) {
+        int finalSlot = firstSlot + slotsToFill;
+        if (finalSlot > stackList.size()) {
+            for (int i = stackList.size(); i < finalSlot; i++) {
+                stackList.add(InventoryUtils.getSlotTag(ItemStack.EMPTY, i));
             }
         }
 
-        return slotsList;
+        for (int i = firstSlot; i != finalSlot; i++) {
+            stackList.set(i, InventoryUtils.getSlotTag(stack, i));
+        }
     }
 
-    private static List<Integer> getAvailableSlots(NbtList slotsList, int maxSlots) {
-        List<Integer> filledSlotsList = slotsList.stream()
-                .map(stackCompound -> ((NbtCompound) stackCompound).getInt(TagsConstant.INVENTORY_SLOT))
-                .toList();
+    private static void fullContainerEmptySlots(NbtList stackList, ItemStack stack, int slotsToFill) {
+        int finalSlot = Math.min(stackList.size() + slotsToFill, ShulkerBoxBlockEntity.INVENTORY_SIZE);
+        if (finalSlot > stackList.size()) {
+            for (int i = stackList.size(); i < finalSlot; i++) {
+                stackList.add(InventoryUtils.getSlotTag(ItemStack.EMPTY, i));
+            }
+        }
 
-        List<Integer> allSlotsList = new ArrayList<>(IntStream.range(0, maxSlots).boxed().toList());
+        for (int i = 0; i != finalSlot; i++) {
+            if (ItemStack.fromNbt(stackList.getCompound(i)).isEmpty()) {
+                stackList.set(i, InventoryUtils.getSlotTag(stack, i));
+                slotsToFill--;
+            }
 
-        allSlotsList.removeIf(filledSlotsList::contains);
-
-        return allSlotsList;
+            if (slotsToFill == 0) {
+                break;
+            }
+        }
     }
+
 
     private static void lockContainer(String key) {
         MinecraftClient client = MinecraftClient.getInstance();
