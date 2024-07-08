@@ -640,7 +640,8 @@ public class FzmmCommand {
 
         FzmmUtils.giveItem(containerStack);
         assert client.interactionManager != null;
-        client.interactionManager.clickCreativeStack(lockStack, PlayerInventory.OFF_HAND_SLOT + PlayerInventory.getHotbarSize());
+        // PlayerInventory.OFF_HAND_SLOT is 40, but OFF_HAND_SLOT is 45 (PlayerInventory.MAIN_SIZE + PlayerInventory.HOTBAR_SIZE)
+        client.interactionManager.clickCreativeStack(lockStack, PlayerInventory.MAIN_SIZE + PlayerInventory.getHotbarSize());
     }
 
     private static void removeLore() {
