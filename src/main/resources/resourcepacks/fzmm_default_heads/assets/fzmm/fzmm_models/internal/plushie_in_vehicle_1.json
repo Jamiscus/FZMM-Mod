@@ -52,13 +52,22 @@
       }
     },
     {
+      "type": "select_texture",
+      "texture_id": "base_skin"
+    },
+    {
       "comment": "plushie arms",
       "type": "function",
       "function_path": "internal/plushie_arms_1",
       "offsets": [
         {
-          "id": "y_offset",
-          "value": 0
+          "id": "arms",
+          "value": 0,
+          "min_value": 0,
+          "max_value": 1,
+          "axis": "Y",
+          "requested": true,
+          "enabled": true
         }
       ]
     }
