@@ -18,23 +18,10 @@
   ],
   "steps": [
     {
-      "comment": "source head",
+      "comment": "head texture",
       "type": "copy",
       "source": {
-        "offset": "HEAD",
-        "hat_layer": false,
-        "x": 0,
-        "y": 0,
-        "width": 32,
-        "height": 16
-      },
-      "overlap_source_hat": true
-    },
-    {
-      "comment": "source body",
-      "type": "copy",
-      "source": {
-        "offset": "ALL_BODY"
+        "offset": "ALL"
       }
     },
     {
