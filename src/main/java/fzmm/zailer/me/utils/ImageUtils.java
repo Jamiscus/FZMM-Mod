@@ -3,8 +3,6 @@ package fzmm.zailer.me.utils;
 import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
-import fzmm.zailer.me.utils.skin.GetSkinFromCache;
-import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
@@ -155,4 +153,129 @@ public class ImageUtils {
         g2d.dispose();
         return bufferedImage;
     }
+
+    // === BEGIN OF 'FILTHY RICH CLIENT' CODE ===
+
+    /*
+     * https://github.com/romainguy/filthy-rich-clients/blob/master/Images/PictureScaler/src/PictureScaler.java
+     *
+     * Created on May 1, 2007, 5:03 PM
+     *
+     * Copyright (c) 2007, Sun Microsystems, Inc
+     * All rights reserved.
+     *
+     * Redistribution and use in source and binary forms, with or without
+     * modification, are permitted provided that the following conditions
+     * are met:
+     *
+     *   * Redistributions of source code must retain the above copyright
+     *     notice, this list of conditions and the following disclaimer.
+     *   * Redistributions in binary form must reproduce the above
+     *     copyright notice, this list of conditions and the following
+     *     disclaimer in the documentation and/or other materials provided
+     *     with the distribution.
+     *   * Neither the name of the TimingFramework project nor the names of its
+     *     contributors may be used to endorse or promote products derived
+     *     from this software without specific prior written permission.
+     *
+     * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+     * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+     * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+     * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+     * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+     * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+     * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+     * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+     * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+     * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+     * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+     */
+
+    /**
+     * Convenience method that returns a scaled instance of the
+     * provided BufferedImage.
+     *
+     *
+     * @param image the original image to be scaled
+     * @param targetWidth the desired width of the scaled instance,
+     *    in pixels
+     * @param targetHeight the desired height of the scaled instance,
+     *    in pixels
+     * @param progressiveBilinear if true, this method will use a multi-step
+     *    scaling technique that provides higher quality than the usual
+     *    one-step technique (only useful in down-scaling cases, where
+     *    targetWidth or targetHeight is
+     *    smaller than the original dimensions)
+     * @return a scaled version of the original BufferedImage
+     * @author Chet
+     */
+    public static BufferedImage fastResizeImage(BufferedImage image, int targetWidth,
+                                                int targetHeight, boolean progressiveBilinear) {
+        boolean isTranslucent = image.getTransparency() != Transparency.OPAQUE;
+        int type = isTranslucent ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB;
+        BufferedImage resizedImage = image;
+        BufferedImage scratchImage = null;
+        Graphics2D g2d = null;
+        int prevWidth = resizedImage.getWidth();
+        int prevHeight = resizedImage.getHeight();
+        boolean isUpscale = prevWidth < targetWidth || prevHeight < targetHeight;
+
+        do {
+            int[] dimensions = calculateDimensions(prevWidth, prevHeight, targetWidth, targetHeight, progressiveBilinear, isUpscale);
+            int width = dimensions[0];
+            int height = dimensions[1];
+
+            if (scratchImage == null || isTranslucent) {
+                scratchImage = new BufferedImage(width, height, type);
+
+                if (g2d != null) {
+                    g2d.dispose();
+                }
+
+                g2d = scratchImage.createGraphics();
+            }
+
+            drawResizedImage(g2d, resizedImage, prevWidth, prevHeight, width, height);
+            prevWidth = width;
+            prevHeight = height;
+            resizedImage = scratchImage;
+        } while (prevWidth != targetWidth || prevHeight != targetHeight);
+
+        g2d.dispose();
+
+        return resizeFinalImageIfNeeded(resizedImage, targetWidth, targetHeight, type);
+    }
+
+    private static int[] calculateDimensions(int width, int height, int targetWidth, int targetHeight,
+                                             boolean progressiveBilinear, boolean isUpscale) {
+
+        if (progressiveBilinear) {
+            width = isUpscale ? Math.max(width / 2, targetWidth) : Math.min(width * 2, targetWidth);
+            height = isUpscale ? Math.max(height / 2, targetHeight) : Math.min(height * 2, targetHeight);
+        } else {
+            width = targetWidth;
+            height = targetHeight;
+        }
+
+        return new int[]{width, height};
+    }
+
+    private static void drawResizedImage(Graphics2D g2, BufferedImage src, int srcWidth, int srcHeight, int destWidth, int destHeight) {
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(src, 0, 0, destWidth, destHeight, 0, 0, srcWidth, srcHeight, null);
+    }
+
+    private static BufferedImage resizeFinalImageIfNeeded(BufferedImage image, int targetWidth, int targetHeight, int type) {
+        if (targetWidth != image.getWidth() || targetHeight != image.getHeight()) {
+            BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, type);
+            Graphics2D g2 = resizedImage.createGraphics();
+            g2.drawImage(image, 0, 0, null);
+            g2.dispose();
+            return resizedImage;
+        }
+        return image;
+    }
+
+    // === END OF 'FILTHY RICH CLIENT' CODE ===
+
 }

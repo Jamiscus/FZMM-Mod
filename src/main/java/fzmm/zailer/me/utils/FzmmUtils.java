@@ -192,7 +192,13 @@ public class FzmmUtils {
      * Splits the characters of a message correctly including multibyte characters correctly
      */
     public static List<String> splitMessage(String message) {
-        return Arrays.asList(message.split("(?s)(?<=.)"));
+        List<String> characters = new ArrayList<>(message.length());
+        for (int i = 0; i < message.length(); ) {
+            int codePoint = message.codePointAt(i);
+            characters.add(new String(Character.toChars(codePoint)));
+            i += Character.charCount(codePoint);
+        }
+        return characters;
     }
 
     public static int getMaxWidth(Collection<StringVisitable> collection) {
