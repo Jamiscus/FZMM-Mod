@@ -11,17 +11,6 @@
           "requested": false
         }
       ]
-    },
-    {
-      "comment": "plushie arms",
-      "type": "function",
-      "function_path": "internal/plushie_arms_1",
-      "offsets": [
-        {
-          "id": "y_offset",
-          "value": 0
-        }
-      ]
     }
   ]
 }
