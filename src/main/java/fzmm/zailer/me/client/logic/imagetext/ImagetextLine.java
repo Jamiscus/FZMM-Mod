@@ -50,7 +50,7 @@ public class ImagetextLine {
         int lineComponentSize = this.line.size();
         for (int i = 0; i != lineComponentSize; i++) {
             ImagetextLineComponent lineComponent = this.line.get(i);
-            int repetitions = lineComponent.getRepetitions();
+            short repetitions = (short) lineComponent.getRepetitions();
             Text lineComponentText = lineComponent.getText(this.charactersToUse, lineIndex, this.isDefaultText);
             lineIndex += repetitions;
             line.append(lineComponentText);
@@ -66,8 +66,9 @@ public class ImagetextLine {
     }
 
     public List<MutableText> getLineComponents() {
-        if (this.generatedLine == null)
+        if (this.generatedLine == null) {
             this.generateLine();
+        }
 
         return this.generatedLine;
     }

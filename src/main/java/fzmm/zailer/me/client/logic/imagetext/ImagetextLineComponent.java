@@ -64,7 +64,7 @@ public final class ImagetextLineComponent {
     public Text getText(List<String> charactersToUse, int lineIndex, boolean isDefaultText) {
         int color = this.getColor();
         int alpha = (color >> 24) & 0xFF;
-        return isDefaultText && alpha == 0 ? this.getEmptyText() : this.getText(charactersToUse, lineIndex);
+        return isDefaultText && alpha < 128 ? this.getEmptyText() : this.getText(charactersToUse, lineIndex);
     }
 
     public Text getEmptyText() {
@@ -76,8 +76,9 @@ public final class ImagetextLineComponent {
         StringBuilder textStrBuilder = new StringBuilder();
         int colorRGB = this.pixelColor & 0x00FFFFFF;
 
-        for (int x = 0; x != this.repetitions; x++)
+        for (int x = 0; x != this.repetitions; x++) {
             textStrBuilder.append(this.getCharacter(charactersToUse, lineIndex++));
+        }
 
         return Text.literal(textStrBuilder.toString()).setStyle(Style.EMPTY.withColor(colorRGB));
     }

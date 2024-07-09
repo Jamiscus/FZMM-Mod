@@ -9,8 +9,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Pair;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,16 +43,6 @@ public class ImagetextLogic {
         this.imagetext = new ArrayList<>(linesList);
     }
 
-    public BufferedImage resizeImage(BufferedImage image, int width, int height, boolean smoothRescaling) {
-        Image tmp = image.getScaledInstance(width, height, smoothRescaling ? Image.SCALE_SMOOTH : Image.SCALE_REPLICATE);
-        BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = resizedImage.createGraphics();
-        g2d.drawImage(tmp, 0, 0, null);
-        g2d.dispose();
-
-        return resizedImage;
-    }
 
     /**
      * @param width                Width of which you want to preserve the aspect ratio.
@@ -96,8 +84,9 @@ public class ImagetextLogic {
         int size = this.imagetext.size();
         for (int i = 0; i != size; i++) {
             text.append(this.imagetext.get(i));
-            if (i != size - 1)
+            if (i != size - 1) {
                 text.append("\n");
+            }
         }
 
         return text;
