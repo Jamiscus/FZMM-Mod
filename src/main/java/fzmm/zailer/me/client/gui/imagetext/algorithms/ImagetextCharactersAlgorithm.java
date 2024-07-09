@@ -6,6 +6,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLine;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
+import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.text.MutableText;
@@ -25,7 +26,7 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
 
     @Override
     public List<MutableText> get(ImagetextLogic logic, ImagetextData data, int lineSplitInterval) {
-        BufferedImage image = logic.resizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
+        BufferedImage image = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
         List<MutableText> linesList = new ArrayList<>();
 
         String characters = this.charactersTextField.getText();
