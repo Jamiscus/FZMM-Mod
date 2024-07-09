@@ -59,6 +59,7 @@ public class HeadComponentOverlay extends FlowLayout {
     private final EntityComponent<Entity> previewEntity;
     private boolean isSlimFormat;
     private ButtonComponent selectedSkinFormat;
+    private SkinPreEditOption selectedSkinPreEdit;
 
     public HeadComponentOverlay(HeadGeneratorScreen parentScreen, EntityComponent<Entity> previewEntity,
                                 AbstractHeadComponentEntry headComponentEntry) {
@@ -175,7 +176,7 @@ public class HeadComponentOverlay extends FlowLayout {
             ImageRowsElements elements = ImageRows.setup(parametersLayout, buttonId, enumButtonId, ImageMode.NAME);
             elements.imageButton().setButtonCallback(bufferedImage -> {
                 textureParameters.update(texture.id(), bufferedImage);
-                headComponentEntry.update();
+                this.updatePreview(headComponentEntry);
             });
 
             elements.suggestionTextBox().horizontalSizing(Sizing.fixed(OVERLAY_WIDGETS_WIDTH));
@@ -197,7 +198,7 @@ public class HeadComponentOverlay extends FlowLayout {
 
             ColorRow.setup(parametersLayout, id, color.color(), hasAlpha, 300, s -> {
                 colorParameters.update(colorParameter.id(), new ColorParameter(colorRow.getValue(), hasAlpha));
-                headComponentEntry.update();
+                this.updatePreview(headComponentEntry);
             });
 
             colorRow.getWidget().horizontalSizing(Sizing.fixed(OVERLAY_WIDGETS_WIDTH));
@@ -218,7 +219,7 @@ public class HeadComponentOverlay extends FlowLayout {
             SliderRow.setup(parametersLayout, id, offsetParameter.value(), offsetParameter.minValue(),
                     offsetParameter.maxValue(), Byte.class, 0, 1, d -> {
                         offsetParameter.setValue(d.byteValue());
-                        headComponentEntry.update();
+                        this.updatePreview(headComponentEntry);
                     });
 
             sliderRow.getWidget().horizontalSizing(Sizing.fixed(OVERLAY_WIDGETS_WIDTH));
@@ -234,13 +235,13 @@ public class HeadComponentOverlay extends FlowLayout {
         defaultOptionsLayout.child(this.getSkinFormatOptions(headComponentEntry));
     }
 
-    private ButtonComponent getModelButton(AbstractHeadComponentEntry headComponentEntry, HeadModelEntry rotateModel,
+    private ButtonComponent getModelButton(AbstractHeadComponentEntry headComponentEntry, HeadModelEntry modelEntry,
                                            int amount, int iconV, @Nullable Consumer<ButtonComponent> callback) {
         Icon icon = Icon.of(FzmmIcons.TEXTURE, 64, iconV, 256, 256);
         ButtonComponent result = Components.button(Text.empty(), button -> {
             BufferedImage updatedSkin = headComponentEntry.getPreview();
             for (int i = 0; i < amount; i++) {
-                updatedSkin = rotateModel.getHeadSkin(updatedSkin);
+                updatedSkin = modelEntry.getHeadSkin(updatedSkin);
             }
             headComponentEntry.updatePreview(updatedSkin, ImageUtils.isAlexModel(1, updatedSkin));
 
@@ -303,8 +304,8 @@ public class HeadComponentOverlay extends FlowLayout {
         for (var preEdit : SkinPreEditOption.values()) {
             FlowLayout layout = Containers.horizontalFlow(Sizing.content(), Sizing.content());
             this.parentScreen.setupPreEditButton(layout, preEdit, preEditHashMap, skinPreEditOption -> {
-                BufferedImage baseSkin = this.parentScreen.skinPreEdit(skinPreEditOption, headComponentEntry.isBodyPreview());
-                headComponentEntry.update(baseSkin);
+                this.selectedSkinPreEdit = skinPreEditOption;
+                BufferedImage baseSkin = this.updatePreview(headComponentEntry);
 
                 // Updates the skin format to the selected one, as pre-edit skin uses
                 // the base skin and not the preview because it needs the 2nd layer,
@@ -320,11 +321,16 @@ public class HeadComponentOverlay extends FlowLayout {
         }
         boolean forcePreEditInNone = FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels() &&
                 headComponentEntry.getValue() instanceof HeadModelEntry;
-        preEditHashMap.get(forcePreEditInNone ? SkinPreEditOption.NONE : this.parentScreen.skinPreEdit()).active = false;
+        this.selectedSkinPreEdit = forcePreEditInNone ? SkinPreEditOption.NONE : this.parentScreen.skinPreEdit();
+        preEditHashMap.get(this.selectedSkinPreEdit).active = false;
 
         preEditLayout.child(preEditRow);
 
         return preEditLayout;
+    }
+
+    private BufferedImage getBaseSkin(SkinPreEditOption skinPreEditOption, boolean isBodyPreview) {
+        return this.parentScreen.skinPreEdit(skinPreEditOption, isBodyPreview);
     }
 
     private FlowLayout getSkinFormatOptions(AbstractHeadComponentEntry headComponentEntry) {
@@ -375,5 +381,11 @@ public class HeadComponentOverlay extends FlowLayout {
         if (this.previewEntity.entity() instanceof ISkinMutable skinMutable) {
             skinMutable.updateFormat(isSlim);
         }
+    }
+
+    private BufferedImage updatePreview(AbstractHeadComponentEntry headComponentEntry) {
+        BufferedImage baseSkin = this.getBaseSkin(this.selectedSkinPreEdit, headComponentEntry.isBodyPreview());
+        headComponentEntry.update(baseSkin);
+        return baseSkin;
     }
 }
