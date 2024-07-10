@@ -2,11 +2,11 @@ package fzmm.zailer.me.compat.symbol_chat;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.compat.CompatMods;
 import fzmm.zailer.me.compat.symbol_chat.symbol.SymbolSelectionPanelComponentAdapter;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Positioning;
 import io.wispforest.owo.ui.core.Sizing;
@@ -140,7 +140,7 @@ public class SymbolChatCompat {
         if (CompatMods.SYMBOL_CHAT_PRESENT) {
             result.tooltip(SYMBOL_BUTTON_TEXT_TOOLTIP);
         } else {
-            result = Containers.horizontalFlow(Sizing.content(), Sizing.content())
+            result = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content())
                     .child(result)
                     .tooltip(SYMBOL_BUTTON_NOT_AVAILABLE_TOOLTIP);
         }
@@ -171,7 +171,7 @@ public class SymbolChatCompat {
         if (CompatMods.SYMBOL_CHAT_PRESENT) {
             result.tooltip(FONT_BUTTON_TEXT_TOOLTIP);
         } else {
-            result = Containers.horizontalFlow(Sizing.content(), Sizing.content())
+            result = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content())
                     .child(result)
                     .tooltip(FONT_BUTTON_NOT_AVAILABLE_TOOLTIP);
         }

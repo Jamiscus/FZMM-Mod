@@ -9,6 +9,7 @@ import fzmm.zailer.me.client.gui.components.BooleanButton;
 import fzmm.zailer.me.client.gui.components.row.BooleanRow;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.ScreenTabRow;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
@@ -17,7 +18,6 @@ import io.wispforest.owo.ui.component.BoxComponent;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.ItemComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.gui.screen.Screen;
@@ -100,7 +100,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
             colorBox.fill(true);
             colorBox.cursorStyle(CursorStyle.HAND);
 
-            FlowLayout colorSelectedLayout = Containers.horizontalFlow(Sizing.fixed(18), Sizing.fixed(18));
+            FlowLayout colorSelectedLayout = StyledContainers.horizontalFlow(Sizing.fixed(18), Sizing.fixed(18));
             colorSelectedLayout.padding(Insets.of(1));
             colorSelectedLayout.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
 
@@ -110,7 +110,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
 
                 for (var component : colorList) {
                     if (component instanceof FlowLayout layout)
-                        layout.surface(Surface.outline(0x00000000));
+                        layout.surface(Surface.BLANK);
                 }
 
                 colorSelectedLayout.surface(Surface.outline(0xFFFFFFFF));

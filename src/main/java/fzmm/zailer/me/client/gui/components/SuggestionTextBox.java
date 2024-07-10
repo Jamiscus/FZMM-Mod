@@ -4,10 +4,11 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
-import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.OverlayContainer;
 import io.wispforest.owo.ui.container.ScrollContainer;
@@ -27,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class SuggestionTextBox extends FlowLayout {
+public class SuggestionTextBox extends StyledFlowLayout {
     private static final int SUGGESTION_HEIGHT = 16;
     private static final int TEXT_BOX_HEIGHT = 22;
     private static final int SUGGESTION_MATCH_COLOR = Formatting.YELLOW.getColorValue() == null ? 0xFFFF55 : Formatting.YELLOW.getColorValue();
@@ -59,9 +60,8 @@ public class SuggestionTextBox extends FlowLayout {
         };
         this.mouseHoverSuggestion = false;
         this.textBox.horizontalSizing(Sizing.fill(100));
-        this.suggestionsLayout = Containers.verticalFlow(Sizing.fill(100), Sizing.content());
-        this.suggestionsContainer = Containers.verticalScroll(horizontalSizing, Sizing.fixed(0), this.suggestionsLayout);
-        this.suggestionsContainer.scrollbar(ScrollContainer.Scrollbar.flat(Color.WHITE));
+        this.suggestionsLayout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.content());
+        this.suggestionsContainer = StyledContainers.verticalScroll(horizontalSizing, Sizing.fixed(0), this.suggestionsLayout);
         this.child(this.textBox);
         this.selectedSuggestionIndex = -1;
         this.suggestionSelectedCallback = null;
@@ -183,7 +183,7 @@ public class SuggestionTextBox extends FlowLayout {
         } catch (Exception e) {
             FzmmClient.LOGGER.error("[SuggestionTextBox] Failed to get suggestions", e);
             this.suggestionsLayout.clearChildren();
-            this.suggestionsLayout.child(Components.label(Text.literal("Failed to get suggestions")));
+            this.suggestionsLayout.child(StyledComponents.label(Text.literal("Failed to get suggestions")));
         }
     }
 
@@ -239,8 +239,8 @@ public class SuggestionTextBox extends FlowLayout {
 
     private Component getSuggestionComponent(String suggestion, Text suggestionText) {
         // ButtonComponent does not allow the text to be left aligned
-        LabelComponent labelComponent = Components.label(suggestionText);
-        FlowLayout layout = Containers.verticalFlow(Sizing.fill(100), Sizing.fixed(SUGGESTION_HEIGHT));
+        LabelComponent labelComponent = StyledComponents.label(suggestionText);
+        FlowLayout layout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.fixed(SUGGESTION_HEIGHT));
         layout.mouseDown().subscribe((mouseX, mouseY, button) -> {
             this.textBox.text(suggestion);
             if (this.suggestionSelectedCallback != null)

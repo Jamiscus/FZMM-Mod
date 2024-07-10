@@ -1,16 +1,16 @@
 <owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20.3/owo-ui.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21/owo-ui.xsd">
     <components>
-        <flow-layout direction="vertical">
+        <fzmm.styled-flow-layout direction="vertical">
             <children>
-                <label id="title">
+                <fzmm.styled-label id="title">
                     <positioning type="absolute">20,20</positioning>
                     <text translate="true">fzmm.gui.title.encryptbook</text>
-                </label>
+                </fzmm.styled-label>
 
-                <scroll direction="vertical">
+                <fzmm.styled-scroll direction="vertical">
 
-                    <flow-layout direction="vertical" id="options-list">
+                    <fzmm.styled-flow-layout direction="vertical" id="options-list">
                         <children>
                             <fzmm.text-box-row>
                                 <id>message</id>
@@ -34,7 +34,7 @@
                                 <id>maxMessageLength</id>
                             </fzmm.slider-row>
                         </children>
-                    </flow-layout>
+                    </fzmm.styled-flow-layout>
 
                     <sizing>
                         <vertical method="fill">90</vertical>
@@ -43,13 +43,9 @@
                     <margins>
                         <vertical>30</vertical>
                     </margins>
+                </fzmm.styled-scroll>
 
-                    <scrollbar>
-                        <flat>#FFFFFF</flat>
-                    </scrollbar>
-                </scroll>
-
-                <flow-layout direction="horizontal">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
 
                         <button id="give-button">
@@ -72,9 +68,9 @@
                         <left>20</left>
                         <bottom>20</bottom>
                     </margins>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
 
-                <flow-layout direction="horizontal">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
 
                         <button id="back-button">
@@ -92,9 +88,9 @@
 
                     <vertical-alignment>bottom</vertical-alignment>
                     <horizontal-alignment>right</horizontal-alignment>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
 
-                <flow-layout direction="horizontal">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
 
                         <button id="faq-button">
@@ -109,7 +105,7 @@
                     </children>
 
                     <positioning type="relative">100,0</positioning>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
             </children>
 
 
@@ -119,6 +115,6 @@
             <surface>
                 <vanilla-translucent/>
             </surface>
-        </flow-layout>
+        </fzmm.styled-flow-layout>
     </components>
 </owo-ui>

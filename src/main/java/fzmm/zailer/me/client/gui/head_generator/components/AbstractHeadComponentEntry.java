@@ -5,6 +5,8 @@ import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntity;
 import fzmm.zailer.me.client.entity.custom_skin.CustomPlayerSkinEntity;
 import fzmm.zailer.me.client.entity.custom_skin.ISkinMutable;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.utils.ImageUtils;
@@ -24,7 +26,7 @@ import net.minecraft.entity.Entity;
 
 import java.awt.image.BufferedImage;
 
-public abstract class AbstractHeadComponentEntry extends FlowLayout implements IListEntry<AbstractHeadEntry> {
+public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implements IListEntry<AbstractHeadEntry> {
     public static final int HEAD_PREVIEW_SIZE = 24;
     public static final int BODY_PREVIEW_SIZE = 12;
     protected AbstractHeadEntry entry;
@@ -58,11 +60,7 @@ public abstract class AbstractHeadComponentEntry extends FlowLayout implements I
             return true;
         });
 
-        this.mouseEnter().subscribe(() -> this.surface(Surface.flat(0x40000000)));
-        this.mouseLeave().subscribe(() -> {
-            if (!this.hovered)
-                this.surface(Surface.flat(0));
-        });
+        this.hoveredSurface(FzmmStyles.DEFAULT_HOVERED);
     }
 
     public boolean isBodyPreview() {

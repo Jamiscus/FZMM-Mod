@@ -1,10 +1,13 @@
 package fzmm.zailer.me.client.gui.components.row;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.parsing.UIParsing;
@@ -14,22 +17,21 @@ import org.w3c.dom.Element;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class AbstractRow extends FlowLayout {
+public abstract class AbstractRow extends StyledFlowLayout {
     protected static final int NORMAL_WIDTH = 200;
     protected static final int TEXT_FIELD_WIDTH = NORMAL_WIDTH - 2;
     public static final int ROW_HEIGHT = 22;
     public static final int VERTICAL_MARGIN = 2;
     public static final int TOTAL_HEIGHT = ROW_HEIGHT + VERTICAL_MARGIN * 2;
     protected final String baseTranslationKey;
-    private boolean hasHoveredBackground;
     private String id;
     private final boolean translate;
 
     public AbstractRow(String baseTranslationKey) {
         super(Sizing.fill(100), Sizing.fixed(TOTAL_HEIGHT), Algorithm.HORIZONTAL);
         this.baseTranslationKey = baseTranslationKey;
-        this.hasHoveredBackground = true;
         this.translate = true;
+        this.hoveredSurface(FzmmStyles.DEFAULT_HOVERED);
     }
 
     public AbstractRow(String baseTranslationKey, String id, String tooltipId, boolean hasResetButton) {
@@ -39,12 +41,12 @@ public abstract class AbstractRow extends FlowLayout {
     public AbstractRow(String baseTranslationKey, String id, String tooltipId, boolean hasResetButton, boolean translate) {
         super(Sizing.fill(100), Sizing.fixed(TOTAL_HEIGHT), Algorithm.HORIZONTAL);
         this.baseTranslationKey = baseTranslationKey;
-        this.hasHoveredBackground = true;
         this.id = id;
         this.translate = translate;
+        this.hoveredSurface(FzmmStyles.DEFAULT_HOVERED);
         Component[] components = this.getComponents(id, tooltipId);
 
-        FlowLayout rowLayout = (FlowLayout) Containers
+        FlowLayout rowLayout = (FlowLayout) StyledContainers
                 .horizontalFlow(Sizing.fill(100), Sizing.fixed(ROW_HEIGHT))
                 .child(this.getLabel(id, tooltipId, components.length != 0))
                 .gap(BaseFzmmScreen.COMPONENT_DISTANCE)
@@ -52,7 +54,7 @@ public abstract class AbstractRow extends FlowLayout {
                 .margins(Insets.vertical(VERTICAL_MARGIN))
                 .id(getRowContainerId(id));
 
-        FlowLayout rightComponentsLayout = (FlowLayout) Containers
+        FlowLayout rightComponentsLayout = (FlowLayout) StyledContainers
                 .horizontalFlow(Sizing.content(), Sizing.fill(100))
                 .gap(BaseFzmmScreen.COMPONENT_DISTANCE)
                 .verticalAlignment(VerticalAlignment.CENTER)
@@ -75,14 +77,6 @@ public abstract class AbstractRow extends FlowLayout {
 
     public abstract Component[] getComponents(String id, String tooltipId);
 
-    @Override
-    public void draw(OwoUIDrawContext context, int mouseX, int mouseY, float partialTicks, float delta) {
-        if (this.hovered && this.hasHoveredBackground)
-            context.fill(this.x, this.y, this.x + this.width, this.y + this.height, 0x40000000);
-
-        super.draw(context, mouseX, mouseY, partialTicks, delta);
-    }
-
     public Component getResetButton(String id) {
         return Components
                 .button(Text.translatable("fzmm.gui.button.reset"), buttonComponent -> {
@@ -96,7 +90,7 @@ public abstract class AbstractRow extends FlowLayout {
     }
 
     public static Component getLabel(String id, String tooltipId, String baseTranslationKey, boolean translate) {
-        LabelComponent label = (LabelComponent) Components.label(translate ? Text.translatable(baseTranslationKey + id) : Text.literal(id))
+        LabelComponent label = (LabelComponent) StyledComponents.label(translate ? Text.translatable(baseTranslationKey + id) : Text.literal(id))
                 .margins(Insets.left(20))
                 .id(getLabelId(id));
 
@@ -137,11 +131,6 @@ public abstract class AbstractRow extends FlowLayout {
     public static String getTooltipId(Element element, String defaultValue, String id) {
         boolean containsTooltipId = UIParsing.childElements(element).containsKey(id);
         return containsTooltipId ? UIParsing.parseText(UIParsing.childElements(element).get(id)).getString() : defaultValue;
-    }
-
-    public AbstractRow setHasHoveredBackground(boolean hasHoveredBackground) {
-        this.hasHoveredBackground = hasHoveredBackground;
-        return this;
     }
 
     public void removeResetButton() {

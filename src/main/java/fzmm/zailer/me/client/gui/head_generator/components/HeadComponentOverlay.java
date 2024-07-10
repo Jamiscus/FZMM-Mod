@@ -9,6 +9,9 @@ import fzmm.zailer.me.client.gui.components.row.ColorRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
 import fzmm.zailer.me.client.gui.head_generator.options.SkinPreEditOption;
@@ -26,7 +29,6 @@ import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.EntityComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.MinecraftClient;
@@ -50,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class HeadComponentOverlay extends FlowLayout {
+public class HeadComponentOverlay extends StyledFlowLayout {
     private static final int OVERLAY_WIDGETS_WIDTH = 75;
     public static final Text GIVE_BUTTON_TEXT = Text.translatable("fzmm.gui.button.giveHead");
     public static final Text GIVE_WAITING_UNDEFINED_TEXT = Text.translatable("fzmm.gui.headGenerator.wait");
@@ -152,7 +154,7 @@ public class HeadComponentOverlay extends FlowLayout {
         FlowLayout parametersLayout = panel.childById(FlowLayout.class, "parameters");
         BaseFzmmScreen.checkNull(parametersLayout, "flow-layout", "parameters");
         if (parametersEntry.hasRequestedParameters()) {
-            LabelComponent parametersLabel = Components.label(Text.translatable("fzmm.gui.headGenerator.label.parameters"));
+            LabelComponent parametersLabel = StyledComponents.label(Text.translatable("fzmm.gui.headGenerator.label.parameters"));
             parametersLayout.child(parametersLabel);
 
             String baseTranslation = parent.getBaseScreenTranslationKey();
@@ -260,10 +262,10 @@ public class HeadComponentOverlay extends FlowLayout {
     }
 
     private FlowLayout getOptionLayout(String id) {
-        FlowLayout result = Containers.verticalFlow(Sizing.content(), Sizing.content());
+        FlowLayout result = StyledContainers.verticalFlow(Sizing.content(), Sizing.content());
         result.horizontalAlignment(HorizontalAlignment.CENTER);
         result.gap(4);
-        LabelComponent label = Components.label(Text.translatable("fzmm.gui.headGenerator.option.overlayDefault." + id));
+        LabelComponent label = StyledComponents.label(Text.translatable("fzmm.gui.headGenerator.option.overlayDefault." + id));
 
         result.child(label);
 
@@ -272,9 +274,9 @@ public class HeadComponentOverlay extends FlowLayout {
 
     private FlowLayout getRotateOptions(AbstractHeadComponentEntry headComponentEntry) {
         FlowLayout rotateLayout = this.getOptionLayout("rotate");
-        FlowLayout rotateFirstRow = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+        FlowLayout rotateFirstRow = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
         rotateFirstRow.gap(4);
-        FlowLayout rotateSecondRow = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+        FlowLayout rotateSecondRow = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
         rotateSecondRow.gap(4);
 
         int iconV = 0;
@@ -297,12 +299,12 @@ public class HeadComponentOverlay extends FlowLayout {
 
     private FlowLayout getPreEditOptions(AbstractHeadComponentEntry headComponentEntry) {
         FlowLayout preEditLayout = this.getOptionLayout("preEdit");
-        FlowLayout preEditRow = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+        FlowLayout preEditRow = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
         preEditRow.gap(4);
 
         HashMap<SkinPreEditOption, ButtonComponent> preEditHashMap = new HashMap<>();
         for (var preEdit : SkinPreEditOption.values()) {
-            FlowLayout layout = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+            FlowLayout layout = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
             this.parentScreen.setupPreEditButton(layout, preEdit, preEditHashMap, skinPreEditOption -> {
                 this.selectedSkinPreEdit = skinPreEditOption;
                 BufferedImage baseSkin = this.updatePreview(headComponentEntry);
@@ -335,7 +337,7 @@ public class HeadComponentOverlay extends FlowLayout {
 
     private FlowLayout getSkinFormatOptions(AbstractHeadComponentEntry headComponentEntry) {
         FlowLayout skinFormatLayout = this.getOptionLayout("skinFormat");
-        FlowLayout skinFormatRow = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+        FlowLayout skinFormatRow = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
         skinFormatRow.gap(4);
 
         List<ButtonComponent> buttons = new ArrayList<>();
@@ -346,11 +348,11 @@ public class HeadComponentOverlay extends FlowLayout {
         ButtonComponent wide = this.getModelButton(headComponentEntry, InternalModels.SLIM_TO_WIDE, 1, 112,
                 modelButton -> this.skinFormatCallback(buttons, modelButton, false));
 
-        optionsList.add(Containers.horizontalFlow(Sizing.content(), Sizing.content())
+        optionsList.add(StyledContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .child(wide)
                 .tooltip(Text.translatable("fzmm.gui.headGenerator.option.overlayDefault.skinFormat.wide"))
         );
-        optionsList.add(Containers.horizontalFlow(Sizing.content(), Sizing.content())
+        optionsList.add(StyledContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .child(slim)
                 .tooltip(Text.translatable("fzmm.gui.headGenerator.option.overlayDefault.skinFormat.slim"))
         );

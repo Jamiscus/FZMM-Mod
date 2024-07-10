@@ -1,12 +1,13 @@
 package fzmm.zailer.me.client.gui.utils.auto_placer;
 
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.imagetext.HologramPlacerScreen;
 import fzmm.zailer.me.client.gui.player_statue.PlayerStatuePlacerScreen;
 import io.wispforest.owo.ui.base.BaseComponent;
-import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
@@ -38,23 +39,23 @@ public class AutoPlacerHud {
         List<Requirement> allRequirements = getRequirements(requirements);
 
         Hud.add(HUD_IDENTIFIER, () -> {
-            FlowLayout mainLayout = Containers.verticalFlow(Sizing.fill(70), Sizing.fill(70));
+            StyledFlowLayout mainLayout = StyledContainers.verticalFlow(Sizing.fill(70), Sizing.fill(70));
 
-            LabelComponent titleLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.title"));
+            LabelComponent titleLabel = StyledComponents.label(Text.translatable("fzmm.gui.autoPlacer.title"));
             titleLabel.positioning(Positioning.relative(50, 0));
 
-            LabelComponent requirementLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.label.requirement"));
-            LabelComponent currentRequirementLabel = Components.label(Text.empty());
-            FlowLayout requirementLayout = Containers.verticalFlow(Sizing.fill(100), Sizing.content());
+            LabelComponent requirementLabel = StyledComponents.label(Text.translatable("fzmm.gui.autoPlacer.label.requirement"));
+            LabelComponent currentRequirementLabel = StyledComponents.label(Text.empty());
+            FlowLayout requirementLayout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.content());
             requirementLayout.child(requirementLabel);
             requirementLayout.child(currentRequirementLabel);
             requirementLayout.gap(4);
             requirementLayout.horizontalAlignment(HorizontalAlignment.CENTER);
 
-            LabelComponent sneakLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.label.sneakInfo"));
-            LabelComponent cancelLabel = Components.label(Text.translatable("fzmm.gui.autoPlacer.label.cancel", FzmmClient.OPEN_MAIN_GUI_KEYBINDING.getBoundKeyLocalizedText().getString()));
+            LabelComponent sneakLabel = StyledComponents.label(Text.translatable("fzmm.gui.autoPlacer.label.sneakInfo"));
+            LabelComponent cancelLabel = StyledComponents.label(Text.translatable("fzmm.gui.autoPlacer.label.cancel", FzmmClient.OPEN_MAIN_GUI_KEYBINDING.getBoundKeyLocalizedText().getString()));
 
-            FlowLayout bottomTextLayout = Containers.verticalFlow(Sizing.fill(100), Sizing.content());
+            FlowLayout bottomTextLayout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.content());
             bottomTextLayout.positioning(Positioning.relative(0, 100));
             bottomTextLayout.gap(4);
             bottomTextLayout.child(cancelLabel);
@@ -87,7 +88,7 @@ public class AutoPlacerHud {
                     .child(requirementLayout)
                     .child(bottomTextLayout)
                     .padding(Insets.of(16))
-                    .surface(Surface.VANILLA_TRANSLUCENT)
+                    .surface(mainLayout.styledBackground())
                     .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
                     .positioning(Positioning.relative(50, 50));
 

@@ -8,6 +8,9 @@ import fzmm.zailer.me.client.gui.components.image.ImageButtonComponent;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
 import fzmm.zailer.me.client.gui.components.row.*;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
+import fzmm.zailer.me.client.gui.components.style.component.StyledLabelComponent;
+import fzmm.zailer.me.client.gui.components.style.container.StyledScrollContainer;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTabIdentifier;
 import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
@@ -43,7 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class BaseFzmmScreen extends BaseUIModelScreen<FlowLayout> {
+public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout> {
     @Nullable
     protected Screen parent;
     protected final String baseScreenTranslationKey;
@@ -53,7 +56,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<FlowLayout> {
     protected final HashMap<String, IScreenTab> tabs;
 
     public BaseFzmmScreen(String screenPath, String baseScreenTranslationKey, @Nullable Screen parent) {
-        super(FlowLayout.class, DataSource.asset(new Identifier(FzmmClient.MOD_ID, screenPath)));
+        super(StyledFlowLayout.class, DataSource.asset(Identifier.of(FzmmClient.MOD_ID, screenPath)));
         this.baseScreenTranslationKey = baseScreenTranslationKey;
         this.parent = parent;
         this.tabs = new HashMap<>();
@@ -61,7 +64,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     @Override
-    protected void build(FlowLayout rootComponent) {
+    protected void build(StyledFlowLayout rootComponent) {
         assert this.client != null;
         ButtonComponent backButton = rootComponent.childById(ButtonComponent.class, "back-button");
         if (backButton != null)
@@ -221,28 +224,33 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<FlowLayout> {
     }
 
     static {
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "boolean-row"), BooleanRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "button-row"), ButtonRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "color-row"), ColorRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "predicate-text-box-row"), ConfigTextBoxRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "enum-row"), EnumRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "image-rows"), ImageRows::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "number-row"), NumberRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "screen-tab-row"), ScreenTabRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "slider-row"), SliderRow::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "text-box-row"), TextBoxRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "boolean-row"), BooleanRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "button-row"), ButtonRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "color-row"), ColorRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "predicate-text-box-row"), ConfigTextBoxRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "enum-row"), EnumRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "image-rows"), ImageRows::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "number-row"), NumberRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screen-tab-row"), ScreenTabRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "slider-row"), SliderRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "text-box-row"), TextBoxRow::parse);
+
+        // styled components
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "styled-label"), element -> new StyledLabelComponent(Text.empty()));
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "styled-flow-layout"), StyledFlowLayout::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "styled-scroll"), StyledScrollContainer::parse);
 
         // these are necessary in case you want to create the fields manually with XML
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "boolean-button"), BooleanButton::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "number-slider"), element -> new SliderWidget());
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "text-option"), element -> new ConfigTextBox());
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "image-option"), element -> new ImageButtonComponent());
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "enum-option"), element -> new EnumWidget());
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "screen-tab"), ScreenTabContainer::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "main-button"), element -> new MainButtonComponent(Text.empty(), buttonComponent -> {}));
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "screenshot-zone"), element -> new ScreenshotZoneComponent());
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "color-list"), ColorListContainer::parse);
-        UIParsing.registerFactory(new Identifier(FzmmClient.MOD_ID, "font-text-box"), element -> new FontTextBoxComponent(Sizing.fixed(100)));
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "boolean-button"), BooleanButton::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "number-slider"), element -> new SliderWidget());
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "text-option"), element -> new ConfigTextBox());
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "image-option"), element -> new ImageButtonComponent());
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "enum-option"), element -> new EnumWidget());
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screen-tab"), ScreenTabContainer::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "main-button"), element -> new MainButtonComponent(Text.empty(), buttonComponent -> {}));
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screenshot-zone"), element -> new ScreenshotZoneComponent());
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "color-list"), ColorListContainer::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "font-text-box"), element -> new FontTextBoxComponent(Sizing.fixed(100)));
 
     }
 

@@ -8,6 +8,9 @@ import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
 import fzmm.zailer.me.client.gui.head_generator.components.AbstractHeadComponentEntry;
 import fzmm.zailer.me.client.gui.head_generator.components.HeadComponentEntry;
@@ -78,7 +81,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private List<HeadComponentEntry> headComponentEntries;
     private List<HeadCompoundComponentEntry> headCompoundComponentEntries;
     private FlowLayout contentLayout;
-    private FlowLayout compoundHeadsLayout;
+    private StyledFlowLayout compoundHeadsLayout;
     private ButtonWidget toggleFavoriteList;
     private boolean showFavorites;
     private BufferedImage baseSkin;
@@ -113,7 +116,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         this.skinElements.valueField().onChanged().subscribe(this::onChangeSkinField);
         this.contentLayout = rootComponent.childById(FlowLayout.class, CONTENT_ID);
         checkNull(this.contentLayout, "flow-layout", CONTENT_ID);
-        this.compoundHeadsLayout = rootComponent.childById(FlowLayout.class, COMPOUND_HEADS_LAYOUT_ID);
+        this.compoundHeadsLayout = rootComponent.childById(StyledFlowLayout.class, COMPOUND_HEADS_LAYOUT_ID);
         checkNull(this.compoundHeadsLayout, "flow-layout", COMPOUND_HEADS_LAYOUT_ID);
 
         FlowLayout contentParentLayout = rootComponent.childById(FlowLayout.class, CONTENT_PARENT_LAYOUT_ID);
@@ -279,8 +282,8 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
     private void addNoResultsMessage(FlowLayout parent) {
         FzmmClient.LOGGER.warn("[HeadGeneratorScreen] No head entries found");
-        Component label = Components.label(Text.translatable("fzmm.gui.headGenerator.label.noResults")
-                        .setStyle(Style.EMPTY.withColor(0xD83F27)))
+        Component label = StyledComponents.label(Text.translatable("fzmm.gui.headGenerator.label.noResults")
+                        .setStyle(Style.EMPTY.withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb())))
                 .horizontalTextAlignment(HorizontalAlignment.CENTER)
                 .sizing(Sizing.expand(100), Sizing.content())
                 .margins(Insets.top(4));
@@ -479,7 +482,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         List<Component> compoundHeads = this.compoundHeadsLayout.children();
         if (compoundHeads.isEmpty()) {
             this.compoundExpandAnimation.forwards();
-            this.compoundHeadsLayout.surface(Surface.DARK_PANEL);
+            this.compoundHeadsLayout.surface(this.compoundHeadsLayout.styledPanel());
         }
 
         HeadCompoundComponentEntry entry = new HeadCompoundComponentEntry(headData, this.compoundHeadsLayout, this, currentPreview);
