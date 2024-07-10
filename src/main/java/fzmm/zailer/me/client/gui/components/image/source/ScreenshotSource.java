@@ -2,11 +2,11 @@ package fzmm.zailer.me.client.gui.components.image.source;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.toast.LoadingImageToast;
 import fzmm.zailer.me.client.toast.status.ImageStatus;
-import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.HorizontalAlignment;
 import io.wispforest.owo.ui.core.Positioning;
@@ -82,19 +82,19 @@ public class ScreenshotSource implements IInteractiveImageLoader {
     }
 
     private FlowLayout getHud() {
-        FlowLayout hudLayout = (FlowLayout) Containers.verticalFlow(Sizing.fill(100), Sizing.fill(100))
+        FlowLayout hudLayout = (FlowLayout) StyledContainers.verticalFlow(Sizing.fill(100), Sizing.fill(100))
                 .positioning(Positioning.absolute(0, 0));
 
         ScreenshotZoneComponent screenshotZoneComponent = new ScreenshotZoneComponent();
         screenshotZoneComponent.sizing(Sizing.fill(100), Sizing.fill(100))
                 .positioning(Positioning.absolute(0, 0));
 
-        FlowLayout labelLayout = (FlowLayout) Containers.verticalFlow(Sizing.fill(100), Sizing.fixed(ScreenshotZoneComponent.PADDING))
+        FlowLayout labelLayout = (FlowLayout) StyledContainers.verticalFlow(Sizing.fill(100), Sizing.fixed(ScreenshotZoneComponent.PADDING))
                 .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
                 .positioning(Positioning.absolute(0, 0));
 
         Text keyTranslation = FzmmClient.OPEN_MAIN_GUI_KEYBINDING.getBoundKeyLocalizedText();
-        LabelComponent labelComponent = Components.label(Text.translatable("fzmm.gui.option.image.screenshot.message", keyTranslation));
+        LabelComponent labelComponent = StyledComponents.label(Text.translatable("fzmm.gui.option.image.screenshot.message", keyTranslation.getString()));
 
         labelLayout.child(labelComponent);
         hudLayout.child(screenshotZoneComponent);

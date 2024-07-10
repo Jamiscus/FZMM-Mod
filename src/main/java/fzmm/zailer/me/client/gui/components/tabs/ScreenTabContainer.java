@@ -1,9 +1,9 @@
 package fzmm.zailer.me.client.gui.components.tabs;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
-import io.wispforest.owo.ui.container.FlowLayout;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.parsing.UIParsing;
 import net.minecraft.text.Text;
@@ -12,7 +12,7 @@ import org.w3c.dom.Element;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScreenTabContainer extends FlowLayout {
+public class ScreenTabContainer extends StyledFlowLayout {
     protected boolean selected;
     protected List<Component> componentList;
 
@@ -25,9 +25,9 @@ public class ScreenTabContainer extends FlowLayout {
         String translationKey = "fzmm.gui." + baseTranslationKey + ".tab." + id;
 
         this.child(
-                Containers.horizontalFlow(Sizing.fill(100), Sizing.content())
+                StyledContainers.horizontalFlow(Sizing.fill(100), Sizing.content())
                         .child(
-                                Components.label(Text.translatable(translationKey))
+                                StyledComponents.label(Text.translatable(translationKey))
                                         .tooltip(Text.translatable(translationKey + ".tooltip"))
                         ).alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
                         .margins(Insets.vertical(4))

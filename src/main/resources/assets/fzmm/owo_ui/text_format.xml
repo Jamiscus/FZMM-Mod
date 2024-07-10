@@ -1,24 +1,24 @@
 <owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20.3/owo-ui.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21/owo-ui.xsd">
     <components>
-        <flow-layout direction="vertical">
+        <fzmm.styled-flow-layout direction="vertical">
             <children>
-                <label id="title">
+                <fzmm.styled-label id="title">
                     <positioning type="absolute">20,20</positioning>
                     <text translate="true">fzmm.gui.title.textFormat</text>
-                </label>
+                </fzmm.styled-label>
 
-                <scroll direction="horizontal">
-                    <flow-layout direction="horizontal">
+                <fzmm.styled-scroll direction="horizontal">
+                    <fzmm.styled-flow-layout direction="horizontal">
                         <children>
-                            <label id="message-preview">
+                            <fzmm.styled-label id="message-preview">
 
                                 <margins>
                                     <vertical>4</vertical>
                                 </margins>
-                            </label>
+                            </fzmm.styled-label>
                         </children>
-                    </flow-layout>
+                    </fzmm.styled-flow-layout>
 
                     <sizing>
                         <horizontal method="fill">100</horizontal>
@@ -30,21 +30,17 @@
                         <bottom>8</bottom>
                         <horizontal>20</horizontal>
                     </padding>
+                </fzmm.styled-scroll>
 
-                    <scrollbar>
-                        <flat>#FFFFFF</flat>
-                    </scrollbar>
-                </scroll>
+                <fzmm.styled-scroll direction="vertical">
 
-                <scroll direction="vertical">
-
-                    <flow-layout direction="vertical" id="options-list">
+                    <fzmm.styled-flow-layout direction="vertical" id="options-list">
                         <children>
                             <fzmm.text-box-row>
                                 <id>message</id>
                                 <symbolChatButtons>true</symbolChatButtons>
                             </fzmm.text-box-row>
-                            <flow-layout direction="horizontal" id="styles-layout">
+                            <fzmm.styled-flow-layout direction="horizontal" id="styles-layout">
                                 <children>
                                     <fzmm.boolean-button id="bold">
                                         <text translate="true">fzmm.gui.textFormat.option.bold</text>
@@ -88,7 +84,7 @@
                                 <sizing>
                                     <horizontal method="fill">100</horizontal>
                                 </sizing>
-                            </flow-layout>
+                            </fzmm.styled-flow-layout>
                             <fzmm.screen-tab-row>
                                 <id>tabs</id>
                             </fzmm.screen-tab-row>
@@ -144,7 +140,7 @@
                             <fzmm.screen-tab>
                                 <id>placeholder_api</id>
                                 <children>
-                                    <flow-layout direction="vertical" id="placeholder-info">
+                                    <fzmm.styled-flow-layout direction="vertical" id="placeholder-info">
                                         <children>
 
                                         </children>
@@ -157,14 +153,14 @@
                                         </sizing>
 
                                         <gap>8</gap>
-                                    </flow-layout>
+                                    </fzmm.styled-flow-layout>
                                 </children>
                             </fzmm.screen-tab>
                         </children>
 
                         <horizontal-alignment>center</horizontal-alignment>
                         <vertical-alignment>center</vertical-alignment>
-                    </flow-layout>
+                    </fzmm.styled-flow-layout>
 
                     <sizing>
                         <vertical method="fill">90</vertical>
@@ -174,13 +170,9 @@
                         <top>40</top>
                         <bottom>30</bottom>
                     </margins>
+                </fzmm.styled-scroll>
 
-                    <scrollbar>
-                        <flat>#FFFFFF</flat>
-                    </scrollbar>
-                </scroll>
-
-                <flow-layout direction="horizontal">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
 
                         <button id="add-lore-button">
@@ -210,9 +202,9 @@
                         <left>20</left>
                         <bottom>20</bottom>
                     </margins>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
 
-                <flow-layout direction="horizontal">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
 
                         <button id="back-button">
@@ -230,7 +222,7 @@
 
                     <vertical-alignment>bottom</vertical-alignment>
                     <horizontal-alignment>right</horizontal-alignment>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
             </children>
 
 
@@ -240,6 +232,6 @@
             <surface>
                 <vanilla-translucent/>
             </surface>
-        </flow-layout>
+        </fzmm.styled-flow-layout>
     </components>
 </owo-ui>

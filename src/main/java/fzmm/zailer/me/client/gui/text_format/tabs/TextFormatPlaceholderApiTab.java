@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.gui.text_format.tabs;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.TextFormatLogic;
 import fzmm.zailer.me.compat.CompatMods;
@@ -73,10 +74,10 @@ public class TextFormatPlaceholderApiTab implements ITextFormatTab {
         examples.add("<rb:0.8:0.7:0>parameters of rainbow are: frequency, saturation, offset</rb>");
         examples.add("<red><b><underline>Hello<r> world");
 
-        componentList.add(Components.label(Text.translatable("fzmm.gui.textFormat.label.placeholderApi.examples")));
+        componentList.add(StyledComponents.label(Text.translatable("fzmm.gui.textFormat.label.placeholderApi.examples")));
 
         for (var example : examples)
-            componentList.add(Components.label(PlaceholderApiCompat.parse(example)).tooltip(Text.literal(example)));
+            componentList.add(StyledComponents.label(PlaceholderApiCompat.parse(example)).tooltip(Text.literal(example)));
 
         this.infoLayout.children(componentList);
     }
