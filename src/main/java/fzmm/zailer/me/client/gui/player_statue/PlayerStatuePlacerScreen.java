@@ -1,11 +1,11 @@
 package fzmm.zailer.me.client.gui.player_statue;
 
 import fzmm.zailer.me.builders.DisplayBuilder;
+import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.utils.auto_placer.AbstractAutoPlacer;
 import fzmm.zailer.me.client.gui.utils.auto_placer.AutoPlacerHud;
 import fzmm.zailer.me.client.logic.player_statue.PlayerStatue;
 import fzmm.zailer.me.utils.InventoryUtils;
-import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.core.Component;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.client.MinecraftClient;
@@ -51,10 +51,10 @@ public class PlayerStatuePlacerScreen extends AbstractAutoPlacer {
     protected List<Component> getInfoLabels() {
         List<Component> labelList = new ArrayList<>();
 
-        labelList.add(Components.label(this.playerStatueStack.getName()));
+        labelList.add(StyledComponents.label(this.playerStatueStack.getName()));
 
         for (var text : DisplayBuilder.of(this.playerStatueStack).getLoreText()) {
-            labelList.add(Components.label(text));
+            labelList.add(StyledComponents.label(text));
         }
 
         return labelList;

@@ -8,6 +8,8 @@ import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.GiveItemComponent;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.client.logic.head_gallery.HeadGalleryResources;
@@ -20,6 +22,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.OverlayContainer;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.Sizing;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
@@ -89,17 +92,20 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
         this.tagOverlay = null;
         assert this.client != null;
 
-        FlowLayout categoryList = rootComponent.childById(FlowLayout.class, CATEGORY_LAYOUT_ID);
+        StyledFlowLayout categoryList = rootComponent.childById(StyledFlowLayout.class, CATEGORY_LAYOUT_ID);
         checkNull(categoryList, "flow-layout", CATEGORY_LAYOUT_ID);
 
         this.categoryButtonList = HeadGalleryResources.CATEGORY_LIST.stream()
                 .map(category -> Components.button(Text.translatable("fzmm.gui.headGallery.button.category." + category),
                                 buttonComponent -> this.categoryButtonExecute(buttonComponent, category, null))
-                        .horizontalSizing(Sizing.fill(100))
+                        .renderer(FzmmStyles.DEFAULT_FLAT_BUTTON)
+                        .sizing(Sizing.fill(100), Sizing.fixed(16))
                         .id(category)
                 ).collect(Collectors.toList());
 
-        categoryList.children(this.categoryButtonList);
+        categoryList.children(this.categoryButtonList)
+                .surface(categoryList.styledPanel())
+                .padding(Insets.of(4));
 
         FlowLayout tagsLayout = rootComponent.childById(FlowLayout.class, TAGS_LAYOUT_ID);
         checkNull(tagsLayout, "flow-layout", TAGS_LAYOUT_ID);
@@ -197,7 +203,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
             this.setPage(1);
 
             this.errorLabel.text(Text.translatable("fzmm.gui.headGallery.label.error", category, throwable.getMessage())
-                    .setStyle(Style.EMPTY.withColor(0xD83F27)));
+                    .setStyle(Style.EMPTY.withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb())));
             FzmmClient.LOGGER.error("[HeadGalleryScreen] Error while fetching category '{}'", category, throwable);
 
             for (var component : this.categoryButtonList) {

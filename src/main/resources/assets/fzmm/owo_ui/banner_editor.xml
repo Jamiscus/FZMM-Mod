@@ -1,16 +1,16 @@
 <owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20.3/owo-ui.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21/owo-ui.xsd">
     <components>
-        <flow-layout direction="horizontal">
+        <fzmm.styled-flow-layout direction="horizontal">
             <children>
-                <label id="title">
+                <fzmm.styled-label id="title">
                     <positioning type="absolute">20,20</positioning>
                     <text translate="true">fzmm.gui.title.bannerEditor</text>
-                </label>
+                </fzmm.styled-label>
 
 
-                <scroll direction="vertical">
-                    <flow-layout direction="vertical">
+                <fzmm.styled-scroll direction="vertical">
+                    <fzmm.styled-flow-layout direction="vertical">
                         <children>
                             <fzmm.boolean-row>
                                 <id>isShield</id>
@@ -20,9 +20,9 @@
                                 <id>tabs</id>
                             </fzmm.screen-tab-row>
 
-                            <flow-layout direction="horizontal">
+                            <fzmm.styled-flow-layout direction="horizontal">
                                 <children>
-                                    <flow-layout direction="vertical">
+                                    <fzmm.styled-flow-layout direction="vertical">
                                         <children>
                                             <item id="banner-preview">
                                                 <sizing>
@@ -47,7 +47,7 @@
                                                 </sizing>
                                             </button>
 
-                                            <flow-layout direction="horizontal">
+                                            <fzmm.styled-flow-layout direction="horizontal">
                                                 <children>
                                                     <button id="undo">
                                                         <text translate="true">fzmm.gui.button.arrow2.left</text>
@@ -70,7 +70,7 @@
                                                 <margins>
                                                     <all>1</all>
                                                 </margins>
-                                            </flow-layout>
+                                            </fzmm.styled-flow-layout>
                                         </children>
                                         <gap>4</gap>
 
@@ -80,11 +80,11 @@
 
                                         <vertical-alignment>center</vertical-alignment>
                                         <horizontal-alignment>center</horizontal-alignment>
-                                    </flow-layout>
+                                    </fzmm.styled-flow-layout>
 
-                                    <flow-layout direction="vertical" id="content">
+                                    <fzmm.styled-flow-layout direction="vertical" id="content">
                                         <children>
-                                            <flow-layout direction="ltr-text-flow" id="color-layout">
+                                            <fzmm.styled-flow-layout direction="ltr-text-flow" id="color-layout">
                                                 <children>
 
                                                 </children>
@@ -96,12 +96,12 @@
                                                 <vertical-alignment>top</vertical-alignment>
                                                 <horizontal-alignment>center</horizontal-alignment>
 
-                                            </flow-layout>
+                                            </fzmm.styled-flow-layout>
 
                                             <fzmm.screen-tab>
                                                 <id>addPatterns</id>
                                                 <children>
-                                                    <flow-layout direction="ltr-text-flow" id="add-patterns-layout">
+                                                    <fzmm.styled-flow-layout direction="ltr-text-flow" id="add-patterns-layout">
                                                         <children>
 
                                                         </children>
@@ -113,14 +113,14 @@
                                                         <vertical-alignment>top</vertical-alignment>
                                                         <horizontal-alignment>center</horizontal-alignment>
 
-                                                    </flow-layout>
+                                                    </fzmm.styled-flow-layout>
                                                 </children>
                                             </fzmm.screen-tab>
 
                                             <fzmm.screen-tab>
                                                 <id>changeColor</id>
                                                 <children>
-                                                    <flow-layout direction="ltr-text-flow" id="change-color-layout">
+                                                    <fzmm.styled-flow-layout direction="ltr-text-flow" id="change-color-layout">
                                                         <children>
 
                                                         </children>
@@ -132,14 +132,14 @@
                                                         <vertical-alignment>top</vertical-alignment>
                                                         <horizontal-alignment>center</horizontal-alignment>
 
-                                                    </flow-layout>
+                                                    </fzmm.styled-flow-layout>
                                                 </children>
                                             </fzmm.screen-tab>
 
                                             <fzmm.screen-tab>
                                                 <id>removePatterns</id>
                                                 <children>
-                                                    <flow-layout direction="ltr-text-flow" id="remove-patterns-layout">
+                                                    <fzmm.styled-flow-layout direction="ltr-text-flow" id="remove-patterns-layout">
                                                         <children>
 
                                                         </children>
@@ -151,7 +151,7 @@
                                                         <vertical-alignment>top</vertical-alignment>
                                                         <horizontal-alignment>center</horizontal-alignment>
 
-                                                    </flow-layout>
+                                                    </fzmm.styled-flow-layout>
                                                 </children>
                                             </fzmm.screen-tab>
                                         </children>
@@ -167,7 +167,7 @@
                                         <padding>
                                             <all>6</all>
                                         </padding>
-                                    </flow-layout>
+                                    </fzmm.styled-flow-layout>
                                 </children>
 
                                 <sizing>
@@ -176,9 +176,9 @@
 
                                 <horizontal-alignment>center</horizontal-alignment>
 
-                            </flow-layout>
+                            </fzmm.styled-flow-layout>
                         </children>
-                    </flow-layout>
+                    </fzmm.styled-flow-layout>
 
                     <sizing>
                         <vertical method="fill">90</vertical>
@@ -187,13 +187,9 @@
                     <margins>
                         <vertical>30</vertical>
                     </margins>
+                </fzmm.styled-scroll>
 
-                    <scrollbar>
-                        <flat>#FFFFFF</flat>
-                    </scrollbar>
-                </scroll>
-
-                <flow-layout direction="horizontal">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
 
                         <button id="back-button">
@@ -211,7 +207,7 @@
 
                     <vertical-alignment>bottom</vertical-alignment>
                     <horizontal-alignment>right</horizontal-alignment>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
             </children>
 
 
@@ -221,6 +217,6 @@
             <surface>
                 <vanilla-translucent/>
             </surface>
-        </flow-layout>
+        </fzmm.styled-flow-layout>
     </components>
 </owo-ui>

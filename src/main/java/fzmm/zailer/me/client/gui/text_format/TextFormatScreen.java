@@ -7,6 +7,7 @@ import fzmm.zailer.me.client.gui.components.BooleanButton;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.ScreenTabRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.text_format.tabs.ITextFormatTab;
 import fzmm.zailer.me.client.gui.text_format.tabs.TextFormatTabs;
 import fzmm.zailer.me.client.gui.utils.CopyTextScreen;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
-    public static final Text EMPTY_COLOR_TEXT = Text.translatable("fzmm.gui.textFormat.error.emptyColor").setStyle(Style.EMPTY.withColor(0xF2200D));
+    public static final Text EMPTY_COLOR_TEXT = Text.translatable("fzmm.gui.textFormat.error.emptyColor").setStyle(Style.EMPTY.withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb()));
     private static final String MESSAGE_PREVIEW_ID = "message-preview";
     private static final String MESSAGE_ID = "message";
     private static final String BOLD_ID = "bold";

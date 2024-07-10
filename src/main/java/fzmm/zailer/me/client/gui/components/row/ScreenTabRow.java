@@ -1,9 +1,10 @@
 package fzmm.zailer.me.client.gui.components.row;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledScrollContainer;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTabIdentifier;
 import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
@@ -21,11 +22,11 @@ public class ScreenTabRow extends AbstractRow {
     public ScreenTabRow(String baseTranslationKey, String id) {
         super(baseTranslationKey);
         this.id(id);
-        this.sizing(Sizing.content(), Sizing.fixed(28));
-        this.surface(Surface.VANILLA_TRANSLUCENT);
+        this.sizing(Sizing.content(), Sizing.fixed(26));
+        this.surface(Surface.flat(0x80000000));
         this.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
-        this.margins(Insets.bottom(4));
         this.gap(4);
+        this.hoveredSurface(null);
     }
 
     @Override
@@ -60,16 +61,17 @@ public class ScreenTabRow extends AbstractRow {
 
             button.id(getScreenTabButtonId(screenTab.getId()));
             button.active = active;
+            button.verticalSizing(Sizing.fixed(16));
 
             componentList.add(button);
         }
 
-        this.tabsLayout = (FlowLayout) Containers.horizontalFlow(Sizing.content(), Sizing.content())
+        this.tabsLayout = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content())
                 .children(componentList)
-                .gap(this.gap())
-                .margins(Insets.vertical(4));
-        this.scrollContainer = (ScrollContainer<?>) Containers.horizontalScroll(Sizing.fill(100), Sizing.fill(100), this.tabsLayout)
+                .gap(this.gap());
+        this.scrollContainer = (ScrollContainer<?>) StyledContainers.horizontalScroll(Sizing.fill(100), Sizing.fill(100), this.tabsLayout)
                 .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
+                .padding(Insets.vertical(StyledScrollContainer.SCROLLBAR_THICCNESS))
                 .margins(Insets.horizontal(20));
 
         this.child(this.scrollContainer);

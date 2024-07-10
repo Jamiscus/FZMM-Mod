@@ -1,15 +1,15 @@
 <owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20.3/owo-ui.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21/owo-ui.xsd">
     <components>
-        <flow-layout direction="vertical">
+        <fzmm.styled-flow-layout direction="vertical">
             <children>
-                <label id="title">
+                <fzmm.styled-label id="title">
                     <positioning type="absolute">20,20</positioning>
                     <text translate="true">fzmm.gui.title.main</text>
-                </label>
+                </fzmm.styled-label>
 
-                <scroll direction="vertical">
-                    <flow-layout direction="ltr-text-flow">
+                <fzmm.styled-scroll direction="vertical">
+                    <fzmm.styled-flow-layout direction="ltr-text-flow">
                         <children>
                             <template name="main-button-layout">
                                 <name>imagetext</name>
@@ -49,19 +49,15 @@
 
                         <gap>5</gap>
 
-                    </flow-layout>
-
-                    <scrollbar>
-                        <flat>#FFFFFF</flat>
-                    </scrollbar>
+                    </fzmm.styled-flow-layout>
 
                     <sizing>
                         <vertical method="fill">70</vertical>
                         <horizontal method="fill">80</horizontal>
                     </sizing>
-                </scroll>
+                </fzmm.styled-scroll>
 
-                <flow-layout direction="vertical">
+                <fzmm.styled-flow-layout direction="vertical">
                     <children>
 
                         <button id="config-button">
@@ -79,9 +75,9 @@
 
                     <vertical-alignment>bottom</vertical-alignment>
                     <horizontal-alignment>right</horizontal-alignment>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
 
-                <flow-layout direction="vertical">
+                <fzmm.styled-flow-layout direction="vertical">
                     <children>
 
                         <button id="back-button">
@@ -99,7 +95,7 @@
 
                     <vertical-alignment>bottom</vertical-alignment>
                     <horizontal-alignment>right</horizontal-alignment>
-                </flow-layout>
+                </fzmm.styled-flow-layout>
 
             </children>
 
@@ -109,7 +105,7 @@
             <surface>
                 <vanilla-translucent/>
             </surface>
-        </flow-layout>
+        </fzmm.styled-flow-layout>
     </components>
 
     <templates>

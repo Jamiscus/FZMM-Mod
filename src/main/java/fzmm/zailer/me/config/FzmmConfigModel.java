@@ -20,6 +20,9 @@ public class FzmmConfigModel {
     @Nest
     public GeneralNest general = new GeneralNest();
 
+    @Nest
+    public GuiStyleNest guiStyle = new GuiStyleNest();
+
 
     @Nest
     public ItemEditorBannerNest itemEditorBanner = new ItemEditorBannerNest();
@@ -51,6 +54,16 @@ public class FzmmConfigModel {
         public boolean showSymbolButton = true;
         public boolean showItemSize = true;
         public boolean checkValidCodec = true;
+    }
+
+    public static class GuiStyleNest {
+        // the GUI is not well adapted for white mode, it looks quite ugly because
+        // when changing the text to black, it does not look good when it has
+        // no background, and it lacks application in some parts like in the dropdowns,
+        // besides it looks inconsistent because the buttons have white text
+//        public boolean darkMode = true;
+        public boolean optionsBackground = true;
+        public boolean persistentScrollbar = true;
     }
 
     public static class ItemEditorBannerNest {

@@ -6,9 +6,11 @@ import fzmm.zailer.me.client.gui.components.image.ImageButtonComponent;
 import fzmm.zailer.me.client.gui.components.image.ImageMode;
 import fzmm.zailer.me.client.gui.components.image.source.IImageGetter;
 import fzmm.zailer.me.client.gui.components.row.AbstractRow;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
+import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
@@ -20,25 +22,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ImageRows extends FlowLayout {
+public class ImageRows extends StyledFlowLayout {
     public static int TOTAL_HEIGHT = AbstractRow.TOTAL_HEIGHT * 2;
 
     public ImageRows(String baseTranslationKey, String buttonId, String buttonTooltipId, String imageModeId, String imageTooltipId, boolean translate) {
         super(Sizing.fill(100), Sizing.fixed(TOTAL_HEIGHT), Algorithm.HORIZONTAL);
 
-        FlowLayout rowsLayout = Containers.verticalFlow(Sizing.fill(100), Sizing.fixed(TOTAL_HEIGHT));
+        FlowLayout rowsLayout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.fixed(TOTAL_HEIGHT));
 
         rowsLayout.children(List.of(
-                new ImageButtonRow(baseTranslationKey, buttonId, buttonTooltipId, translate)
-                        .setHasHoveredBackground(false),
+                new ImageButtonRow(baseTranslationKey, buttonId, buttonTooltipId, translate).hoveredSurface(null),
                 new AbstractRow(baseTranslationKey, imageModeId, imageTooltipId, false, translate) {
 
                     @Override
                     public Component[] getComponents(String id, String tooltipId) {
-                        return new Component[]{Containers.horizontalFlow(Sizing.content(), Sizing.content()).id(imageModeId + "-layout")};
+                        return new Component[]{StyledContainers.horizontalFlow(Sizing.content(), Sizing.content()).id(imageModeId + "-layout")};
                     }
-                }.setHasHoveredBackground(false)
+                }.hoveredSurface(null)
         ));
+        this.hoveredSurface(FzmmStyles.DEFAULT_HOVERED);
 
         this.child(rowsLayout);
     }
@@ -79,7 +81,7 @@ public class ImageRows extends FlowLayout {
 
                 ImageButtonRow.setupSuggestionTextBox(suggestionTextBox, imageGetter);
             });
-            FlowLayout modeButtonLayout = Containers.verticalFlow(Sizing.content(), Sizing.content());
+            FlowLayout modeButtonLayout = StyledContainers.verticalFlow(Sizing.content(), Sizing.content());
             modeButtonLayout.tooltip(Text.translatable(modeOption.getTranslationKey() + ".tooltip"));
             modeButton.horizontalSizing(Sizing.fixed(20));
             modeButtonLayout.child(modeButton);

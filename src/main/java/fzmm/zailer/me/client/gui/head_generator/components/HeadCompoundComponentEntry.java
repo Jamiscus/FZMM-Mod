@@ -1,6 +1,8 @@
 package fzmm.zailer.me.client.gui.head_generator.components;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.gui.head_generator.category.IHeadCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
@@ -8,7 +10,6 @@ import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.MinecraftClient;
@@ -27,19 +28,19 @@ public class HeadCompoundComponentEntry extends AbstractHeadComponentEntry {
         this.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
         this.previousCompoundSkin = parentScreen.getGridBaseSkin(entry.isEditingSkinBody());
 
-        FlowLayout moveButtons = Containers.horizontalFlow(Sizing.content(), Sizing.content());
+        FlowLayout moveButtons = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
         moveButtons.positioning(Positioning.relative(50, 100));
         moveButtons.gap(15);
 
         ButtonComponent moveUpButton = Components.button(Text.translatable("fzmm.gui.button.arrow.up"),
                 buttonComponent -> parentScreen.upCompoundEntry(this));
         moveUpButton.verticalSizing(Sizing.fixed(14));
-        moveUpButton.renderer(ButtonComponent.Renderer.flat(0x00000000, 0x40000000, 0x00000000));
+        moveUpButton.renderer(FzmmStyles.DEFAULT_FLAT_BUTTON);
         
         ButtonComponent moveDownButton = Components.button(Text.translatable("fzmm.gui.button.arrow.down"),
                 buttonComponent -> parentScreen.downCompoundEntry(this));
         moveDownButton.verticalSizing(Sizing.fixed(14));
-        moveDownButton.renderer(ButtonComponent.Renderer.flat(0x00000000, 0x40000000, 0x00000000));
+        moveDownButton.renderer(FzmmStyles.DEFAULT_FLAT_BUTTON);
 
         moveButtons.child(moveUpButton);
         moveButtons.child(moveDownButton);
