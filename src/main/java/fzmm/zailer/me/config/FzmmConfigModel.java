@@ -54,6 +54,7 @@ public class FzmmConfigModel {
         public boolean showSymbolButton = true;
         public boolean showItemSize = true;
         public boolean checkValidCodec = true;
+        public boolean giveItemSizeLimit = true;
     }
 
     public static class GuiStyleNest {

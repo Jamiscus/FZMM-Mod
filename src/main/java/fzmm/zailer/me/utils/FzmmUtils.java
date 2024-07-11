@@ -7,6 +7,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.logic.FzmmHistory;
+import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -28,6 +29,7 @@ import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -66,35 +68,58 @@ public class FzmmUtils {
     };
 
     public static void giveItem(ItemStack stack) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
 
-        long sizeLength = getLengthInBytes(stack);
-        if (sizeLength > 1950000) {
-            mc.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit").setStyle(Style.EMPTY.withColor(Formatting.RED)));
-            FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes", sizeLength);
-            return;
+        if (FzmmClient.CONFIG.general.giveItemSizeLimit()) {
+            long stackSize = getLengthInBytes(stack);
+            long inventorySize = getInventorySizeInBytes();
+            if ((stackSize + inventorySize) > 8000000) {
+                client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit",
+                                getLengthInKB(stackSize + inventorySize),
+                                getLengthInKB(8000000L)
+                        ).setStyle(Style.EMPTY.withColor(Formatting.RED)));
+
+                FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes (with {} bytes already in inventory)",
+                        stackSize, inventorySize);
+                return;
+            }
         }
 
         FzmmHistory.add(stack);
 
         if (FzmmClient.CONFIG.general.checkValidCodec() && !isCodecValid(stack)) {
-            mc.player.sendMessage(Text.translatable("fzmm.giveItem.codecError").setStyle(Style.EMPTY.withColor(Formatting.RED)));
+            client.player.sendMessage(Text.translatable("fzmm.giveItem.codecError").setStyle(Style.EMPTY.withColor(Formatting.RED)));
             FzmmClient.LOGGER.warn("[FzmmUtils] An item with an invalid codec was found: {}", stack.getComponents().toString());
             return;
         }
 
         if (!isAllowedToGive()) {
-            mc.player.sendMessage(Text.translatable("fzmm.item.error.notAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
+            client.player.sendMessage(Text.translatable("fzmm.item.error.notAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
         } else if (FzmmClient.CONFIG.general.giveClientSide()) {
-            mc.player.equipStack(EquipmentSlot.MAINHAND, stack);
+            client.player.equipStack(EquipmentSlot.MAINHAND, stack);
         } else {
-            assert mc.interactionManager != null;
-            PlayerInventory playerInventory = mc.player.getInventory();
+            assert client.interactionManager != null;
+            PlayerInventory playerInventory = client.player.getInventory();
 
             playerInventory.addPickBlock(stack);
             updateHand(stack);
         }
+    }
+
+    private static long getInventorySizeInBytes() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
+        List<DefaultedList<ItemStack>> combinedInventory = ((PlayerInventoryAccessor) client.player.getInventory()).getCombinedInventory();
+        long size = 0;
+
+        for (DefaultedList<ItemStack> defaultedList : combinedInventory) {
+            for (ItemStack itemStack : defaultedList) {
+                size += getLengthInBytes(itemStack);
+            }
+        }
+
+        return size;
     }
 
     public static boolean isCodecValid(ItemStack stack) {
