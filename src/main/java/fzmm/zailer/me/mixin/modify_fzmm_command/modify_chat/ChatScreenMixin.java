@@ -35,7 +35,7 @@ public abstract class ChatScreenMixin {
     @Unique
     private void fzmm$tryModifyChat(String message) {
         if (this.fzmm$isFzmmCommand(message)) {
-            this.chatField.setMaxLength(200000);
+            this.chatField.setMaxLength(Integer.MAX_VALUE);
             ((IAllowParagraphs) this.chatField).fzmm$setAllowParagraphs(true);
         } else {
             if (this.chatField.getCursor() > 256) {
