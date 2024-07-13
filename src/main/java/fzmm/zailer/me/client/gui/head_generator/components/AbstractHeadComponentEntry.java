@@ -176,8 +176,6 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
 
 
     protected void addOverlay(HeadGeneratorScreen parent) {
-        parent.collapseCategories();
-
         EntityComponent<Entity> previewEntity = this.copyCustomHeadEntity().allowMouseRotation(true);
         FlowLayout overlayLayout = new HeadComponentOverlay(parent, previewEntity, this);
 
