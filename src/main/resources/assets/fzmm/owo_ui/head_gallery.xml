@@ -4,7 +4,7 @@
         <fzmm.styled-flow-layout direction="horizontal">
             <children>
                 <fzmm.styled-label id="title">
-                    <positioning type="absolute">20,20</positioning>
+                    <positioning type="absolute">3,3</positioning>
                     <text translate="true">fzmm.gui.title.headGallery</text>
                 </fzmm.styled-label>
 
@@ -75,7 +75,7 @@
 
                             <sizing>
                                 <horizontal method="fill">30</horizontal>
-                                <vertical method="fill">70</vertical>
+                                <vertical method="fill">75</vertical>
                             </sizing>
 
                         </fzmm.styled-flow-layout>
@@ -164,7 +164,7 @@
 
                     <sizing>
                         <horizontal method="fill">52</horizontal>
-                        <vertical method="fill">70</vertical>
+                        <vertical method="fill">75</vertical>
                     </sizing>
 
                     <surface>
@@ -185,7 +185,7 @@
 
                     <sizing>
                         <horizontal method="fixed">48</horizontal>
-                        <vertical method="fill">70</vertical>
+                        <vertical method="fill">75</vertical>
                     </sizing>
                 </fzmm.styled-flow-layout>
 
@@ -197,20 +197,29 @@
 
                                 <button id="minecraft-heads-button">
                                     <text translate="true">fzmm.gui.headGallery.button.minecraftHeads</text>
+
+                                    <sizing>
+                                        <vertical method="fixed">16</vertical>
+                                    </sizing>
                                 </button>
 
                                 <button id="back-button">
-                                    <text translate="true">fzmm.gui.button.back</text>
+                                    <text translate="true">fzmm.gui.button.back.icon</text>
+                                    <tooltip-text translate="true">fzmm.gui.button.back</tooltip-text>
+
+                                    <sizing>
+                                        <vertical method="fixed">16</vertical>
+                                    </sizing>
                                 </button>
 
                             </children>
 
                             <gap>8</gap>
 
-                            <margins>
-                                <right>20</right>
-                                <bottom>10</bottom>
-                            </margins>
+                            <padding>
+                                <right>3</right>
+                                <bottom>3</bottom>
+                            </padding>
                         </fzmm.styled-flow-layout>
 
                     </children>
@@ -268,10 +277,6 @@
                             <sizing>
                                 <horizontal method="fill">100</horizontal>
                             </sizing>
-
-                            <margins>
-                                <right>8</right>
-                            </margins>
                         </fzmm.styled-flow-layout>
 
                         <sizing>
@@ -279,8 +284,12 @@
                         </sizing>
 
                         <margins>
-                            <bottom>20</bottom>
+                            <bottom>18</bottom>
                         </margins>
+
+                        <padding>
+                            <right>8</right>
+                        </padding>
                     </fzmm.styled-scroll>
                 </children>
 
