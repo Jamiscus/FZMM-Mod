@@ -22,11 +22,11 @@
                     </children>
 
                     <margins>
-                        <top>28</top>
+                        <top>20</top>
                     </margins>
                 </fzmm.styled-flow-layout>
 
-                <fzmm.styled-flow-layout direction="horizontal" id="content-parent-layout">
+                <fzmm.styled-flow-layout direction="horizontal">
                     <children>
                         <!-- compound heads -->
                         <fzmm.styled-scroll direction="vertical">
@@ -45,44 +45,8 @@
                             </sizing>
                         </fzmm.styled-scroll>
 
-                        <fzmm.styled-flow-layout direction="vertical" id="heads-layout">
-                            <!-- errors layout -->
+                        <fzmm.styled-flow-layout direction="vertical">
                             <children>
-                                <fzmm.styled-flow-layout direction="horizontal" id="no-results-label-layout">
-                                    <children>
-                                    </children>
-                                    <margins>
-                                        <top>25</top>
-                                    </margins>
-
-                                    <positioning type="relative">0,0</positioning>
-                                </fzmm.styled-flow-layout>
-                                <!-- heads content -->
-                                <fzmm.styled-scroll direction="vertical">
-                                    <fzmm.styled-flow-layout direction="ltr-text-flow" id="content">
-                                        <children>
-
-                                        </children>
-
-                                        <sizing>
-                                            <horizontal method="fill">100</horizontal>
-                                        </sizing>
-
-                                        <horizontal-alignment>left</horizontal-alignment>
-                                    </fzmm.styled-flow-layout>
-
-                                    <sizing>
-                                        <vertical method="fill">100</vertical>
-                                        <horizontal method="fill">100</horizontal>
-                                    </sizing>
-
-                                    <padding>
-                                        <horizontal>1</horizontal>
-                                        <bottom>1</bottom>
-                                        <top>25</top>
-                                    </padding>
-                                </fzmm.styled-scroll>
-
                                 <!-- nav var -->
                                 <fzmm.styled-flow-layout direction="horizontal">
                                     <children>
@@ -96,12 +60,9 @@
                                                     </sizing>
                                                 </text-box>
 
-                                                <collapsible id="head-category-collapsible">
-                                                    <children>
-                                                    </children>
+                                                <button id="head-category-button">
+                                                </button>
 
-                                                    <z-index>200</z-index>
-                                                </collapsible>
                                                 <button id="toggle-favorite-list">
                                                 </button>
 
@@ -132,26 +93,46 @@
 
                                             <horizontal-alignment>left</horizontal-alignment>
 
-                                            <margins>
-                                                <all>3</all>
-                                            </margins>
-
                                             <sizing>
                                                 <horizontal method="fill">100</horizontal>
                                             </sizing>
 
                                             <gap>4</gap>
-
-                                            <allow-overflow>true</allow-overflow>
-
                                         </fzmm.styled-flow-layout>
 
                                     </children>
-
-                                    <allow-overflow>true</allow-overflow>
-
-                                    <positioning type="relative">0,0</positioning>
                                 </fzmm.styled-flow-layout>
+
+                                <!-- errors layout -->
+                                <fzmm.styled-flow-layout direction="horizontal" id="no-results-label-layout">
+                                    <children>
+                                    </children>
+                                </fzmm.styled-flow-layout>
+
+                                <!-- heads content -->
+                                <fzmm.styled-scroll direction="vertical">
+                                    <fzmm.styled-flow-layout direction="ltr-text-flow" id="content">
+                                        <children>
+
+                                        </children>
+
+                                        <sizing>
+                                            <horizontal method="fill">100</horizontal>
+                                        </sizing>
+
+                                        <horizontal-alignment>left</horizontal-alignment>
+                                    </fzmm.styled-flow-layout>
+
+                                    <sizing>
+                                        <vertical method="fill">100</vertical>
+                                        <horizontal method="fill">100</horizontal>
+                                    </sizing>
+
+                                    <margins>
+                                        <top>4</top>
+                                        <bottom>20</bottom>
+                                    </margins>
+                                </fzmm.styled-scroll>
                             </children>
 
                             <sizing>
@@ -161,14 +142,12 @@
 
                             <horizontal-alignment>center</horizontal-alignment>
 
-                            <allow-overflow>true</allow-overflow>
-
                             <surface>
                                 <panel dark="true"/>
                             </surface>
 
                             <padding>
-                                <all>3</all>
+                                <all>6</all>
                             </padding>
 
                         </fzmm.styled-flow-layout>
