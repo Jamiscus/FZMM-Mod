@@ -4,7 +4,7 @@
         <fzmm.styled-flow-layout direction="vertical">
             <children>
                 <fzmm.styled-label id="title">
-                    <positioning type="absolute">20,20</positioning>
+                    <positioning type="absolute">3,3</positioning>
                     <text translate="true">fzmm.gui.title.copyText</text>
                 </fzmm.styled-label>
 
@@ -44,7 +44,7 @@
                     </sizing>
 
                     <margins>
-                        <vertical>30</vertical>
+                        <vertical>10</vertical>
                     </margins>
                 </fzmm.styled-scroll>
 
@@ -52,12 +52,17 @@
                     <children>
 
                         <button id="back-button">
-                            <text translate="true">fzmm.gui.button.back</text>
+                            <text translate="true">fzmm.gui.button.back.icon</text>
+                            <tooltip-text translate="true">fzmm.gui.button.back</tooltip-text>
 
                             <margins>
-                                <right>20</right>
-                                <bottom>20</bottom>
+                                <right>3</right>
+                                <bottom>3</bottom>
                             </margins>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
                     </children>

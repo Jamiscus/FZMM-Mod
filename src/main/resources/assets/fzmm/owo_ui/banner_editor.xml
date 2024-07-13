@@ -4,7 +4,7 @@
         <fzmm.styled-flow-layout direction="horizontal">
             <children>
                 <fzmm.styled-label id="title">
-                    <positioning type="absolute">20,20</positioning>
+                    <positioning type="absolute">3,3</positioning>
                     <text translate="true">fzmm.gui.title.bannerEditor</text>
                 </fzmm.styled-label>
 
@@ -52,18 +52,30 @@
                                                     <button id="undo">
                                                         <text translate="true">fzmm.gui.button.arrow2.left</text>
                                                         <tooltip-text translate="true">fzmm.gui.bannerEditor.option.undo.tooltip</tooltip-text>
-                                                        <positioning type="relative">0,100</positioning>
+
+                                                        <sizing>
+                                                            <vertical method="fixed">16</vertical>
+                                                        </sizing>
                                                     </button>
+
+                                                    <spacer>
+                                                        <sizing>
+                                                            <horizontal method="expand">100</horizontal>
+                                                            <vertical method="fixed">1</vertical>
+                                                        </sizing>
+                                                    </spacer>
 
                                                     <button id="redo">
                                                         <text translate="true">fzmm.gui.button.arrow2.right</text>
                                                         <tooltip-text translate="true">fzmm.gui.bannerEditor.option.redo.tooltip</tooltip-text>
-                                                        <positioning type="relative">100,100</positioning>
+
+                                                        <sizing>
+                                                            <vertical method="fixed">16</vertical>
+                                                        </sizing>
                                                     </button>
                                                 </children>
 
                                                 <sizing>
-                                                    <vertical method="fixed">20</vertical>
                                                     <horizontal method="fixed">95</horizontal>
                                                 </sizing>
 
@@ -185,7 +197,8 @@
                     </sizing>
 
                     <margins>
-                        <vertical>30</vertical>
+                        <top>10</top>
+                        <bottom>10</bottom>
                     </margins>
                 </fzmm.styled-scroll>
 
@@ -193,12 +206,17 @@
                     <children>
 
                         <button id="back-button">
-                            <text translate="true">fzmm.gui.button.back</text>
+                            <text translate="true">fzmm.gui.button.back.icon</text>
+                            <tooltip-text translate="true">fzmm.gui.button.back</tooltip-text>
 
                             <margins>
-                                <right>20</right>
-                                <bottom>20</bottom>
+                                <right>3</right>
+                                <bottom>3</bottom>
                             </margins>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
                     </children>
