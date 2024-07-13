@@ -30,7 +30,6 @@ import fzmm.zailer.me.utils.*;
 import fzmm.zailer.me.utils.list.IListEntry;
 import fzmm.zailer.me.utils.list.ListUtils;
 import io.wispforest.owo.ui.component.*;
-import io.wispforest.owo.ui.container.CollapsibleContainer;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.fabricmc.loader.api.FabricLoader;
@@ -40,7 +39,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,12 +62,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private static final String HEAD_NAME_ID = "headName";
     private static final String SEARCH_ID = "search";
     private static final String CONTENT_ID = "content";
-    private static final String HEADS_LAYOUT_ID = "heads-layout";
-    private static final String CONTENT_PARENT_LAYOUT_ID = "content-parent-layout";
     private static final String COMPOUND_HEADS_LAYOUT_ID = "compound-heads-layout";
     private static final String OPEN_SKIN_FOLDER_ID = "open-folder";
     private static final String TOGGLE_FAVORITE_LIST_ID = "toggle-favorite-list";
-    private static final String HEAD_CATEGORY_ID = "head-category-collapsible";
+    private static final String HEAD_CATEGORY_ID = "head-category-button";
     private static final String WIKI_BUTTON_ID = "wiki-button";
     private static HeadGeneratorMemento memento = null;
     private final Set<String> favoritesHeadsOnOpenScreen;
@@ -91,7 +87,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private IHeadCategory selectedCategory;
     private ButtonComponent giveButton;
     private Animation.Composed compoundExpandAnimation;
-    private CollapsibleContainer headCategoryCollapsible;
+    private ButtonComponent headCategoryButton;
 
 
     public HeadGeneratorScreen(@Nullable Screen parent) {
@@ -118,11 +114,6 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         checkNull(this.contentLayout, "flow-layout", CONTENT_ID);
         this.compoundHeadsLayout = rootComponent.childById(StyledFlowLayout.class, COMPOUND_HEADS_LAYOUT_ID);
         checkNull(this.compoundHeadsLayout, "flow-layout", COMPOUND_HEADS_LAYOUT_ID);
-
-        FlowLayout contentParentLayout = rootComponent.childById(FlowLayout.class, CONTENT_PARENT_LAYOUT_ID);
-        checkNull(contentParentLayout, "flow-layout", CONTENT_PARENT_LAYOUT_ID);
-        FlowLayout headsLayout = rootComponent.childById(FlowLayout.class, HEADS_LAYOUT_ID);
-        checkNull(headsLayout, "flow-layout", HEADS_LAYOUT_ID);
 
         int animationDuration = 800;
         Animation<Insets> headsLayoutMarginAnimation = this.compoundHeadsLayout.margins()
@@ -153,32 +144,36 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         }
         this.skinPreEditButtons.get(SkinPreEditOption.OVERLAP).onPress();
 
-        this.headCategoryCollapsible = rootComponent.childById(CollapsibleContainer.class, HEAD_CATEGORY_ID);
-        checkNull(this.headCategoryCollapsible, "collapsible", HEAD_CATEGORY_ID);
-        DropdownComponent headCategoryDropdown = Components.dropdown(Sizing.content());
-
-        for (var category : IHeadCategory.NATURAL_CATEGORIES) {
-            headCategoryDropdown.button(Text.translatable(category.getTranslationKey()),
-                    dropdownComponent -> this.updateCategory(category));
-        }
+        this.headCategoryButton = rootComponent.childById(ButtonComponent.class, HEAD_CATEGORY_ID);
+        checkNull(this.headCategoryButton, "label", HEAD_CATEGORY_ID);
 
         this.selectedCategory = IHeadCategory.NATURAL_CATEGORIES[0];
         this.updateCategoryTitle(this.selectedCategory);
-        this.headCategoryCollapsible.child(headCategoryDropdown);
         int maxCategoryHorizontalSizing = FzmmUtils.getMaxWidth(Arrays.asList(IHeadCategory.NATURAL_CATEGORIES),
-                this::getCategoryText) + 20;
-        this.headCategoryCollapsible.horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
+                this::getCategoryText) + BUTTON_TEXT_PADDING;
 
-        headCategoryDropdown.zIndex(300);
-        List<Component> dropdownChildren = headCategoryDropdown.children();
-        if (!dropdownChildren.isEmpty() && dropdownChildren.get(0) instanceof ParentComponent parentComponent) {
+        this.headCategoryButton.horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
+        this.headCategoryButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
+            DropdownComponent.openContextMenu(this, rootComponent, FlowLayout::child,
+                    this.headCategoryButton.x(), this.headCategoryButton.y() + this.headCategoryButton.height(),
+                    categoryDropdown -> {
+                        for (var category : IHeadCategory.NATURAL_CATEGORIES) {
+                            categoryDropdown.button(Text.translatable(category.getTranslationKey()),
+                                    dropdown -> this.updateCategory(category)
+                            );
+                        }
 
-            // fixes that if you click on the margins zone it clicks on the component behind the dropdown
-            parentComponent.mouseDown().subscribe((mouseX, mouseY, button) -> true);
-            for (var child : parentComponent.children()) {
-                child.margins(Insets.of(3));
-            }
-        }
+                        List<Component> dropdownChildren = categoryDropdown.children();
+                        if (!dropdownChildren.isEmpty()) {
+                            dropdownChildren.get(0).horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
+                        }
+
+                        categoryDropdown.zIndex(200);
+                        // fixes that if you click on the margins zone it clicks on the component behind the dropdown
+                        categoryDropdown.mouseDown().subscribe((mouseX1, mouseY1, button1) -> true);
+                    });
+            return true;
+        });
 
         this.toggleFavoriteList = ButtonRow.setup(rootComponent, TOGGLE_FAVORITE_LIST_ID, true, buttonComponent -> this.toggleFavoriteListExecute());
         checkNull(this.toggleFavoriteList, "button", TOGGLE_FAVORITE_LIST_ID);
@@ -201,10 +196,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     }
 
     private void updateCategoryTitle(IHeadCategory category) {
-        List<Component> children = this.headCategoryCollapsible.titleLayout().children();
-        if (!children.isEmpty() && children.get(0) instanceof LabelComponent titleComponent) {
-            titleComponent.text(this.getCategoryText(category).formatted(Formatting.UNDERLINE));
-        }
+        this.headCategoryButton.setMessage(this.getCategoryText(category));
     }
 
     private void updateTogglePreEdit() {
@@ -572,12 +564,6 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         }
 
         this.previousSkinName = value;
-    }
-
-    public void collapseCategories() {
-        if (this.headCategoryCollapsible.expanded()) {
-            this.headCategoryCollapsible.toggleExpansion();
-        }
     }
 
     @Override
