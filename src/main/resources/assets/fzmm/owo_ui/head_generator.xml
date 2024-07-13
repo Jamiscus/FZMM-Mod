@@ -4,7 +4,7 @@
         <fzmm.styled-flow-layout direction="vertical">
             <children>
                 <fzmm.styled-label id="title">
-                    <positioning type="absolute">20,20</positioning>
+                    <positioning type="absolute">3,3</positioning>
                     <text translate="true">fzmm.gui.title.headGenerator</text>
                 </fzmm.styled-label>
 
@@ -22,7 +22,7 @@
                     </children>
 
                     <margins>
-                        <top>48</top>
+                        <top>28</top>
                     </margins>
                 </fzmm.styled-flow-layout>
 
@@ -193,9 +193,13 @@
                             <text translate="true">fzmm.gui.headGenerator.button.resourcePackInfo</text>
 
                             <margins>
-                                <right>20</right>
-                                <top>20</top>
+                                <right>3</right>
+                                <top>3</top>
                             </margins>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
                     </children>
@@ -207,6 +211,10 @@
                     <children>
                         <button id="open-folder-button">
                             <text translate="true">fzmm.gui.headGenerator.button.openFolder</text>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
                         <spacer>
@@ -217,13 +225,18 @@
                         </spacer>
 
                         <button id="back-button">
-                            <text translate="true">fzmm.gui.button.back</text>
+                            <text translate="true">fzmm.gui.button.back.icon</text>
+                            <tooltip-text translate="true">fzmm.gui.button.back</tooltip-text>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
                     </children>
 
                     <padding>
-                        <horizontal>20</horizontal>
-                        <bottom>20</bottom>
+                        <horizontal>3</horizontal>
+                        <bottom>3</bottom>
                         <top>5</top>
                     </padding>
                 </fzmm.styled-flow-layout>

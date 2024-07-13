@@ -4,7 +4,7 @@
         <fzmm.styled-flow-layout direction="vertical">
             <children>
                 <fzmm.styled-label id="title">
-                    <positioning type="absolute">20,20</positioning>
+                    <positioning type="absolute">3,3</positioning>
                     <text translate="true">fzmm.gui.title.imagetext</text>
                 </fzmm.styled-label>
 
@@ -173,7 +173,7 @@
                     </sizing>
 
                     <margins>
-                        <vertical>30</vertical>
+                        <vertical>10</vertical>
                     </margins>
                 </fzmm.styled-scroll>
 
@@ -182,47 +182,47 @@
 
                         <button id="execute-button">
                             <text translate="true">fzmm.gui.button.execute</text>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
                         <button id="preview-button">
                             <text translate="true">fzmm.gui.button.preview</text>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
+                        <spacer>
+                            <sizing>
+                                <horizontal method="expand">100</horizontal>
+                                <vertical method="fixed">1</vertical>
+                            </sizing>
+                        </spacer>
+
+                        <button id="back-button">
+                            <text translate="true">fzmm.gui.button.back.icon</text>
+                            <tooltip-text translate="true">fzmm.gui.button.back</tooltip-text>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
+                        </button>
                     </children>
 
                     <positioning type="relative">0,100</positioning>
 
-                    <horizontal-alignment>right</horizontal-alignment>
-                    <vertical-alignment>top</vertical-alignment>
                     <gap>4</gap>
 
-                    <margins>
-                        <left>20</left>
-                        <bottom>20</bottom>
-                    </margins>
-                </fzmm.styled-flow-layout>
-
-                <fzmm.styled-flow-layout direction="horizontal">
-                    <children>
-
-                        <button id="back-button">
-                            <text translate="true">fzmm.gui.button.back</text>
-
-                            <margins>
-                                <right>20</right>
-                                <bottom>20</bottom>
-                            </margins>
-                        </button>
-
-                    </children>
-
-                    <positioning type="relative">100,100</positioning>
-
-                    <vertical-alignment>bottom</vertical-alignment>
-                    <horizontal-alignment>right</horizontal-alignment>
+                    <padding>
+                        <horizontal>3</horizontal>
+                        <bottom>3</bottom>
+                    </padding>
                 </fzmm.styled-flow-layout>
             </children>
-
 
             <vertical-alignment>center</vertical-alignment>
             <horizontal-alignment>center</horizontal-alignment>
