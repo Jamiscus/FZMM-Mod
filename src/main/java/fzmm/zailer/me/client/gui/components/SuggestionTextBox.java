@@ -44,8 +44,6 @@ public class SuggestionTextBox extends ConfigTextBox {
     @Nullable
     private FlowLayout suggestionsLayout = null;
 
-
-    @SuppressWarnings("UnstableApiUsage")
     public SuggestionTextBox(Sizing horizontalSizing, SuggestionPosition position, int maxSuggestionLines) {
         super();
         this.horizontalSizing(horizontalSizing);
@@ -111,7 +109,7 @@ public class SuggestionTextBox extends ConfigTextBox {
         List<Component> children = this.suggestionsLayout.children();
         int childrenSize = children.size();
 
-        if (currentIndex > 0 && childrenSize > currentIndex) {
+        if (currentIndex >= 0 && childrenSize > currentIndex) {
             children.get(currentIndex).onFocusLost();
         }
 
@@ -135,12 +133,13 @@ public class SuggestionTextBox extends ConfigTextBox {
     private void updateSuggestions(String newMessage) {
         if (!this.contextMenuIsOpen()) {
             this.openContextMenu();
+            return;
         }
         assert this.suggestionsLayout != null;
+        this.suggestionsLayout.clearChildren();
 
         String newMessageToLowerCase = newMessage.toLowerCase();
         List<Suggestion> suggestions = this.getSuggestions(newMessage);
-        this.suggestionsLayout.clearChildren();
         int maxHorizontalSizing = this.suggestionsLayout.width() - 10;
 
         for (int i = 0; i != suggestions.size(); i++) {
@@ -166,7 +165,6 @@ public class SuggestionTextBox extends ConfigTextBox {
             FzmmClient.LOGGER.error("[SuggestionTextBox] Failed to get suggestions", e);
             assert this.suggestionsLayout != null;
 
-            this.suggestionsLayout.clearChildren();
             this.suggestionsLayout.child(StyledComponents.label(Text.literal("Failed to get suggestions")));
         }
 
@@ -317,8 +315,9 @@ public class SuggestionTextBox extends ConfigTextBox {
                     yield true;
                 }
             case GLFW.GLFW_KEY_ESCAPE:
+                boolean contextMenuIsOpen = this.contextMenuIsOpen();
                 this.closeContextMenu();
-                yield true;
+                yield contextMenuIsOpen;
             default:
                 yield false;
         };
