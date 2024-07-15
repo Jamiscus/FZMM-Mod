@@ -40,14 +40,15 @@ public class ImageButtonRow extends AbstractRow {
                         Math.abs(textRenderer.getWidth(loadImageButtonText) - textRenderer.getWidth(resetButton.getMessage())) + 2
         );
 
-        SuggestionTextBox textField = (SuggestionTextBox) new SuggestionTextBox(textFieldSizing, SuggestionTextBox.SuggestionPosition.BOTTOM, 5,
-                (keyCode, scanCode, modifiers) -> {
-                    boolean isEnter = keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER;
-                    if (isEnter)
-                        imageButton.onPress();
+        SuggestionTextBox textField = new SuggestionTextBox(textFieldSizing, SuggestionTextBox.SuggestionPosition.BOTTOM, 5);
+        textField.id(getImageValueFieldId(id));
+        textField.keyPress().subscribe((keyCode, scanCode, modifiers) -> {
+            boolean isEnter = keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER;
+            if (isEnter)
+                imageButton.onPress();
 
-                    return isEnter;
-                }).id(getImageValueFieldId(id));
+            return isEnter;
+        });
 
         return new Component[]{
                 textField,
@@ -71,7 +72,7 @@ public class ImageButtonRow extends AbstractRow {
         BaseFzmmScreen.checkNull(imageButtonComponent, "image-option", getImageButtonId(id));
         BaseFzmmScreen.checkNull(suggestionTextBox, "suggestion-text-option", getImageValueFieldId(id));
 
-        imageButtonComponent.onPress(button -> imageButtonComponent.loadImage(suggestionTextBox.getTextBox().getText()));
+        imageButtonComponent.onPress(button -> imageButtonComponent.loadImage(suggestionTextBox.getText()));
         imageButtonComponent.setSourceType(defaultMode);
         imageButtonComponent.horizontalSizing(Sizing.fixed(textRenderer.getWidth(imageButtonComponent.getMessage()) + BaseFzmmScreen.BUTTON_TEXT_PADDING));
 
@@ -81,13 +82,13 @@ public class ImageButtonRow extends AbstractRow {
     @SuppressWarnings("UnstableApiUsage")
     public static void setupSuggestionTextBox(SuggestionTextBox suggestionTextBox, IImageGetter imageGetter) {
         if (imageGetter instanceof IImageLoaderFromText imageLoaderFromText)
-            suggestionTextBox.getTextBox().applyPredicate(imageLoaderFromText::predicate);
+            suggestionTextBox.applyPredicate(imageLoaderFromText::predicate);
 
         suggestionTextBox.setSuggestionProvider(imageGetter instanceof IImageSuggestion imageSuggestion ?
                 imageSuggestion.getSuggestionProvider() :
                 (context, builder) -> CompletableFuture.completedFuture(builder.build())
         );
 
-        suggestionTextBox.visible(imageGetter.hasTextField());
+        suggestionTextBox.setVisible(imageGetter.hasTextField());
     }
 }
