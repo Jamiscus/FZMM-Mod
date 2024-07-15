@@ -19,6 +19,7 @@ import java.util.Optional;
 public class StyledFlowLayout extends FlowLayout {
     @Nullable
     private Surface hoveredSurface = null;
+    private boolean isFocused = false;
 
     public StyledFlowLayout(Sizing horizontalSizing, Sizing verticalSizing, Algorithm algorithm) {
         super(horizontalSizing, verticalSizing, algorithm);
@@ -74,11 +75,25 @@ public class StyledFlowLayout extends FlowLayout {
 
     @Override
     public void draw(OwoUIDrawContext context, int mouseX, int mouseY, float partialTicks, float delta) {
-        if (this.isInBoundingBox(mouseX, mouseY) && this.hoveredSurface != null) {
+        this.surface.draw(context, this);
+
+        if (this.hoveredSurface != null && (this.isInBoundingBox(mouseX, mouseY) || this.isFocused)) {
             this.hoveredSurface.draw(context, this);
         }
 
-        super.draw(context, mouseX, mouseY, partialTicks, delta);
+        this.drawChildren(context, mouseX, mouseY, partialTicks, delta, this.children);
+    }
+
+    @Override
+    public void onFocusGained(FocusSource source) {
+        super.onFocusGained(source);
+        this.isFocused = true;
+    }
+
+    @Override
+    public void onFocusLost() {
+        super.onFocusLost();
+        this.isFocused = false;
     }
 
     public static FlowLayout parse(Element element) {
