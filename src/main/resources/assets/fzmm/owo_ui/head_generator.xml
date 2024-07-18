@@ -60,8 +60,8 @@
                                                     </sizing>
                                                 </text-box>
 
-                                                <button id="head-category-button">
-                                                </button>
+                                                <fzmm.context-menu-button id="head-category-button">
+                                                </fzmm.context-menu-button>
 
                                                 <button id="toggle-favorite-list">
                                                 </button>

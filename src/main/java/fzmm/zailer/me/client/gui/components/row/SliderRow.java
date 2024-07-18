@@ -38,15 +38,17 @@ public class SliderRow extends AbstractRow {
         ButtonComponent resetButton = rootComponent.childById(ButtonComponent.class, getResetButtonId(id));
 
         BaseFzmmScreen.checkNull(numberSlider, "number-slider", getSliderId(id));
-        BaseFzmmScreen.checkNull(resetButton, "button", getResetButtonId(id));
 
         numberSlider.decimalPlaces(decimalPlaces);
         numberSlider.valueType(numberType);
         numberSlider.onChanged().subscribe(aDouble -> {
             double discreteValue = numberSlider.discreteValue();
-            resetButton.active = discreteValue != defaultValue;
-            if (callback != null)
+            if (resetButton != null) {
+                resetButton.active = discreteValue != defaultValue;
+            }
+            if (callback != null) {
                 callback.accept(discreteValue);
+            }
         });
         numberSlider.min(min);
         numberSlider.max(max);
@@ -54,8 +56,10 @@ public class SliderRow extends AbstractRow {
         numberSlider.updateMessage();
         numberSlider.scrollStep(scrollStep / (max - min));
 
-        resetButton.onPress(button -> numberSlider.setFromDiscreteValue(defaultValue));
-        resetButton.active = false;
+        if (resetButton != null) {
+            resetButton.onPress(button -> numberSlider.setFromDiscreteValue(defaultValue));
+            resetButton.active = false;
+        }
         return numberSlider;
     }
 
