@@ -181,7 +181,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
                 this.updatePreview(headComponentEntry);
             });
 
-            elements.suggestionTextBox().horizontalSizing(Sizing.fixed(OVERLAY_WIDGETS_WIDTH));
+            elements.valueField().horizontalSizing(Sizing.fixed(OVERLAY_WIDGETS_WIDTH)).zIndex(400);
         }
     }
 

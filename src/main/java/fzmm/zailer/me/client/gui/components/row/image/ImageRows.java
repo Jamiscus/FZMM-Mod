@@ -92,7 +92,7 @@ public class ImageRows extends StyledFlowLayout {
         imageModeButtons.get(defaultValue).onPress();
         suggestionTextBox.setSuggestionSelectedCallback(imageWidget::onPress);
 
-        return new ImageRowsElements(imageWidget, suggestionTextBox, selectedMode, imageModeButtons, suggestionTextBox);
+        return new ImageRowsElements(imageWidget, suggestionTextBox, selectedMode, imageModeButtons);
     }
 
     public static ImageRows parse(Element element) {
