@@ -250,8 +250,8 @@ public class ImageUtils {
                                              boolean progressiveBilinear, boolean isUpscale) {
 
         if (progressiveBilinear) {
-            width = isUpscale ? Math.max(width / 2, targetWidth) : Math.min(width * 2, targetWidth);
-            height = isUpscale ? Math.max(height / 2, targetHeight) : Math.min(height * 2, targetHeight);
+            width = isUpscale ? Math.min(width * 2, targetWidth) : Math.max(width / 2, targetWidth);
+            height = isUpscale ? Math.min(height * 2, targetHeight) : Math.max(height / 2, targetHeight);
         } else {
             width = targetWidth;
             height = targetHeight;
