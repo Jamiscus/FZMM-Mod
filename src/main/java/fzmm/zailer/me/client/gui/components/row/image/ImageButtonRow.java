@@ -81,8 +81,9 @@ public class ImageButtonRow extends AbstractRow {
 
     @SuppressWarnings("UnstableApiUsage")
     public static void setupSuggestionTextBox(SuggestionTextBox suggestionTextBox, IImageGetter imageGetter) {
-        if (imageGetter instanceof IImageLoaderFromText imageLoaderFromText)
+        if (imageGetter instanceof IImageLoaderFromText imageLoaderFromText) {
             suggestionTextBox.applyPredicate(imageLoaderFromText::predicate);
+        }
 
         suggestionTextBox.setSuggestionProvider(imageGetter instanceof IImageSuggestion imageSuggestion ?
                 imageSuggestion.getSuggestionProvider() :

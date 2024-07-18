@@ -1,10 +1,12 @@
 package fzmm.zailer.me.client.gui.imagetext.tabs;
 
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
+import net.minecraft.text.Text;
 
 import java.util.function.Supplier;
 
-public enum ImagetextTabs implements ITabsEnum {
+public enum ImagetextMode implements ITabsEnum {
     LORE(ImagetextLoreTab::new),
     BOOK_PAGE(ImagetextBookPageTab::new),
     BOOK_TOOLTIP(ImagetextBookTooltipTab::new),
@@ -16,7 +18,7 @@ public enum ImagetextTabs implements ITabsEnum {
     private final Supplier<IImagetextTab> tabSupplier;
     private final String id;
 
-    ImagetextTabs(Supplier<IImagetextTab> tabSupplier) {
+    ImagetextMode(Supplier<IImagetextTab> tabSupplier) {
         this.tabSupplier = tabSupplier;
         this.id = this.createTab().getId();
     }
@@ -29,5 +31,9 @@ public enum ImagetextTabs implements ITabsEnum {
     @Override
     public String getId() {
         return this.id;
+    }
+
+    public Text getText(String baseTranslation) {
+        return Text.translatable(BaseFzmmScreen.getTabTranslationKey(baseTranslation) + this.getId());
     }
 }

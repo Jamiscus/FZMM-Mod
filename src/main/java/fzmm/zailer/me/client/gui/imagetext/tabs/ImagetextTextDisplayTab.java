@@ -1,10 +1,9 @@
 package fzmm.zailer.me.client.gui.imagetext.tabs;
 
 import fzmm.zailer.me.builders.SpawnEggBuilder;
-import fzmm.zailer.me.client.gui.components.BooleanButton;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.EnumWidget;
 import fzmm.zailer.me.client.gui.components.SliderWidget;
-import fzmm.zailer.me.client.gui.components.row.BooleanRow;
 import fzmm.zailer.me.client.gui.components.row.ColorRow;
 import fzmm.zailer.me.client.gui.components.row.EnumRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
@@ -17,6 +16,7 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
+import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Color;
 import net.minecraft.client.MinecraftClient;
@@ -44,8 +44,8 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
     private static final String TEXT_DISPLAY_TAG = "ImagetextTextDisplay";
     private SliderWidget textOpacity;
     private ConfigTextBox backgroundColor;
-    private BooleanButton textShadow;
-    private BooleanButton textSeeThrough;
+    private SmallCheckboxComponent textShadow;
+    private SmallCheckboxComponent textSeeThrough;
     private EnumWidget textAlignment;
     private EnumWidget billboard;
     private SliderWidget rotation;
@@ -68,8 +68,8 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
 
         textDisplayNbt.putInt(TagsConstant.TEXT_DISPLAY_TEXT_OPACITY, (int) this.textOpacity.discreteValue());
         textDisplayNbt.putInt(TagsConstant.TEXT_DISPLAY_BACKGROUND, ((Color) this.backgroundColor.parsedValue()).argb());
-        textDisplayNbt.putBoolean(TagsConstant.TEXT_DISPLAY_SHADOW, this.textShadow.enabled());
-        textDisplayNbt.putBoolean(TagsConstant.TEXT_DISPLAY_SEE_THROUGH, this.textSeeThrough.enabled());
+        textDisplayNbt.putBoolean(TagsConstant.TEXT_DISPLAY_SHADOW, this.textShadow.checked());
+        textDisplayNbt.putBoolean(TagsConstant.TEXT_DISPLAY_SEE_THROUGH, this.textSeeThrough.checked());
         textDisplayNbt.putString(TagsConstant.TEXT_DISPLAY_ALIGNMENT, ((TextDisplayAlignmentOption) this.textAlignment.parsedValue()).getType().asString());
         textDisplayNbt.putString(DisplayEntity.BILLBOARD_NBT_KEY, ((DisplayEntityBillboardOption) this.billboard.parsedValue()).getType().asString());
 
@@ -96,8 +96,12 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
 
         this.textOpacity = SliderRow.setup(rootComponent, TEXT_OPACITY_ID, 255, 0, 255, Integer.class, 0, 10, null);
         this.backgroundColor = ColorRow.setup(rootComponent, BACKGROUND_COLOR_ID, Color.ofArgb(DisplayEntity.TextDisplayEntity.INITIAL_BACKGROUND), true, 0, null);
-        this.textShadow = BooleanRow.setup(rootComponent, TEXT_SHADOW_ID, false, null);
-        this.textSeeThrough = BooleanRow.setup(rootComponent, TEXT_SEE_THROUGH_ID, false, null);
+        this.textShadow = rootComponent.childById(SmallCheckboxComponent.class, TEXT_SHADOW_ID + "-checkbox");
+        BaseFzmmScreen.checkNull(this.textShadow, "small-checkbox", TEXT_SHADOW_ID + "-checkbox");
+        this.textShadow.checked(false);
+        this.textSeeThrough = rootComponent.childById(SmallCheckboxComponent.class, TEXT_SEE_THROUGH_ID + "-checkbox");
+        BaseFzmmScreen.checkNull(this.textSeeThrough, "small-checkbox", TEXT_SEE_THROUGH_ID + "-checkbox");
+        this.textSeeThrough.checked(false);
         this.textAlignment = EnumRow.setup(rootComponent, TEXT_ALIGNMENT_ID, TextDisplayAlignmentOption.LEFT, null);
         this.billboard = EnumRow.setup(rootComponent, BILLBOARD_ID, DisplayEntityBillboardOption.FIXED, null);
         this.rotation = SliderRow.setup(rootComponent, ROTATION_ID, MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getYaw()), -180, 180, Float.class, 1, 30, null);
@@ -114,8 +118,8 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
         return new TextDisplayMementoTab(
                 (int) this.textOpacity.discreteValue(),
                 this.backgroundColor.getText(),
-                this.textShadow.enabled(),
-                this.textSeeThrough.enabled(),
+                this.textShadow.checked(),
+                this.textSeeThrough.checked(),
                 (TextDisplayAlignmentOption) this.textAlignment.parsedValue(),
                 (DisplayEntityBillboardOption) this.billboard.parsedValue()
         );
@@ -126,8 +130,8 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
         TextDisplayMementoTab memento = (TextDisplayMementoTab) mementoTab;
         this.textOpacity.setFromDiscreteValue(memento.textOpacity);
         this.backgroundColor.text(memento.backgroundColor);
-        this.textShadow.enabled(memento.textShadow);
-        this.textSeeThrough.enabled(memento.textSeeThrough);
+        this.textShadow.checked(memento.textShadow);
+        this.textSeeThrough.checked(memento.textSeeThrough);
         this.textAlignment.setValue(memento.textAlignment);
         this.billboard.setValue(memento.billboard);
     }

@@ -25,6 +25,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ImageRows extends StyledFlowLayout {
     public static int TOTAL_HEIGHT = AbstractRow.TOTAL_HEIGHT * 2;
 
+    public ImageRows(String baseTranslationKey, String buttonId, String imageModeId, boolean translate) {
+        this(baseTranslationKey, buttonId, buttonId, imageModeId, imageModeId, translate);
+    }
+
     public ImageRows(String baseTranslationKey, String buttonId, String buttonTooltipId, String imageModeId, String imageTooltipId, boolean translate) {
         super(Sizing.fill(100), Sizing.fixed(TOTAL_HEIGHT), Algorithm.HORIZONTAL);
 

@@ -25,7 +25,7 @@ public class TextBoxRow extends AbstractRow {
 
         FontTextBoxComponent fontTextBoxComponent = this.childById(FontTextBoxComponent.class, getTextBoxId(id));
         if (fontTextBoxComponent != null)
-            fontTextBoxComponent.setEnabled(symbolChatButtons);
+            fontTextBoxComponent.enableFontProcess(symbolChatButtons);
     }
 
     @Override

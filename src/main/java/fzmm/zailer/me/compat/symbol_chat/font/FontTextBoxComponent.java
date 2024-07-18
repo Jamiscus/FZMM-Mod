@@ -1,25 +1,27 @@
 package fzmm.zailer.me.compat.symbol_chat.font;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import io.wispforest.owo.ui.component.TextBoxComponent;
+import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
 
-public class FontTextBoxComponent extends TextBoxComponent {
-    private boolean enabled;
+@SuppressWarnings("UnstableApiUsage")
+public class FontTextBoxComponent extends ConfigTextBox {
+    private boolean fontProcessEnabled;
 
     public FontTextBoxComponent(Sizing horizontalSizing) {
-        super(horizontalSizing);
-        this.enabled = false;
+        super();
+        this.horizontalSizing(horizontalSizing);
+        this.fontProcessEnabled = false;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void enableFontProcess(boolean enabled) {
+        this.fontProcessEnabled = enabled;
     }
 
     @Override
     public void write(String text) {
-        if (!this.enabled) {
+        if (!this.fontProcessEnabled) {
             super.write(text);
         } else if (MinecraftClient.getInstance().currentScreen instanceof BaseFzmmScreen screen) {
             screen.getSymbolChatCompat().processFont(this, text, super::write);

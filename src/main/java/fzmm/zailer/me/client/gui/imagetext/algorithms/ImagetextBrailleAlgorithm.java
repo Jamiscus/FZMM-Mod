@@ -1,18 +1,20 @@
 package fzmm.zailer.me.client.gui.imagetext.algorithms;
 
-import fzmm.zailer.me.client.gui.components.BooleanButton;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.SliderWidget;
-import fzmm.zailer.me.client.gui.components.row.BooleanRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLine;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.ImageUtils;
+import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,7 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     private static final byte BRAILLE_CHARACTER_HEIGHT = 4;
     private SliderWidget edgeThresholdSlider;
     private SliderWidget edgeDistanceSlider;
-    private BooleanButton invertBooleanButton;
+    private SmallCheckboxComponent invertBooleanButton;
 
     @Override
     public String getId() {
@@ -55,13 +57,27 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     @Override
     public void setupComponents(FlowLayout rootComponent) {
         this.edgeThresholdSlider = SliderRow.setup(rootComponent, EDGE_THRESHOLD_ID, 30, 1, 255, Integer.class, 0, 5, null);
+        this.edgeThresholdSlider.message(s -> {
+            double percentage = this.edgeThresholdSlider.discreteValue() / 255f * 100;
+            return Text.literal(new DecimalFormat("#,##0.0").format(percentage) + "%");
+        });
+
         this.edgeDistanceSlider = SliderRow.setup(rootComponent, EDGE_DISTANCE_ID, 2, 1, 5, Integer.class, 0, 1, null);
-        this.invertBooleanButton = BooleanRow.setup(rootComponent, INVERT_ID, false, null);
+        this.invertBooleanButton = rootComponent.childById(SmallCheckboxComponent.class, INVERT_ID + "-checkbox");
+        BaseFzmmScreen.checkNull(this.invertBooleanButton, "checkbox", INVERT_ID + "-checkbox");
+        this.invertBooleanButton.checked(false);
     }
 
     @Override
     public String getCharacters() {
         return BRAILLE_CHARACTERS[BRAILLE_CHARACTERS.length - 1];
+    }
+
+    @Override
+    public void setUpdatePreviewCallback(Runnable callback) {
+        this.edgeThresholdSlider.onChanged().subscribe(value -> callback.run());
+        this.edgeDistanceSlider.onChanged().subscribe(value -> callback.run());
+        this.invertBooleanButton.onChanged().subscribe(value -> callback.run());
     }
 
     public List<String> getBrailleCharacters(byte[][] grayScaleImage, int width, int height) {
@@ -84,7 +100,7 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
 
     /**
      * @param grayScaleImage the image must have width multiply of {@link ImagetextBrailleAlgorithm#BRAILLE_CHARACTER_WIDTH}
-     *                      and height multiply of {@link ImagetextBrailleAlgorithm#BRAILLE_CHARACTER_HEIGHT}
+     *                       and height multiply of {@link ImagetextBrailleAlgorithm#BRAILLE_CHARACTER_HEIGHT}
      */
     public String getBrailleCharacter(byte[][] grayScaleImage, int x, int y, int edgeThreshold, int edgeDistance) {
         int index = BRAILLE_CHARACTERS.length - 1;
@@ -102,7 +118,7 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
         index -= this.getBrailleCharacterIndex(6, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
         index -= this.getBrailleCharacterIndex(7, grayScaleImage, x, ++yOffset, edgeThreshold, edgeDistance);
 
-        if (this.invertBooleanButton.enabled()) {
+        if (this.invertBooleanButton.checked()) {
             index = BRAILLE_CHARACTERS.length - 1 - index;
         }
 
@@ -166,7 +182,7 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
         return new BrailleAlgorithmMementoTab(
                 (int) this.edgeThresholdSlider.discreteValue(),
                 (int) this.edgeDistanceSlider.discreteValue(),
-                this.invertBooleanButton.enabled()
+                this.invertBooleanButton.checked()
         );
     }
 
@@ -175,10 +191,11 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
         BrailleAlgorithmMementoTab memento = (BrailleAlgorithmMementoTab) mementoObject;
         this.edgeThresholdSlider.setFromDiscreteValue(memento.edgeThreshold);
         this.edgeDistanceSlider.setFromDiscreteValue(memento.edgeDistance);
-        this.invertBooleanButton.enabled(memento.invert);
+        this.invertBooleanButton.checked(memento.invert);
     }
 
-    private record BrailleAlgorithmMementoTab(int edgeThreshold, int edgeDistance, boolean invert) implements IMementoObject {
+    private record BrailleAlgorithmMementoTab(int edgeThreshold, int edgeDistance,
+                                              boolean invert) implements IMementoObject {
     }
 
     static {

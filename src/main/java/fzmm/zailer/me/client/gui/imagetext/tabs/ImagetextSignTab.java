@@ -4,9 +4,8 @@ import fzmm.zailer.me.builders.ContainerBuilder;
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.builders.SignBuilder;
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.gui.components.BooleanButton;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.EnumWidget;
-import fzmm.zailer.me.client.gui.components.row.BooleanRow;
 import fzmm.zailer.me.client.gui.components.row.EnumRow;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.options.SignTypeOption;
@@ -14,6 +13,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.FzmmUtils;
+import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.HangingSignBlock;
@@ -39,7 +39,7 @@ public class ImagetextSignTab implements IImagetextTab {
     private static final String SIGN_TYPE_ID = "signType";
     private static final String IS_HANGING_ID = "isHangingSign";
     private EnumWidget signTypeEnum;
-    private BooleanButton isHangingSignButton;
+    private SmallCheckboxComponent isHangingSignButton;
     private String characters;
 
 
@@ -93,7 +93,9 @@ public class ImagetextSignTab implements IImagetextTab {
     @Override
     public void setupComponents(FlowLayout rootComponent) {
         this.signTypeEnum = EnumRow.setup(rootComponent, SIGN_TYPE_ID, SignTypeOption.OAK, null);
-        this.isHangingSignButton = BooleanRow.setup(rootComponent, IS_HANGING_ID, false);
+        this.isHangingSignButton = rootComponent.childById(SmallCheckboxComponent.class, IS_HANGING_ID + "-checkbox");
+        BaseFzmmScreen.checkNull(this.isHangingSignButton, "small-checkbox", IS_HANGING_ID + "-checkbox");
+        this.isHangingSignButton.checked(false);
     }
 
     public List<ItemStack> getSignItems(ImagetextLogic logic) {
@@ -170,7 +172,7 @@ public class ImagetextSignTab implements IImagetextTab {
     }
 
     public int getMaxTextWidth() {
-        SignBlockEntity signBlockEntity = this.isHangingSignButton.enabled() ?
+        SignBlockEntity signBlockEntity = this.isHangingSignButton.checked() ?
                 new HangingSignBlockEntity(new BlockPos(0, 0, 0), Blocks.OAK_HANGING_SIGN.getDefaultState()) :
                 new SignBlockEntity(new BlockPos(0, 0, 0), Blocks.OAK_SIGN.getDefaultState());
 
@@ -179,7 +181,7 @@ public class ImagetextSignTab implements IImagetextTab {
 
     public Item getItem() {
         WoodType type = ((SignTypeOption) this.signTypeEnum.getValue()).getType();
-        boolean isHangingSign = this.isHangingSignButton.enabled();
+        boolean isHangingSign = this.isHangingSignButton.checked();
 
         for (var block : Registries.BLOCK.stream().toList()) {
             if (isHangingSign && block instanceof HangingSignBlock hangingSignBlock && hangingSignBlock.getWoodType() == type)
@@ -194,14 +196,14 @@ public class ImagetextSignTab implements IImagetextTab {
 
     @Override
     public IMementoObject createMemento() {
-        return new SignMementoTab((SignTypeOption) this.signTypeEnum.getValue(), this.isHangingSignButton.enabled());
+        return new SignMementoTab((SignTypeOption) this.signTypeEnum.getValue(), this.isHangingSignButton.checked());
     }
 
     @Override
     public void restoreMemento(IMementoObject mementoTab) {
         SignMementoTab memento = (SignMementoTab) mementoTab;
         this.signTypeEnum.setValue(memento.signType);
-        this.isHangingSignButton.enabled(memento.isHangingSign());
+        this.isHangingSignButton.checked(memento.isHangingSign());
     }
 
     private record SignMementoTab(SignTypeOption signType, boolean isHangingSign) implements IMementoObject {
