@@ -8,178 +8,412 @@
                     <text translate="true">fzmm.gui.title.imagetext</text>
                 </fzmm.styled-label>
 
-                <fzmm.styled-scroll direction="vertical">
-
-                    <fzmm.styled-flow-layout direction="vertical" id="options-list">
-                        <children>
-                            <fzmm.image-rows>
-                                <buttonId>image</buttonId>
-                                <imageModeId>imageSourceType</imageModeId>
-                            </fzmm.image-rows>
-                            <fzmm.slider-row>
-                                <id>width</id>
-                                <tooltipId>resolution</tooltipId>
-                            </fzmm.slider-row>
-                            <fzmm.slider-row>
-                                <id>height</id>
-                                <tooltipId>resolution</tooltipId>
-                            </fzmm.slider-row>
-                            <fzmm.boolean-row>
-                                <id>preserveImageAspectRatio</id>
-                            </fzmm.boolean-row>
-                            <fzmm.boolean-row>
-                                <id>showResolution</id>
-                            </fzmm.boolean-row>
-                            <fzmm.boolean-row>
-                                <id>smoothImage</id>
-                            </fzmm.boolean-row>
-                            <fzmm.slider-row>
-                                <id>percentageOfSimilarityToCompress</id>
-                            </fzmm.slider-row>
-
-                            <fzmm.screen-tab-row>
-                                <id>algorithms</id>
-                            </fzmm.screen-tab-row>
-
-                            <fzmm.screen-tab>
-                                <id>algorithm.characters</id>
+                <fzmm.styled-flow-layout direction="horizontal">
+                    <children>
+                        <fzmm.styled-scroll direction="vertical">
+                            <!-- options left to preview -->
+                            <fzmm.styled-flow-layout direction="ltr-text-flow">
                                 <children>
-                                    <fzmm.text-box-row>
-                                        <id>characters</id>
-                                        <symbolChatButtons>true</symbolChatButtons>
-                                    </fzmm.text-box-row>
+                                    <!-- image options -->
+                                    <fzmm.styled-flow-layout direction="vertical" id="image-options-layout">
+                                        <children>
+                                            <fzmm.styled-flow-layout direction="vertical">
+                                                <children>
+                                                    <fzmm.styled-flow-layout direction="horizontal" id="image-textbox">
+                                                        <children>
+                                                        </children>
+                                                    </fzmm.styled-flow-layout>
+
+                                                    <fzmm.styled-flow-layout direction="horizontal" id="image-buttons">
+                                                        <children>
+                                                        </children>
+
+                                                        <gap>2</gap>
+                                                    </fzmm.styled-flow-layout>
+                                                </children>
+                                                <gap>2</gap>
+                                            </fzmm.styled-flow-layout>
+
+                                            <!-- 'width', 'height' and 'preserveImageAspectRatio' options -->
+                                            <fzmm.styled-flow-layout direction="horizontal">
+                                                <children>
+                                                    <fzmm.styled-flow-layout direction="vertical">
+                                                        <children>
+                                                            <fzmm.styled-flow-layout direction="vertical">
+                                                                <children>
+                                                                    <label>
+                                                                        <text translate="true">fzmm.gui.imagetext.option.width</text>
+                                                                    </label>
+                                                                </children>
+                                                                <sizing>
+                                                                    <vertical method="fixed">16</vertical>
+                                                                </sizing>
+                                                                <vertical-alignment>center</vertical-alignment>
+                                                            </fzmm.styled-flow-layout>
+                                                            <fzmm.styled-flow-layout direction="vertical">
+                                                                <children>
+                                                                    <label>
+                                                                        <text translate="true">fzmm.gui.imagetext.option.height</text>
+                                                                    </label>
+                                                                </children>
+                                                                <sizing>
+                                                                    <vertical method="fixed">16</vertical>
+                                                                </sizing>
+                                                                <vertical-alignment>center</vertical-alignment>
+                                                            </fzmm.styled-flow-layout>
+                                                        </children>
+
+                                                        <gap>2</gap>
+                                                    </fzmm.styled-flow-layout>
+
+                                                    <fzmm.styled-flow-layout direction="vertical">
+                                                        <children>
+                                                            <template name="slider-option-type">
+                                                                <id>width-slider</id>
+                                                            </template>
+                                                            <template name="slider-option-type">
+                                                                <id>height-slider</id>
+                                                            </template>
+                                                        </children>
+                                                        <sizing>
+                                                            <horizontal method="expand">100</horizontal>
+                                                        </sizing>
+
+                                                        <gap>2</gap>
+                                                    </fzmm.styled-flow-layout>
+
+                                                    <fzmm.boolean-button id="preserveImageAspectRatio">
+                                                        <enabled-text translate="true">fzmm.gui.imagetext.option.preserveImageAspectRatio.enabled</enabled-text>
+                                                        <disabled-text translate="true">fzmm.gui.imagetext.option.preserveImageAspectRatio.disabled</disabled-text>
+
+                                                        <sizing>
+                                                            <horizontal method="fixed">16</horizontal>
+                                                            <vertical method="fixed">16</vertical>
+                                                        </sizing>
+                                                    </fzmm.boolean-button>
+
+                                                </children>
+
+                                                <gap>2</gap>
+                                                <vertical-alignment>center</vertical-alignment>
+                                            </fzmm.styled-flow-layout>
+
+                                            <template name="small-option">
+                                                <translation-id>percentageOfSimilarityToCompress</translation-id>
+                                                <option>slider</option>
+                                                <id>percentageOfSimilarityToCompress-slider</id>
+                                            </template>
+
+                                            <template name="small-option">
+                                                <translation-id>smoothImage</translation-id>
+                                                <option>checkbox</option>
+                                                <id>smoothImage</id>
+                                            </template>
+
+                                            <template name="small-option">
+                                                <translation-id>showResolution</translation-id>
+                                                <option>checkbox</option>
+                                                <id>showResolution</id>
+                                            </template>
+
+                                        </children>
+                                        <gap>3</gap>
+
+                                        <padding>
+                                            <all>6</all>
+                                        </padding>
+
+                                        <surface>
+                                            <panel dark="true"/>
+                                        </surface>
+
+                                        <sizing>
+                                            <!-- workaround to address the issue that owo-lib rounds up:
+                                                by ensuring that if a ltr-text-flow is used and has an odd
+                                                horizontal size, any children with 50% will be rounded up,
+                                                causing them to occupy 2 lines instead of 1
+                                            -->
+                                            <horizontal method="fill">49</horizontal>
+                                            <vertical method="fixed">148</vertical>
+                                        </sizing>
+                                    </fzmm.styled-flow-layout>
+
+                                    <!-- algorithm options -->
+                                    <fzmm.styled-flow-layout direction="vertical" id="algorithm-options-layout">
+                                        <children>
+                                            <fzmm.context-menu-button id="algorithm-button">
+                                                <text translate="true">fzmm.gui.imagetext.tab.algorithm</text>
+
+                                                <sizing>
+                                                    <horizontal method="expand">100</horizontal>
+                                                    <vertical method="fixed">16</vertical>
+                                                </sizing>
+
+                                                <margins>
+                                                    <bottom>2</bottom>
+                                                </margins>
+                                            </fzmm.context-menu-button>
+
+                                            <fzmm.screen-tab>
+                                                <id>algorithm.characters</id>
+                                                <children>
+                                                    <!-- symbol chat buttons are added from the code -->
+                                                    <template name="small-option">
+                                                        <translation-id>characters</translation-id>
+                                                        <option>suggest-text</option>
+                                                        <id>characters-text-box</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+                                            <fzmm.screen-tab>
+                                                <id>algorithm.braille</id>
+                                                <children>
+                                                        <template name="small-option">
+                                                            <translation-id>edgeThreshold</translation-id>
+                                                            <option>slider</option>
+                                                            <id>edgeThreshold-slider</id>
+                                                        </template>
+                                                    <template name="small-option">
+                                                        <translation-id>edgeDistance</translation-id>
+                                                        <option>slider</option>
+                                                        <id>edgeDistance-slider</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>invert</translation-id>
+                                                        <option>checkbox</option>
+                                                        <id>invert-checkbox</id>
+                                                    </template>
+                                                </children>
+                                                <gap>2</gap>
+
+                                                <!-- fix characters-text-box bottom -->
+                                                <margins>
+                                                    <bottom>1</bottom>
+                                                </margins>
+                                            </fzmm.screen-tab>
+
+                                        </children>
+
+                                        <padding>
+                                            <all>6</all>
+                                        </padding>
+
+                                        <surface>
+                                            <panel dark="true"/>
+                                        </surface>
+
+                                        <sizing>
+                                            <horizontal method="fill">50</horizontal>
+                                            <vertical method="fixed">148</vertical>
+                                        </sizing>
+                                    </fzmm.styled-flow-layout>
+
+                                    <!-- image mode -->
+                                    <fzmm.styled-flow-layout direction="vertical">
+                                        <children>
+                                            <fzmm.context-menu-button id="mode-button">
+                                                <text translate="true">fzmm.gui.imagetext.tab.mode</text>
+
+                                                <sizing>
+                                                    <horizontal method="expand">100</horizontal>
+                                                    <vertical method="fixed">16</vertical>
+                                                </sizing>
+
+                                                <margins>
+                                                    <bottom>2</bottom>
+                                                </margins>
+                                            </fzmm.context-menu-button>
+
+                                            <fzmm.screen-tab>
+                                                <id>lore</id>
+                                                <children>
+                                                    <template name="small-option">
+                                                        <translation-id>loreMode</translation-id>
+                                                        <option>enum</option>
+                                                        <id>loreMode-enum-option</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+
+                                            <fzmm.screen-tab>
+                                                <id>bookPage</id>
+                                                <children>
+
+                                                    <template name="small-option">
+                                                        <translation-id>bookPageMode</translation-id>
+                                                        <option>enum</option>
+                                                        <id>bookPageMode-enum-option</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+
+                                            <fzmm.screen-tab>
+                                                <id>bookTooltip</id>
+                                                <children>
+                                                    <template name="small-option">
+                                                        <translation-id>bookTooltipMode</translation-id>
+                                                        <option>enum</option>
+                                                        <id>bookTooltipMode-enum-option</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>bookTooltipAuthor</translation-id>
+                                                        <option>text</option>
+                                                        <id>bookTooltipAuthor-text-box</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>bookTooltipMessage</translation-id>
+                                                        <option>text-area</option>
+                                                        <id>bookTooltipMessage-text-area</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+
+                                            <fzmm.screen-tab>
+                                                <id>textDisplay</id>
+                                                <children>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayTextOpacity</translation-id>
+                                                        <option>slider</option>
+                                                        <id>textDisplayTextOpacity-slider</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayBackgroundColor</translation-id>
+                                                        <option>color</option>
+                                                        <id>textDisplayBackgroundColor</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayTextShadow</translation-id>
+                                                        <option>checkbox</option>
+                                                        <id>textDisplayTextShadow-checkbox</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayTextSeeThrough</translation-id>
+                                                        <option>checkbox</option>
+                                                        <id>textDisplayTextSeeThrough-checkbox</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayTextAlignment</translation-id>
+                                                        <option>enum</option>
+                                                        <id>textDisplayTextAlignment-enum-option</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayBillboard</translation-id>
+                                                        <option>enum</option>
+                                                        <id>textDisplayBillboard-enum-option</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>textDisplayRotation</translation-id>
+                                                        <option>slider</option>
+                                                        <id>textDisplayRotation-slider</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+
+                                            <fzmm.screen-tab>
+                                                <id>sign</id>
+                                                <children>
+                                                    <template name="small-option">
+                                                        <translation-id>signType</translation-id>
+                                                        <option>enum</option>
+                                                        <id>signType-enum-option</id>
+                                                    </template>
+                                                    <template name="small-option">
+                                                        <translation-id>isHangingSign</translation-id>
+                                                        <option>checkbox</option>
+                                                        <id>isHangingSign-checkbox</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+
+                                            <fzmm.screen-tab>
+                                                <id>hologram</id>
+                                                <children>
+                                                    <template name="small-option">
+                                                        <translation-id>hologramPos</translation-id>
+                                                        <option>pos</option>
+                                                        <id>hologramPos</id>
+                                                    </template>
+                                                </children>
+                                            </fzmm.screen-tab>
+
+                                            <fzmm.screen-tab>
+                                                <id>copy</id>
+                                                <children>
+                                                </children>
+                                            </fzmm.screen-tab>
+                                        </children>
+
+                                        <padding>
+                                            <all>6</all>
+                                        </padding>
+
+                                        <surface>
+                                            <panel dark="true"/>
+                                        </surface>
+
+                                        <sizing>
+                                            <horizontal method="expand">99</horizontal>
+                                        </sizing>
+                                    </fzmm.styled-flow-layout>
                                 </children>
-                            </fzmm.screen-tab>
 
-                            <fzmm.screen-tab>
-                                <id>algorithm.braille</id>
-                                <children>
-                                    <fzmm.slider-row>
-                                        <id>edgeThreshold</id>
-                                    </fzmm.slider-row>
-                                    <fzmm.slider-row>
-                                        <id>edgeDistance</id>
-                                    </fzmm.slider-row>
-                                    <fzmm.boolean-row>
-                                        <id>invert</id>
-                                    </fzmm.boolean-row>
-                                </children>
-                            </fzmm.screen-tab>
+                                <sizing>
+                                    <horizontal method="expand">60</horizontal>
+                                </sizing>
+                            </fzmm.styled-flow-layout>
 
-                            <fzmm.screen-tab-row>
-                                <id>tabs</id>
-                            </fzmm.screen-tab-row>
+                            <sizing>
+                                <vertical method="fill">100</vertical>
+                            </sizing>
+                        </fzmm.styled-scroll>
 
-                            <fzmm.screen-tab>
-                                <id>lore</id>
-                                <children>
-                                    <fzmm.enum-row>
-                                        <id>loreMode</id>
-                                    </fzmm.enum-row>
-                                </children>
-                            </fzmm.screen-tab>
+                        <!-- preview -->
+                        <fzmm.styled-flow-layout direction="vertical">
+                            <children>
 
-                            <fzmm.screen-tab>
-                                <id>bookPage</id>
-                                <children>
-                                    <fzmm.enum-row>
-                                        <id>bookPageMode</id>
-                                    </fzmm.enum-row>
-                                </children>
-                            </fzmm.screen-tab>
+                                <fzmm.styled-scroll direction="horizontal">
+                                    <fzmm.styled-scroll direction="vertical">
+                                        <label id="preview-label">
+                                        </label>
 
-                            <fzmm.screen-tab>
-                                <id>bookTooltip</id>
-                                <children>
-                                    <fzmm.enum-row>
-                                        <id>bookTooltipMode</id>
-                                    </fzmm.enum-row>
-                                    <fzmm.text-box-row>
-                                        <id>bookTooltipAuthor</id>
-                                    </fzmm.text-box-row>
-                                    <fzmm.text-box-row>
-                                        <id>bookTooltipMessage</id>
-                                    </fzmm.text-box-row>
-                                </children>
-                            </fzmm.screen-tab>
+                                        <sizing>
+                                            <vertical method="expand">100</vertical>
+                                        </sizing>
 
-                            <fzmm.screen-tab>
-                                <id>hologram</id>
-                                <children>
-                                    <fzmm.number-row>
-                                        <id>hologramPosX</id>
-                                        <tooltipId>hologramPos</tooltipId>
-                                    </fzmm.number-row>
-                                    <fzmm.number-row>
-                                        <id>hologramPosY</id>
-                                        <tooltipId>hologramPos</tooltipId>
-                                    </fzmm.number-row>
-                                    <fzmm.number-row>
-                                        <id>hologramPosZ</id>
-                                        <tooltipId>hologramPos</tooltipId>
-                                    </fzmm.number-row>
-                                </children>
-                            </fzmm.screen-tab>
+                                        <prevent-shift-scroll>true</prevent-shift-scroll>
+                                    </fzmm.styled-scroll>
 
-                            <fzmm.screen-tab>
-                                <id>sign</id>
-                                <children>
-                                    <fzmm.enum-row>
-                                        <id>signType</id>
-                                    </fzmm.enum-row>
-                                    <fzmm.boolean-row>
-                                        <id>isHangingSign</id>
-                                    </fzmm.boolean-row>
-                                </children>
-                            </fzmm.screen-tab>
+                                    <sizing>
+                                        <horizontal method="expand">100</horizontal>
+                                    </sizing>
+                                </fzmm.styled-scroll>
 
-                            <fzmm.screen-tab>
-                                <id>textDisplay</id>
-                                <children>
-                                    <fzmm.slider-row>
-                                        <id>textDisplayTextOpacity</id>
-                                    </fzmm.slider-row>
-                                    <fzmm.color-row>
-                                        <id>textDisplayBackgroundColor</id>
-                                    </fzmm.color-row>
-                                    <fzmm.boolean-row>
-                                        <id>textDisplayTextShadow</id>
-                                    </fzmm.boolean-row>
-                                    <fzmm.boolean-row>
-                                        <id>textDisplayTextSeeThrough</id>
-                                    </fzmm.boolean-row>
-                                    <fzmm.enum-row>
-                                        <id>textDisplayTextAlignment</id>
-                                    </fzmm.enum-row>
-                                    <fzmm.enum-row>
-                                        <id>textDisplayBillboard</id>
-                                    </fzmm.enum-row>
-                                    <fzmm.slider-row>
-                                        <id>textDisplayRotation</id>
-                                    </fzmm.slider-row>
-                                </children>
-                            </fzmm.screen-tab>
+                            </children>
 
-                            <fzmm.screen-tab>
-                                <id>copy</id>
-                                <children>
-                                </children>
-                            </fzmm.screen-tab>
-                        </children>
-                    </fzmm.styled-flow-layout>
+                            <padding>
+                                <all>6</all>
+                            </padding>
 
-                    <sizing>
-                        <vertical method="fill">90</vertical>
-                    </sizing>
+                            <surface>
+                                <panel dark="true"/>
+                            </surface>
 
-                    <margins>
-                        <vertical>10</vertical>
-                    </margins>
-                </fzmm.styled-scroll>
+                            <sizing>
+                                <horizontal method="expand">100</horizontal>
+                                <vertical method="expand">100</vertical>
+                            </sizing>
+
+                        </fzmm.styled-flow-layout>
+
+                    </children>
+
+                    <padding>
+                        <vertical>20</vertical>
+                    </padding>
+                </fzmm.styled-flow-layout>
 
                 <fzmm.styled-flow-layout direction="horizontal">
                     <children>
-
                         <button id="execute-button">
                             <text translate="true">fzmm.gui.button.execute</text>
 
@@ -188,18 +422,10 @@
                             </sizing>
                         </button>
 
-                        <button id="preview-button">
-                            <text translate="true">fzmm.gui.button.preview</text>
-
-                            <sizing>
-                                <vertical method="fixed">16</vertical>
-                            </sizing>
-                        </button>
-
                         <spacer>
                             <sizing>
-                                <horizontal method="expand">100</horizontal>
                                 <vertical method="fixed">1</vertical>
+                                <horizontal method="expand">100</horizontal>
                             </sizing>
                         </spacer>
 
@@ -232,4 +458,157 @@
             </surface>
         </fzmm.styled-flow-layout>
     </components>
+    <templates>
+        <small-option>
+            <fzmm.styled-flow-layout direction="horizontal" id="{{id}}-parent">
+                <children>
+                    <label>
+                        <text translate="true">fzmm.gui.imagetext.option.{{translation-id}}</text>
+                        <tooltip-text translate="true">fzmm.gui.imagetext.option.{{translation-id}}.tooltip</tooltip-text>
+
+                        <margins>
+                            <top>4</top>
+                        </margins>
+
+                        <sizing>
+                            <horizontal method="fixed">125</horizontal>
+                        </sizing>
+                    </label>
+
+                    <template name="{{option}}-option-type">
+                        <id>{{id}}</id>
+                    </template>
+
+                </children>
+
+                <gap>2</gap>
+                <vertical-alignment>top</vertical-alignment>
+
+                <sizing>
+                    <vertical method="fixed">18</vertical>
+                </sizing>
+            </fzmm.styled-flow-layout>
+        </small-option>
+
+        <checkbox-option-type>
+            <fzmm.styled-flow-layout direction="vertical">
+                <children>
+                    <small-checkbox id="{{id}}">
+
+                    </small-checkbox>
+                </children>
+
+                <sizing>
+                    <vertical method="expand">100</vertical>
+                </sizing>
+                <vertical-alignment>center</vertical-alignment>
+            </fzmm.styled-flow-layout>
+        </checkbox-option-type>
+
+        <slider-option-type>
+            <fzmm.number-slider id="{{id}}">
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                    <vertical method="fixed">16</vertical>
+                </sizing>
+            </fzmm.number-slider>
+        </slider-option-type>
+
+        <text-option-type>
+            <fzmm.text-option id="{{id}}">
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                    <vertical method="fixed">16</vertical>
+                </sizing>
+            </fzmm.text-option>
+        </text-option-type>
+
+        <suggest-text-option-type>
+            <fzmm.suggest-text-option id="{{id}}">
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                    <vertical method="fixed">16</vertical>
+                </sizing>
+            </fzmm.suggest-text-option>
+        </suggest-text-option-type>
+
+        <pos-option-type>
+            <fzmm.styled-flow-layout direction="horizontal">
+                <children>
+                    <fzmm.suggest-text-option id="{{id}}X-number-field">
+                        <sizing>
+                            <horizontal method="expand">33</horizontal>
+                            <vertical method="fixed">16</vertical>
+                        </sizing>
+                    </fzmm.suggest-text-option>
+                    <fzmm.suggest-text-option id="{{id}}Y-number-field">
+                        <sizing>
+                            <horizontal method="expand">33</horizontal>
+                            <vertical method="fixed">16</vertical>
+                        </sizing>
+                    </fzmm.suggest-text-option>
+                    <fzmm.suggest-text-option id="{{id}}Z-number-field">
+                        <sizing>
+                            <horizontal method="expand">33</horizontal>
+                            <vertical method="fixed">16</vertical>
+                        </sizing>
+                    </fzmm.suggest-text-option>
+                </children>
+
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                </sizing>
+            </fzmm.styled-flow-layout>
+        </pos-option-type>
+
+        <text-area-option-type>
+            <text-area id="{{id}}">
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                </sizing>
+
+                <margins>
+                    <all>1</all>
+                </margins>
+            </text-area>
+        </text-area-option-type>
+
+        <enum-option-type>
+            <fzmm.enum-option id="{{id}}">
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                    <vertical method="fixed">16</vertical>
+                </sizing>
+            </fzmm.enum-option>
+        </enum-option-type>
+
+        <color-option-type>
+            <fzmm.styled-flow-layout direction="horizontal">
+                <children>
+                    <box id="{{id}}-color-preview">
+                        <sizing>
+                            <vertical method="fixed">16</vertical>
+                            <horizontal method="fixed">16</horizontal>
+                        </sizing>
+
+                        <fill>true</fill>
+                    </box>
+
+                    <fzmm.text-option id="{{id}}-color">
+                        <sizing>
+                            <horizontal method="expand">100</horizontal>
+                            <vertical method="fixed">16</vertical>
+                        </sizing>
+                    </fzmm.text-option>
+                </children>
+                <gap>2</gap>
+
+                <sizing>
+                    <horizontal method="expand">100</horizontal>
+                </sizing>
+
+                <vertical-alignment>center</vertical-alignment>
+            </fzmm.styled-flow-layout>
+        </color-option-type>
+    </templates>
 </owo-ui>

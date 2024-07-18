@@ -4,12 +4,18 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.parsing.UIModel;
+import io.wispforest.owo.ui.parsing.UIParsing;
 import io.wispforest.owo.ui.util.NinePatchTexture;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.math.MathHelper;
 import org.w3c.dom.Element;
 
+import java.util.Map;
+
 public class StyledScrollContainer<C extends Component> extends ScrollContainer<C> {
     public static final int SCROLLBAR_THICCNESS = 5;
+    protected boolean preventShiftScroll = false;
 
     public StyledScrollContainer(ScrollDirection direction, Sizing horizontalSizing, Sizing verticalSizing, C child) {
         super(direction, horizontalSizing, verticalSizing, child);
@@ -31,6 +37,29 @@ public class StyledScrollContainer<C extends Component> extends ScrollContainer<
     public ScrollContainer.Scrollbar styledScrollbar() {
         boolean isOverrideScrollbar = FzmmClient.CONFIG.guiStyle.persistentScrollbar();
         return isOverrideScrollbar ? vanillaFlat() : flat(Color.WHITE);
+    }
+
+    public boolean preventShiftScroll() {
+        return preventShiftScroll;
+    }
+
+    public void preventShiftScroll(boolean isShiftRequired) {
+        this.preventShiftScroll = isShiftRequired;
+    }
+
+    @Override
+    public boolean onMouseScroll(double mouseX, double mouseY, double amount) {
+        if (this.preventShiftScroll && Screen.hasShiftDown()) {
+            return false;
+        }
+        return super.onMouseScroll(mouseX, mouseY, amount);
+    }
+
+    @Override
+    public void parseProperties(UIModel model, Element element, Map<String, Element> children) {
+        super.parseProperties(model, element, children);
+        UIParsing.apply(children, "prevent-shift-scroll", UIParsing::parseBool, this::preventShiftScroll);
+        //TODO flip scrollbar (vertical from right side to left side, horizontal from bottom to top)
     }
 
     public static StyledScrollContainer<?> parse(Element element) {

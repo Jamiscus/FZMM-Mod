@@ -1,12 +1,11 @@
 package fzmm.zailer.me.client.gui;
 
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.gui.components.EnumWidget;
-import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
-import fzmm.zailer.me.client.gui.components.SliderWidget;
+import fzmm.zailer.me.client.gui.components.*;
 import fzmm.zailer.me.client.gui.components.image.ImageButtonComponent;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
 import fzmm.zailer.me.client.gui.components.row.*;
+import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.components.style.component.StyledLabelComponent;
 import fzmm.zailer.me.client.gui.components.style.container.StyledScrollContainer;
@@ -130,20 +129,24 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     }
 
     public <T extends Enum<? extends IScreenTabIdentifier>> T selectScreenTab(FlowLayout rootComponent, IScreenTabIdentifier selectedTab, T tabs) {
-        return this.selectScreenTab(rootComponent, selectedTab, tabs, this.tabs);
+        return this.selectScreenTab(rootComponent, selectedTab, tabs, this.tabs, true);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Enum<? extends IScreenTabIdentifier>> T selectScreenTab(FlowLayout rootComponent, IScreenTabIdentifier selectedTab, T tabs, HashMap<String, IScreenTab> tabsHashMap) {
+    public <T extends Enum<? extends IScreenTabIdentifier>> T selectScreenTab(FlowLayout rootComponent, IScreenTabIdentifier selectedTab,
+                                                                              T tabs, HashMap<String, IScreenTab> tabsHashMap, boolean addLabel) {
         for (var tabId : tabsHashMap.keySet()) {
             ScreenTabContainer screenTabContainer = rootComponent.childById(ScreenTabContainer.class, ScreenTabContainer.getScreenTabId(tabId));
             ButtonWidget screenTabButton = rootComponent.childById(ButtonWidget.class, ScreenTabRow.getScreenTabButtonId(tabId));
             boolean isSelectedTab = selectedTab.getId().equals(tabId);
-            if (screenTabContainer != null)
-                screenTabContainer.setSelected(isSelectedTab);
 
-            if (screenTabButton != null)
+            if (screenTabContainer != null) {
+                screenTabContainer.setSelected(isSelectedTab, addLabel);
+            }
+
+            if (screenTabButton != null) {
                 screenTabButton.active = !isSelectedTab;
+            }
         }
 
 
@@ -242,8 +245,10 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
 
         // these are necessary in case you want to create the fields manually with XML
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "boolean-button"), BooleanButton::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "context-menu-button"), element -> new ContextMenuButton(Text.empty()));
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "number-slider"), element -> new SliderWidget());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "text-option"), element -> new ConfigTextBox());
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "suggest-text-option"), element -> new SuggestionTextBox());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "image-option"), element -> new ImageButtonComponent());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "enum-option"), element -> new EnumWidget());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screen-tab"), ScreenTabContainer::parse);
@@ -261,5 +266,9 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
 
     public UIModel getModel() {
         return this.model;
+    }
+
+    public FlowLayout getRoot() {
+        return this.uiAdapter.rootComponent;
     }
 }

@@ -3,6 +3,7 @@ package fzmm.zailer.me.client.gui.head_generator;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.ContextMenuButton;
 import fzmm.zailer.me.client.gui.components.image.ImageMode;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
@@ -90,7 +91,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private IHeadCategory selectedCategory;
     private ButtonComponent giveButton;
     private Animation.Composed compoundExpandAnimation;
-    private ButtonComponent headCategoryButton;
+    private ContextMenuButton headCategoryButton;
 
 
     public HeadGeneratorScreen(@Nullable Screen parent) {
@@ -146,7 +147,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         }
         this.skinPreEditButtons.get(SkinPreEditOption.OVERLAP).onPress();
 
-        this.headCategoryButton = rootComponent.childById(ButtonComponent.class, HEAD_CATEGORY_ID);
+        this.headCategoryButton = rootComponent.childById(ContextMenuButton.class, HEAD_CATEGORY_ID);
         checkNull(this.headCategoryButton, "label", HEAD_CATEGORY_ID);
 
         this.selectedCategory = IHeadCategory.NATURAL_CATEGORIES[0];
@@ -155,26 +156,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
                 this::getCategoryText) + BUTTON_TEXT_PADDING;
 
         this.headCategoryButton.horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
-        this.headCategoryButton.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            DropdownComponent.openContextMenu(this, rootComponent, FlowLayout::child,
-                    this.headCategoryButton.x(), this.headCategoryButton.y() + this.headCategoryButton.height(),
-                    categoryDropdown -> {
-                        for (var category : IHeadCategory.NATURAL_CATEGORIES) {
-                            categoryDropdown.button(Text.translatable(category.getTranslationKey()),
-                                    dropdown -> this.updateCategory(category)
-                            );
-                        }
-
-                        List<Component> dropdownChildren = categoryDropdown.children();
-                        if (!dropdownChildren.isEmpty()) {
-                            dropdownChildren.get(0).horizontalSizing(Sizing.fixed(maxCategoryHorizontalSizing));
-                        }
-
-                        categoryDropdown.zIndex(200);
-                        // fixes that if you click on the margins zone it clicks on the component behind the dropdown
-                        categoryDropdown.mouseDown().subscribe((mouseX1, mouseY1, button1) -> true);
-                    });
-            return true;
+        this.headCategoryButton.setContextMenuOptions(contextMenu -> {
+            for (var category : IHeadCategory.NATURAL_CATEGORIES) {
+                contextMenu.button(Text.translatable(category.getTranslationKey()), dropdown -> this.updateCategory(category));
+            }
         });
 
         this.toggleFavoriteList = ButtonRow.setup(rootComponent, TOGGLE_FAVORITE_LIST_ID, true, buttonComponent -> this.toggleFavoriteListExecute());

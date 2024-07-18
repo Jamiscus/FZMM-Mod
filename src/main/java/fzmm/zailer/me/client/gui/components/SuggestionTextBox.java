@@ -7,7 +7,7 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
-import io.wispforest.owo.config.ui.component.ConfigTextBox;
+import fzmm.zailer.me.compat.symbol_chat.font.FontTextBoxComponent;
 import io.wispforest.owo.ui.component.DropdownComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.Containers;
@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@SuppressWarnings("UnstableApiUsage")
-public class SuggestionTextBox extends ConfigTextBox {
+public class SuggestionTextBox extends FontTextBoxComponent {
     private static final int SUGGESTION_HEIGHT = 16;
     private final SuggestionPosition suggestionPosition;
     private SuggestionProvider<?> suggestionProvider;
@@ -44,9 +43,12 @@ public class SuggestionTextBox extends ConfigTextBox {
     @Nullable
     private FlowLayout suggestionsLayout = null;
 
+    public SuggestionTextBox() {
+        this(Sizing.content(), SuggestionPosition.BOTTOM, 5);
+    }
+
     public SuggestionTextBox(Sizing horizontalSizing, SuggestionPosition position, int maxSuggestionLines) {
-        super();
-        this.horizontalSizing(horizontalSizing);
+        super(horizontalSizing);
         this.suggestionProvider = (nul, builder) -> CompletableFuture.completedFuture(builder.build());
         this.suggestionPosition = position;
 
@@ -61,18 +63,18 @@ public class SuggestionTextBox extends ConfigTextBox {
             return;
         }
 
-        this.suggestionsContextMenu = DropdownComponent.openContextMenu(screen, parent, FlowLayout::child, this.x(), this.y(), categoryDropdown -> {
-            categoryDropdown.clearChildren();
+        this.suggestionsContextMenu = DropdownComponent.openContextMenu(screen, parent, FlowLayout::child, this.x(), this.y(), suggestionDropdown -> {
+            suggestionDropdown.clearChildren();
 
             this.suggestionsLayout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.content());
-            this.suggestionsContainer = Containers.verticalScroll(this.horizontalSizing().get(),
+            this.suggestionsContainer = Containers.verticalScroll(Sizing.fixed(this.width()),
                     Sizing.expand(100), this.suggestionsLayout);
 
 
-            categoryDropdown.child(this.suggestionsContainer);
+            suggestionDropdown.child(this.suggestionsContainer);
         });
 
-        this.suggestionsContextMenu.zIndex(200);
+        this.suggestionsContextMenu.zIndex(this.zIndex() + 100);
         this.updateSuggestions(this.getText());
     }
 
@@ -93,8 +95,7 @@ public class SuggestionTextBox extends ConfigTextBox {
     private boolean contextMenuIsOpen() {
         return this.suggestionsContextMenu != null &&
                 this.suggestionsContainer != null &&
-                this.suggestionsLayout != null &&
-                this.suggestionsContextMenu.hasParent();
+                this.suggestionsLayout != null;
     }
 
     private boolean updateSelectedSuggestionIndex(int addIndex) {
@@ -135,7 +136,6 @@ public class SuggestionTextBox extends ConfigTextBox {
             this.openContextMenu();
             return;
         }
-        assert this.suggestionsLayout != null;
         this.suggestionsLayout.clearChildren();
 
         String newMessageToLowerCase = newMessage.toLowerCase();
@@ -290,7 +290,6 @@ public class SuggestionTextBox extends ConfigTextBox {
                     this.openContextMenu();
                     yield true;
                 }
-                assert this.suggestionsLayout != null;
                 if (this.suggestionsLayout.children().isEmpty()) {
                     this.updateSuggestions(this.getText());
                     yield !this.suggestionsLayout.children().isEmpty();

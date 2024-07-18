@@ -1,23 +1,28 @@
 package fzmm.zailer.me.client.gui.imagetext.algorithms;
 
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.SuggestionTextBox;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLine;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.ImageUtils;
-import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.core.Sizing;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     private static final String CHARACTERS_ID = "characters";
-    private TextBoxComponent charactersTextField;
+    private SuggestionTextBox charactersTextField;
 
     @Override
     public String getId() {
@@ -51,9 +56,44 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     }
 
     @Override
+    public void setUpdatePreviewCallback(Runnable callback) {
+        this.charactersTextField.onChanged().subscribe(value -> callback.run());
+    }
+
+    @Override
     public void setupComponents(FlowLayout rootComponent) {
-        this.charactersTextField = TextBoxRow.setup(rootComponent, CHARACTERS_ID, ImagetextLine.DEFAULT_TEXT, FzmmClient.CONFIG.imagetext.maxResolution());
+        this.charactersTextField = (SuggestionTextBox) TextBoxRow.setup(rootComponent, CHARACTERS_ID, ImagetextLine.DEFAULT_TEXT, FzmmClient.CONFIG.imagetext.maxResolution());
         this.charactersTextField.setCursorToStart(false);
+        this.charactersTextField.setSuggestionProvider((nul, builder) -> {
+            if (builder.getInput().isBlank()) {
+                builder.suggest(ImagetextLine.DEFAULT_TEXT);
+
+                List<String> suggestions = List.of("▎", "▋", "☐", "🌑");
+                for (var suggestion : suggestions) {
+                    builder.suggest(suggestion);
+                }
+
+            }
+
+            return CompletableFuture.completedFuture(builder.build());
+        });
+        this.charactersTextField.enableFontProcess(true);
+
+        FlowLayout parentLayout = rootComponent.childById(FlowLayout.class, TextBoxRow.getTextBoxId(CHARACTERS_ID) + "-parent");
+        Screen screen = MinecraftClient.getInstance().currentScreen;
+        BaseFzmmScreen.checkNull(parentLayout, "flow-layout", TextBoxRow.getTextBoxId(CHARACTERS_ID) + "-parent");
+        if (screen instanceof BaseFzmmScreen baseScreen) {
+            parentLayout.removeChild(this.charactersTextField);
+            parentLayout.child(baseScreen.getSymbolChatCompat()
+                    .getOpenFontSelectionDropDownButton(this.charactersTextField)
+                    .sizing(Sizing.fixed(16))
+            );
+            parentLayout.child(baseScreen.getSymbolChatCompat()
+                    .getOpenSymbolChatPanelButton(this.charactersTextField)
+                    .sizing(Sizing.fixed(16))
+            );
+            parentLayout.child(this.charactersTextField);
+        }
     }
 
     @Override

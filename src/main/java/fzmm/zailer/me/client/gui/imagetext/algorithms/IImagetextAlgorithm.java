@@ -21,4 +21,6 @@ public interface IImagetextAlgorithm extends IMemento, IScreenTab {
      * to a different sign.
      */
     String getCharacters();
+
+    void setUpdatePreviewCallback(Runnable callback);
 }

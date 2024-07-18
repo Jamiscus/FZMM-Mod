@@ -4,6 +4,7 @@ import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
+import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.parsing.UIParsing;
 import net.minecraft.text.Text;
@@ -15,6 +16,7 @@ import java.util.List;
 public class ScreenTabContainer extends StyledFlowLayout {
     protected boolean selected;
     protected List<Component> componentList;
+    private final FlowLayout labelLayout;
 
     public ScreenTabContainer(String baseTranslationKey, Sizing horizontalSizing, Sizing verticalSizing, String id) {
         super(horizontalSizing, verticalSizing, Algorithm.VERTICAL);
@@ -24,39 +26,35 @@ public class ScreenTabContainer extends StyledFlowLayout {
 
         String translationKey = "fzmm.gui." + baseTranslationKey + ".tab." + id;
 
-        this.child(
-                StyledContainers.horizontalFlow(Sizing.fill(100), Sizing.content())
-                        .child(
-                                StyledComponents.label(Text.translatable(translationKey))
-                                        .tooltip(Text.translatable(translationKey + ".tooltip"))
-                        ).alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
-                        .margins(Insets.vertical(4))
-        );
+        this.labelLayout = (FlowLayout) StyledContainers.horizontalFlow(Sizing.fill(100), Sizing.content())
+                .child(
+                        StyledComponents.label(Text.translatable(translationKey))
+                                .tooltip(Text.translatable(translationKey + ".tooltip"))
+                ).alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
+                .margins(Insets.vertical(4));
     }
 
-    public void setSelected(boolean selected) {
-        if (this.selected && selected)
+    public void setSelected(boolean selected, boolean addLabel) {
+        if (this.selected && selected) {
             return;
+        }
         this.selected = selected;
 
         if (this.selected) {
-            this.children.addAll(this.componentList);
+            if (addLabel) {
+                this.child(this.labelLayout);
+            }
+            this.children(this.componentList);
             this.componentList.clear();
         } else {
-            this.componentList.addAll(this.children);
-            this.children.clear();
+            this.removeChild(this.labelLayout);
+            this.componentList.addAll(this.children());
+            this.clearChildren();
         }
-
-        this.updateLayout();
     }
 
     public static String getScreenTabId(String id) {
         return id + "-screen-tab";
-    }
-
-    @Override
-    protected void updateLayout() {
-        super.updateLayout();
     }
 
     public static ScreenTabContainer parse(Element element) {

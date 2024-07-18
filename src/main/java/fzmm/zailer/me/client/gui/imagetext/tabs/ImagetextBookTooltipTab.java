@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.gui.imagetext.tabs;
 
 import fzmm.zailer.me.builders.BookBuilder;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.EnumWidget;
 import fzmm.zailer.me.client.gui.components.row.EnumRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
@@ -13,8 +14,10 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.client.toast.BookNbtOverflowToast;
 import fzmm.zailer.me.exceptions.BookNbtOverflow;
 import fzmm.zailer.me.utils.FzmmUtils;
+import io.wispforest.owo.ui.component.TextAreaComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.HoverEvent;
@@ -28,7 +31,7 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
     private static final String BOOK_TOOLTIP_MESSAGE_ID = "bookTooltipMessage";
     private EnumWidget bookTooltipMode;
     private TextBoxComponent bookTooltipAuthor;
-    private TextBoxComponent bookTooltipMessage;
+    private TextAreaComponent bookTooltipMessage;
 
     @Override
     public void generate(IImagetextAlgorithm algorithm, ImagetextLogic logic, ImagetextData data, boolean isExecute) {
@@ -70,7 +73,15 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
         this.bookTooltipMode = EnumRow.setup(rootComponent, BOOK_TOOLTIP_MODE_ID, ImagetextBookOption.ADD_PAGE, null);
         assert MinecraftClient.getInstance().player != null;
         this.bookTooltipAuthor = TextBoxRow.setup(rootComponent, BOOK_TOOLTIP_AUTHOR_ID, MinecraftClient.getInstance().player.getName().getString(), 512);
-        this.bookTooltipMessage = TextBoxRow.setup(rootComponent, BOOK_TOOLTIP_MESSAGE_ID, FzmmClient.CONFIG.imagetext.defaultBookMessage(), 1024);
+        this.bookTooltipMessage = rootComponent.childById(TextAreaComponent.class, BOOK_TOOLTIP_MESSAGE_ID + "-text-area");
+        BaseFzmmScreen.checkNull(this.bookTooltipMessage, "text-area", BOOK_TOOLTIP_MESSAGE_ID + "-text-area");
+        this.bookTooltipMessage.maxLines(14);
+        this.bookTooltipMessage.setMaxLength(4096);
+        this.bookTooltipMessage.text(FzmmClient.CONFIG.imagetext.defaultBookMessage());
+
+        FlowLayout layout = rootComponent.childById(FlowLayout.class, BOOK_TOOLTIP_MESSAGE_ID + "-text-area-parent");
+        BaseFzmmScreen.checkNull(this.bookTooltipMessage, "text-area", BOOK_TOOLTIP_MESSAGE_ID + "-text-area-parent");
+        layout.verticalSizing(Sizing.content());
     }
 
     @Override
