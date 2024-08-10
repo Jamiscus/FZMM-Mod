@@ -81,9 +81,13 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         List<Component> imageButtonList = new ArrayList<>();
 
         for (var value : ImageMode.values()) {
+            FlowLayout buttonLayout = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
+            buttonLayout.tooltip(Text.translatable(value.getTranslationKey() + ".tooltip"));
             ButtonComponent button = this.imageElements.imageModeButtons().get(value);
             button.sizing(Sizing.fixed(16));
-            imageButtonList.add(button);
+
+            buttonLayout.child(button);
+            imageButtonList.add(buttonLayout);
         }
         imageButtonList.add(Components.spacer().verticalSizing(Sizing.fixed(1)));
         imageButtonList.add(this.imageElements.imageButton().verticalSizing(Sizing.fixed(16)).margins(Insets.none()));
