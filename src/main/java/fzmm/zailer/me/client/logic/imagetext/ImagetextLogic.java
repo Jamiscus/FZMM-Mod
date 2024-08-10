@@ -74,22 +74,23 @@ public class ImagetextLogic {
         return this.height;
     }
 
-    public List<Text> get() {
+    public List<Text> getWrappedText() {
         return this.imagetext;
     }
 
     public Text getText() {
-        MutableText text = Text.empty();
+        MutableText result = Text.empty();
+        List<Text> wrappedText = this.getWrappedText();
 
-        int size = this.imagetext.size();
+        int size = wrappedText.size();
         for (int i = 0; i != size; i++) {
-            text.append(this.imagetext.get(i));
+            result.append(wrappedText.get(i));
             if (i != size - 1) {
-                text.append("\n");
+                result.append("\n");
             }
         }
 
-        return text;
+        return result;
     }
 
     public boolean isEmpty() {

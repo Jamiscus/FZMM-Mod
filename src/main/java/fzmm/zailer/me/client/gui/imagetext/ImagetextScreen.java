@@ -279,13 +279,15 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
     }
 
     public void execute() {
-        if (!this.imageElements.imageButton().hasImage()) {
-            return;
-        }
+        CompletableFuture.runAsync(() -> {
+            Optional<BufferedImage> image = this.imageElements.imageButton().getImage();
+            if (image.isEmpty()) {
+                return;
+            }
 
-        this.updatePreview(true);
-        this.getTab(selectedMode, IImagetextTab.class).execute(this.imagetextLogic);
-        this.updatePreview(false);
+            this.generateImagetext(image.get(), true);
+            this.getTab(selectedMode, IImagetextTab.class).execute(this.imagetextLogic);
+        });
     }
 
     public void scheduleUpdatePreview() {

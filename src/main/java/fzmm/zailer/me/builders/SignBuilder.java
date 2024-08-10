@@ -62,8 +62,9 @@ public class SignBuilder {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
         assert MinecraftClient.getInstance().player != null;
-        if (text == null)
+        if (text == null) {
             return this;
+        }
 
         MutableText textCopy = text.copy();
 
@@ -72,9 +73,8 @@ public class SignBuilder {
             textCopy.append(" ");
             spaceCount++;
         }
-        textCopy.append(" ".repeat(spaceCount));
 
-        list.add(textCopy);
+        list.add(text.copy().append(" ".repeat(spaceCount)));
 
         return this;
     }
@@ -127,20 +127,22 @@ public class SignBuilder {
     }
 
     private void addSignMessage(List<Text> list, NbtCompound compound, NbtCompound blockEntityTag, String key) {
-        if (!list.isEmpty()) {
-            while (list.size() < 4) {
-                list.add(Text.empty());
-            }
-
-            DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
-            NbtList listTag = new NbtList();
-            listTag.addAll(list.stream().map(text -> {
-                String textJson = Text.Serialization.toJsonString(text, registryManager);
-                return NbtString.of(textJson);
-            }).toList());
-
-            compound.put(TagsConstant.SIGN_MESSAGES, listTag);
-            blockEntityTag.put(key, compound);
+        if (list.isEmpty()) {
+            return;
         }
+
+        while (list.size() < 4) {
+            list.add(Text.empty());
+        }
+
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+        NbtList listTag = new NbtList();
+        listTag.addAll(list.stream().map(text -> {
+            String textJson = Text.Serialization.toJsonString(text, registryManager);
+            return NbtString.of(textJson);
+        }).toList());
+
+        compound.put(TagsConstant.SIGN_MESSAGES, listTag);
+        blockEntityTag.put(key, compound);
     }
 }
