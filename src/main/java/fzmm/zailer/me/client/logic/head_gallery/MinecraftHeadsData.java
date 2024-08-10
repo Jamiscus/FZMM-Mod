@@ -13,8 +13,9 @@ public record MinecraftHeadsData(String name, UUID uuid, String value, Set<Strin
         String name = jsonObject.get("name").getAsString();
         UUID uuid = UUID.fromString(jsonObject.get("uuid").getAsString());
         String value = jsonObject.get("value").getAsString();
-        Set<String> tags = new HashSet<>(Arrays.asList(jsonObject.get("tags").getAsString().split(",")));
-        return new MinecraftHeadsData(name, uuid, value, tags);
+        String tags = jsonObject.get("tags").getAsString();
+        Set<String> tagsSet = new HashSet<>(Arrays.asList(tags.split(",(?=\\S)")));
+        return new MinecraftHeadsData(name, uuid, value, tagsSet);
     }
 
     public boolean filter(Set<String> tags, String toLowerCaseName) {
