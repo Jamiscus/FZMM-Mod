@@ -18,6 +18,7 @@ import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.ImagetextAlgorithms;
 import fzmm.zailer.me.client.gui.imagetext.tabs.IImagetextTab;
+import fzmm.zailer.me.client.gui.imagetext.tabs.IImagetextTooltip;
 import fzmm.zailer.me.client.gui.imagetext.tabs.ImagetextMode;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
@@ -35,7 +36,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -264,9 +265,9 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         BufferedImage image = imageOptional.get();
 
         int configValue = (int) config.parsedValue();
-        Vec2f rescaledSize = ImagetextLogic.changeResolutionKeepingAspectRatio(image.getWidth(), image.getHeight(), configValue, isWidth);
+        Pair<Integer, Integer> rescaledSize = ImagetextLogic.changeResolutionKeepingAspectRatio(image.getWidth(), image.getHeight(), configValue, isWidth);
 
-        int newValue = (int) (isWidth ? rescaledSize.y : rescaledSize.x);
+        int newValue = isWidth ? rescaledSize.getLeft() : rescaledSize.getRight();
 
         if (newValue > configToChange.max()) {
             newValue = (int) configToChange.max();
@@ -278,13 +279,15 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
     }
 
     public void execute() {
-        if (!this.imageElements.imageButton().hasImage()) {
-            return;
-        }
+        CompletableFuture.runAsync(() -> {
+            Optional<BufferedImage> image = this.imageElements.imageButton().getImage();
+            if (image.isEmpty()) {
+                return;
+            }
 
-        this.updatePreview(true);
-        this.getTab(selectedMode, IImagetextTab.class).execute(this.imagetextLogic);
-        this.updatePreview(false);
+            this.generateImagetext(image.get(), true);
+            this.getTab(selectedMode, IImagetextTab.class).execute(this.imagetextLogic);
+        });
     }
 
     public void scheduleUpdatePreview() {
@@ -306,9 +309,8 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
         this.generateImagetext(image.get(), isExecute);
         Text text = this.imagetextLogic.getText();
-        List<Text> wrappedText = this.imagetextLogic.getWrappedText();
 
-        ItemStack placeholderStack = DisplayBuilder.builder().addLore(wrappedText).get();
+        ItemStack placeholderStack = DisplayBuilder.builder().addLore(text).get();
         String nbtSize = FzmmUtils.getLengthInKB(FzmmUtils.getLengthInBytes(placeholderStack));
         String textSize = FzmmUtils.getLengthInKB(Text.Serialization.toJsonString(text).length());
 
@@ -344,7 +346,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
         Text text = this.imagetextLogic.getText();
 
-        ItemStack placeholderStack = DisplayBuilder.builder().addLore(this.imagetextLogic.get()).get();
+        ItemStack placeholderStack = DisplayBuilder.builder().addLore(this.imagetextLogic.getText()).get();
         String nbtSize = FzmmUtils.getLengthInKB(FzmmUtils.getLengthInBytes(placeholderStack));
         String textSize = FzmmUtils.getLengthInKB(Text.Serialization.toJsonString(text).length());
 

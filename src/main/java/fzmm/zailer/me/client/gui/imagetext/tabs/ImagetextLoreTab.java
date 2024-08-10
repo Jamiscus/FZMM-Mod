@@ -13,7 +13,7 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.text.Text;
 
 public class ImagetextLoreTab implements IImagetextTab {
     private static final String LORE_MODE_ID = "loreMode";
@@ -26,18 +26,11 @@ public class ImagetextLoreTab implements IImagetextTab {
 
     @Override
     public void execute(ImagetextLogic logic) {
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
-        LoreOption loreOption = (LoreOption) this.loreModeOption.getValue();
-        NbtList imagetext = logic.get();
+        ItemStack stack = this.getStack((LoreOption) this.loreModeOption.getValue());
+        Text imagetext = logic.getText();
 
-        if (stack.isEmpty())
-            stack = FzmmUtils.getItem(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();
         DisplayBuilder display = DisplayBuilder.of(stack);
-        if (loreOption == LoreOption.ADD)
-            display.addLore(imagetext).get();
-        else
-            display.setLore(imagetext).get();
+        display.addLore(imagetext).get();
 
         FzmmUtils.giveItem(display.get());
     }
@@ -62,6 +55,21 @@ public class ImagetextLoreTab implements IImagetextTab {
     public void restoreMemento(IMementoObject mementoTab) {
         LoreMementoTab memento = (LoreMementoTab) mementoTab;
         this.loreModeOption.setValue(memento.mode);
+    }
+
+    private ItemStack getStack(LoreOption option) {
+        assert MinecraftClient.getInstance().player != null;
+        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack().copy();
+
+        if (stack.isEmpty()) {
+            stack = FzmmUtils.getItem(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();
+        }
+
+        if (option == LoreOption.REPLACE) {
+            stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY).remove(ItemStack.LORE_KEY);
+        }
+
+        return stack;
     }
 
     private record LoreMementoTab(LoreOption mode) implements IMementoObject {

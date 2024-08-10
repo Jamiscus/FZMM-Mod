@@ -73,7 +73,7 @@ public class ImagetextHologramTab implements IImagetextTab {
 
     public List<ItemStack> getHologramItems(ImagetextLogic logic, int x, double y, int z) {
         List<ItemStack> hologramItems = new ArrayList<>();
-        NbtList imagetext = logic.get();
+        List<Text> imagetext = logic.getWrappedText();
         int size = imagetext.size();
 
         for (int i = 0; i != size; i++) {
@@ -81,7 +81,7 @@ public class ImagetextHologramTab implements IImagetextTab {
             ItemStack armorStandHologram = ArmorStandBuilder.builder()
                     .setPos(x, y, z)
                     .setTags(HOLOGRAM_TAG)
-                    .setAsHologram(imagetext.get(size - i - 1).asString())
+                    .setAsHologram(FzmmUtils.toNbtString(imagetext.get(size - i - 1), false).asString())
                     .getItem(String.valueOf(i));
 
             hologramItems.add(armorStandHologram);

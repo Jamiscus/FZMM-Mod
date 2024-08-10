@@ -11,6 +11,8 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
+import java.util.List;
+
 public class SignBuilder {
 
     public static final int MAX_ROWS = 4;
@@ -54,32 +56,34 @@ public class SignBuilder {
         return this;
     }
 
-    public SignBuilder addFrontLine(NbtString nbtString, int expectedWidth) {
+    public SignBuilder addFrontLine(Text nbtString, int expectedWidth) {
         return this.addLine(this.frontTextList, nbtString, expectedWidth);
     }
 
-    public SignBuilder addBackLine(NbtString nbtString, int expectedWidth) {
-        return this.addLine(this.backTextList, nbtString, expectedWidth);
+    public SignBuilder addBackLine(Text text, int expectedWidth) {
+        return this.addLine(this.backTextList, text, expectedWidth);
     }
 
-    private SignBuilder addLine(NbtList list, NbtString nbtString, int expectedWidth) {
+    private SignBuilder addLine(NbtList list, Text text, int expectedWidth) {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        MutableText text = Text.Serialization.fromJson(nbtString.asString());
-        if (text == null)
-            return this;
 
-        text = text.copy();
+        assert MinecraftClient.getInstance().player != null;
+        if (text == null) {
+            return this;
+        }
+
+        MutableText textCopy = text.copy();
 
         int spaceCount = 0;
-        MutableText textCopy = text.copy();
         while (textRenderer.getWidth(textCopy) < expectedWidth) {
             textCopy.append(" ");
             spaceCount++;
         }
-        text.append(" ".repeat(spaceCount));
 
-        nbtString = FzmmUtils.toNbtString(text, false);
-        return this.addLine(list, nbtString);
+        NbtString nbtString = FzmmUtils.toNbtString(text.copy().append(" ".repeat(spaceCount)), false);
+        list.add(nbtString);
+
+        return this;
     }
 
     public SignBuilder glowingFront() {
@@ -136,5 +140,24 @@ public class SignBuilder {
 
         this.stack.setSubNbt(BlockItem.BLOCK_ENTITY_TAG_KEY, entityTag);
         return this.stack;
+    }
+
+    private void addSignMessage(List<Text> list, NbtCompound compound, NbtCompound blockEntityTag, String key) {
+        if (list.isEmpty()) {
+            return;
+        }
+
+        while (list.size() < 4) {
+            list.add(Text.empty());
+        }
+
+        NbtList listTag = new NbtList();
+        listTag.addAll(list.stream().map(text -> {
+            String textJson = Text.Serialization.toJsonString(text);
+            return NbtString.of(textJson);
+        }).toList());
+
+        compound.put(TagsConstant.SIGN_MESSAGES, listTag);
+        blockEntityTag.put(key, compound);
     }
 }
