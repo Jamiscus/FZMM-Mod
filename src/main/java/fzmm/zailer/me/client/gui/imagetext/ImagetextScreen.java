@@ -188,6 +188,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
             boolean hasImage = image != null;
             executeButton.active = hasImage;
             if (hasImage) {
+                this.getTab(selectedAlgorithm, IImagetextAlgorithm.class, this.algorithmsTabs).clearCache();
                 this.scheduleUpdatePreview();
                 this.updateAspectRatio(image);
             }

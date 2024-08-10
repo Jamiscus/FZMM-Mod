@@ -6,13 +6,11 @@ import net.minecraft.text.Text;
 
 public record ImageStatus(String detailsId, StatusType statusType) implements IStatus {
     private static final String BASE_TRANSLATION_KEY = "fzmm.toast.image.";
-    public static final ImageStatus FILE_DOES_NOT_EXIST = new ImageStatus("fileDoesNotExist", StatusType.ERROR);
     public static final ImageStatus IMAGE_LOADED = new ImageStatus(null, StatusType.SUCCESSFUL);
     public static final ImageStatus INVALID_USERNAME = new ImageStatus("invalidUsername", StatusType.ERROR);
     public static final ImageStatus LOADING = new ImageStatus(null, StatusType.LOADING);
     public static final ImageStatus MALFORMED_URL = new ImageStatus("malformedUrl", StatusType.ERROR);
     public static final ImageStatus NO_IMAGE_LOADED = new ImageStatus("noImageLoaded", StatusType.ERROR);
-    public static final ImageStatus PATH_DOES_NOT_HAVE_A_FILE = new ImageStatus("pathDoesNotHaveAFile", StatusType.ERROR);
     public static final ImageStatus UNEXPECTED_ERROR = new ImageStatus("unexpectedError", StatusType.ERROR);
     public static final ImageStatus URL_HAS_NO_IMAGE = new ImageStatus("urlHasNoImage", StatusType.ERROR);
 
