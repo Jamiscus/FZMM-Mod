@@ -28,6 +28,8 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     private SliderWidget edgeThresholdSlider;
     private SliderWidget edgeDistanceSlider;
     private SmallCheckboxComponent invertBooleanButton;
+    private BufferedImage colorsImage = null;
+    private byte[][] grayScaleUpscaledImage = null;
 
     @Override
     public String getId() {
@@ -36,16 +38,14 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
 
     @Override
     public List<MutableText> get(ImagetextLogic logic, ImagetextData data, int lineSplitInterval) {
-        BufferedImage resultColors = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
-        BufferedImage upscaledImage = ImageUtils.fastResizeImage(data.image(), data.width() * BRAILLE_CHARACTER_WIDTH, data.height() * BRAILLE_CHARACTER_HEIGHT, data.smoothRescaling());
-        byte[][] grayScaleImage = this.toGrayScale(upscaledImage);
-        List<String> charactersList = this.getBrailleCharacters(grayScaleImage, data.width(), data.height());
+        this.cacheResizedImage(data);
+        List<String> charactersList = this.getBrailleCharacters(this.grayScaleUpscaledImage, data.width(), data.height());
         List<MutableText> linesList = new ArrayList<>();
 
         for (int y = 0; y != data.height(); y++) {
             ImagetextLine line = new ImagetextLine(charactersList.get(y), data.percentageOfSimilarityToCompress(), lineSplitInterval);
             for (int x = 0; x != data.width(); x++) {
-                line.add(resultColors.getRGB(x, y));
+                line.add(this.colorsImage.getRGB(x, y));
             }
 
             linesList.addAll(line.getLineComponents());
@@ -78,6 +78,21 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
         this.edgeThresholdSlider.onChanged().subscribe(value -> callback.run());
         this.edgeDistanceSlider.onChanged().subscribe(value -> callback.run());
         this.invertBooleanButton.onChanged().subscribe(value -> callback.run());
+    }
+
+    @Override
+    public void cacheResizedImage(ImagetextData data) {
+        if (this.colorsImage == null || this.colorsImage.getWidth() != data.width() || this.colorsImage.getHeight() != data.height()) {
+            this.colorsImage = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
+            BufferedImage upscaledImage = ImageUtils.fastResizeImage(data.image(), data.width() * BRAILLE_CHARACTER_WIDTH, data.height() * BRAILLE_CHARACTER_HEIGHT, data.smoothRescaling());
+            this.grayScaleUpscaledImage = this.toGrayScale(upscaledImage);
+        }
+    }
+
+    @Override
+    public void clearCache() {
+        this.colorsImage = null;
+        this.grayScaleUpscaledImage = null;
     }
 
     public List<String> getBrailleCharacters(byte[][] grayScaleImage, int width, int height) {

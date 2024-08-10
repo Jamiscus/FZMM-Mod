@@ -84,7 +84,7 @@ public class ImagetextLogic {
     public Text getText() {
         MutableText text = Text.empty();
 
-        List<Text> textList = this.getTextList();
+        List<Text> textList = this.getWrappedText();
         int size = textList.size();
         for (int i = 0; i != size; i++) {
             text.append(textList.get(i));
@@ -96,7 +96,7 @@ public class ImagetextLogic {
         return text;
     }
 
-    public List<Text> getTextList() {
+    public List<Text> getWrappedText() {
         List<Text> textList = new ArrayList<>();
 
         for (var line : this.imagetext) {

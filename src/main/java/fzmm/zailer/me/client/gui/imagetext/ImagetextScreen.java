@@ -12,6 +12,7 @@ import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
@@ -30,12 +31,17 @@ import io.wispforest.owo.ui.core.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec2f;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
@@ -56,6 +62,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
     private SliderWidget percentageOfSimilarityToCompress;
     private LabelComponent previewLabel;
     private Animation.Composed smallGuiAnimation;
+    private CompletableFuture<Void> scheduledUpdatePreview = CompletableFuture.completedFuture(null);
 
 
     public ImagetextScreen(@Nullable Screen parent) {
@@ -125,10 +132,11 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
             for (var algorithm : ImagetextAlgorithms.values()) {
                 contextMenu.button(algorithm.getText(this.getBaseScreenTranslationKey()), dropdown -> {
                             algorithmButton.removeContextMenu();
+                            this.getTab(selectedAlgorithm, IImagetextAlgorithm.class, this.algorithmsTabs).clearCache();
                             selectedAlgorithm = algorithm;
                             algorithmButton.setMessage(this.getAlgorithmText());
                             this.selectTab(rootComponent, algorithm, this.algorithmsTabs);
-                            this.updatePreview();
+                            this.scheduleUpdatePreview();
                         }
                 );
             }
@@ -146,7 +154,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
                             selectedMode = mode;
                             modeButton.setMessage(this.getModeText());
                             this.selectTab(rootComponent, mode, this.tabs);
-                            this.updatePreview();
+                            this.scheduleUpdatePreview();
                         }
                 );
             }
@@ -159,15 +167,18 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         this.previewLabel = rootComponent.childById(LabelComponent.class, "preview-label");
         BaseFzmmScreen.checkNull(this.previewLabel, "label", "preview-label");
 
-        this.widthSlider.onChanged().subscribe(value -> this.updatePreview());
-        this.heightSlider.onChanged().subscribe(value -> this.updatePreview());
-        this.percentageOfSimilarityToCompress.onChanged().subscribe(value -> this.updatePreview());
-        this.showResolutionCheckbox.onChanged().subscribe(buttonComponent -> this.updatePreview());
-        this.smoothImageCheckbox.onChanged().subscribe(buttonComponent -> this.updatePreview());
+        this.widthSlider.onChanged().subscribe(value -> this.scheduleUpdatePreview());
+        this.heightSlider.onChanged().subscribe(value -> this.scheduleUpdatePreview());
+        this.percentageOfSimilarityToCompress.onChanged().subscribe(value -> this.scheduleUpdatePreview());
+        this.showResolutionCheckbox.onChanged().subscribe(buttonComponent -> this.scheduleUpdatePreview());
+        this.smoothImageCheckbox.onChanged().subscribe(buttonComponent -> {
+            this.getTab(selectedAlgorithm, IImagetextAlgorithm.class, this.algorithmsTabs).clearCache();
+            this.scheduleUpdatePreview();
+        });
 
         for (var imagetextTab : ImagetextAlgorithms.values()) {
             IImagetextAlgorithm tab = this.getTab(imagetextTab, IImagetextAlgorithm.class, this.algorithmsTabs);
-            tab.setUpdatePreviewCallback(this::updatePreview);
+            tab.setUpdatePreviewCallback(this::scheduleUpdatePreview);
         }
 
         //bottom buttons
@@ -176,7 +187,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
             boolean hasImage = image != null;
             executeButton.active = hasImage;
             if (hasImage) {
-                this.updatePreview(false);
+                this.scheduleUpdatePreview();
                 this.updateAspectRatio(image);
             }
         });
@@ -193,7 +204,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         Animation<Sizing> algorithmLayoutAnimationVertical = algorithmOptionsLayout.verticalSizing().animate(100, Easing.LINEAR, Sizing.content());
         this.smallGuiAnimation = Animation.compose(imageLayoutAnimation, algorithmLayoutAnimationHorizontal, algorithmLayoutAnimationVertical);
 
-        this.fixSmallGui(this.width);
+        this.setSmallGuiAnimation(this.width);
     }
 
     @SuppressWarnings("unchecked")
@@ -216,12 +227,16 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
     @Override
     public void resize(MinecraftClient client, int width, int height) {
         super.resize(client, width, height);
-        this.fixSmallGui(width);
+        this.setSmallGuiAnimation(width);
     }
 
-    private void fixSmallGui(int width) {
-        // 0.6 is left options width and 0.3 is image options and algorithm options
-        if ((width * 0.3f) < 200) {
+    private boolean isSmallGuiDesign(int width) {
+        // 60% is left options width and 30% is image options + algorithm options width
+        return (width * 0.3f) < 200;
+    }
+
+    private void setSmallGuiAnimation(int width) {
+        if (this.isSmallGuiDesign(width)) {
             this.smallGuiAnimation.forwards();
         } else {
             this.smallGuiAnimation.backwards();
@@ -238,12 +253,14 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
     private void onResolutionChanged(ImageButtonComponent imageWidget, BooleanButton preserveImageAspectRatioButton,
                                      SliderWidget config, SliderWidget configToChange, boolean isWidth) {
-        if (!imageWidget.hasImage() || !preserveImageAspectRatioButton.enabled())
+        if (!imageWidget.hasImage() || !preserveImageAspectRatioButton.enabled()) {
             return;
+        }
 
         Optional<BufferedImage> imageOptional = imageWidget.getImage();
-        if (imageOptional.isEmpty())
+        if (imageOptional.isEmpty()) {
             return;
+        }
         BufferedImage image = imageOptional.get();
 
         int configValue = (int) config.parsedValue();
@@ -251,34 +268,66 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
         int newValue = (int) (isWidth ? rescaledSize.y : rescaledSize.x);
 
-        if (newValue > configToChange.max())
+        if (newValue > configToChange.max()) {
             newValue = (int) configToChange.max();
-        else if (newValue < configToChange.min())
+        } else if (newValue < configToChange.min()) {
             newValue = (int) configToChange.min();
+        }
 
         configToChange.setDiscreteValueWithoutCallback(newValue);
     }
 
     public void execute() {
-        if (!this.imageElements.imageButton().hasImage())
+        if (!this.imageElements.imageButton().hasImage()) {
             return;
+        }
 
         this.updatePreview(true);
         this.getTab(selectedMode, IImagetextTab.class).execute(this.imagetextLogic);
-    }
-
-    public void updatePreview() {
         this.updatePreview(false);
     }
 
-    //TODO: use completable future
-    //TODO: only resize on image change because is expensive
+    public void scheduleUpdatePreview() {
+        if (this.scheduledUpdatePreview != null && !this.scheduledUpdatePreview.isDone()) {
+            this.scheduledUpdatePreview.cancel(true);
+            this.scheduledUpdatePreview = null;
+        }
+
+        this.scheduledUpdatePreview = CompletableFuture.runAsync(() -> this.updatePreview(false),
+                CompletableFuture.delayedExecutor(5, TimeUnit.MILLISECONDS)
+        );
+    }
+
     public void updatePreview(boolean isExecute) {
         Optional<BufferedImage> image = this.imageElements.imageButton().getImage();
         if (image.isEmpty()) {
             return;
         }
 
+        this.generateImagetext(image.get(), isExecute);
+        Text text = this.imagetextLogic.getText();
+        List<Text> wrappedText = this.imagetextLogic.getWrappedText();
+
+        ItemStack placeholderStack = DisplayBuilder.builder().addLore(wrappedText).get();
+        String nbtSize = FzmmUtils.getLengthInKB(FzmmUtils.getLengthInBytes(placeholderStack));
+        String textSize = FzmmUtils.getLengthInKB(Text.Serialization.toJsonString(text).length());
+
+        MutableText tooltipText = Text.empty().setStyle(Style.EMPTY.withColor(Formatting.GRAY));
+        tooltipText.append(Text.translatable("fzmm.gui.imagetext.label.imagetextSize", nbtSize, textSize));
+
+        if (this.getTab(selectedMode, IImagetextTab.class) instanceof IImagetextTooltip metadata) {
+            tooltipText.append("\n");
+            tooltipText.append(metadata.getTooltip(this.imagetextLogic));
+        }
+
+        assert this.client != null;
+        this.client.execute(() -> {
+            this.previewLabel.text(text);
+            this.previewLabel.tooltip(tooltipText);
+        });
+    }
+
+    private void generateImagetext(BufferedImage image, boolean isExecute) {
         int width = (int) this.widthSlider.parsedValue();
         int height = (int) this.heightSlider.parsedValue();
         boolean smoothScaling = this.smoothImageCheckbox.checked();
@@ -286,7 +335,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         double percentageOfSimilarityToCompress = (double) this.percentageOfSimilarityToCompress.parsedValue();
 
         IImagetextAlgorithm algorithm = (IImagetextAlgorithm) this.algorithmsTabs.get(selectedAlgorithm.getId());
-        ImagetextData data = new ImagetextData(image.get(), width, height, smoothScaling, percentageOfSimilarityToCompress);
+        ImagetextData data = new ImagetextData(image, width, height, smoothScaling, percentageOfSimilarityToCompress);
         this.getTab(selectedMode, IImagetextTab.class).generate(algorithm, this.imagetextLogic, data, isExecute);
 
         if (showResolution) {
@@ -304,16 +353,18 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
     }
 
     private void updateAspectRatio(BufferedImage image) {
-        if (!(this.preserveImageAspectRatioToggle.enabled()))
+        if (!this.preserveImageAspectRatioToggle.enabled()) {
             return;
+        }
 
         int width = image.getWidth();
         int height = image.getHeight();
 
-        if (height > width)
+        if (height > width) {
             this.onResolutionChanged(this.imageElements.imageButton(), this.preserveImageAspectRatioToggle, this.heightSlider, this.widthSlider, false);
-        else
+        } else {
             this.onResolutionChanged(this.imageElements.imageButton(), this.preserveImageAspectRatioToggle, this.widthSlider, this.heightSlider, true);
+        }
     }
 
     @Override
