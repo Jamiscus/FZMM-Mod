@@ -83,7 +83,7 @@ public class DisplayBuilder {
     public ItemStack get() {
         if (!this.lore.isEmpty()) {
             if (this.lore.size() > LoreComponent.MAX_LORES) {
-                this.lore = this.lore.subList(0, LoreComponent.MAX_LORES - 1);
+                this.lore = this.lore.subList(0, LoreComponent.MAX_LORES);
             }
 
             this.stack.apply(DataComponentTypes.LORE, null, component -> new LoreComponent(List.copyOf(this.lore)));
