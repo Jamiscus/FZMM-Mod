@@ -85,6 +85,7 @@
                                                     <fzmm.boolean-button id="preserveImageAspectRatio">
                                                         <enabled-text translate="true">fzmm.gui.imagetext.option.preserveImageAspectRatio.enabled</enabled-text>
                                                         <disabled-text translate="true">fzmm.gui.imagetext.option.preserveImageAspectRatio.disabled</disabled-text>
+                                                        <tooltip-text translate="true">fzmm.gui.imagetext.option.preserveImageAspectRatio.tooltip</tooltip-text>
 
                                                         <sizing>
                                                             <horizontal method="fixed">16</horizontal>
