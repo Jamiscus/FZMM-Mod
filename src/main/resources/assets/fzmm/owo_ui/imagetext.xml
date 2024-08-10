@@ -593,6 +593,7 @@
                         </sizing>
 
                         <fill>true</fill>
+                        <cursor-style>hand</cursor-style>
                     </box>
 
                     <fzmm.text-option id="{{id}}-color">
