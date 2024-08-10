@@ -23,4 +23,8 @@ public interface IImagetextAlgorithm extends IMemento, IScreenTab {
     String getCharacters();
 
     void setUpdatePreviewCallback(Runnable callback);
+
+    void cacheResizedImage(ImagetextData data);
+
+    void clearCache();
 }

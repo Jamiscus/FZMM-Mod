@@ -374,8 +374,8 @@
 
                                 <fzmm.styled-scroll direction="horizontal">
                                     <fzmm.styled-scroll direction="vertical">
-                                        <label id="preview-label">
-                                        </label>
+                                        <fzmm.styled-label id="preview-label">
+                                        </fzmm.styled-label>
 
                                         <sizing>
                                             <vertical method="expand">100</vertical>

@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     private static final String CHARACTERS_ID = "characters";
     private SuggestionTextBox charactersTextField;
+    private BufferedImage image = null;
 
     @Override
     public String getId() {
@@ -31,7 +32,7 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
 
     @Override
     public List<MutableText> get(ImagetextLogic logic, ImagetextData data, int lineSplitInterval) {
-        BufferedImage image = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
+        this.cacheResizedImage(data);
         List<MutableText> linesList = new ArrayList<>();
 
         String characters = this.charactersTextField.getText();
@@ -41,7 +42,7 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
         for (int y = 0; y != data.height(); y++) {
             ImagetextLine line = new ImagetextLine(characters, data.percentageOfSimilarityToCompress(), lineSplitInterval);
             for (int x = 0; x != data.width(); x++) {
-                line.add(image.getRGB(x, y));
+                line.add(this.image.getRGB(x, y));
             }
 
             linesList.addAll(line.getLineComponents());
@@ -58,6 +59,18 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     @Override
     public void setUpdatePreviewCallback(Runnable callback) {
         this.charactersTextField.onChanged().subscribe(value -> callback.run());
+    }
+
+    @Override
+    public void cacheResizedImage(ImagetextData data) {
+        if (this.image == null || this.image.getWidth() != data.width() || this.image.getHeight() != data.height()) {
+            this.image = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
+        }
+    }
+
+    @Override
+    public void clearCache() {
+        this.image = null;
     }
 
     @Override
