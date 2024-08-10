@@ -9,7 +9,7 @@ public enum ImageMode {
     @SuppressWarnings("unused")
     SCREENSHOT("screenshot", ScreenshotSource::new, false),
     @SuppressWarnings("unused")
-    PATH("path", ImageFileSource::new, false),
+    FILE_DIALOG("fileDialog", ImageFileDialogSource::new, false),
 
     NAME("name",ImagePlayerNameSource::new, true),
     @SuppressWarnings("unused")
