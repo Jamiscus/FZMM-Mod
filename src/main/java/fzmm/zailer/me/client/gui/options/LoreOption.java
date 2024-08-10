@@ -5,7 +5,7 @@ import fzmm.zailer.me.client.gui.components.IMode;
 public enum LoreOption implements IMode {
     ADD("add"),
     @SuppressWarnings("unused")
-    SET("set");
+    REPLACE("replace");
 
     private final String name;
 

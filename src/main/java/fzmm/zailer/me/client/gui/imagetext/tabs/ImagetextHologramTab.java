@@ -74,7 +74,7 @@ public class ImagetextHologramTab implements IImagetextTab {
 
     public List<ItemStack> getHologramItems(ImagetextLogic logic, int x, double y, int z) {
         List<ItemStack> hologramItems = new ArrayList<>();
-        List<Text> imagetext = logic.get();
+        List<Text> imagetext = logic.getWrappedText();
         int size = imagetext.size();
 
         for (int i = 0; i != size; i++) {

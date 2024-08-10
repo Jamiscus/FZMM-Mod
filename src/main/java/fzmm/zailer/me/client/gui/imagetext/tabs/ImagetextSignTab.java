@@ -33,7 +33,7 @@ import net.minecraft.util.math.BlockPos;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ImagetextSignTab implements IImagetextTab {
+public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
     private static final String BASE_ITEMS_TRANSLATION_KEY = "fzmm.item.imagetext.sign.";
 
     private static final String SIGN_TYPE_ID = "signType";
@@ -57,7 +57,7 @@ public class ImagetextSignTab implements IImagetextTab {
         int color = FzmmClient.CONFIG.colors.imagetextMessages().rgb();
 
         List<ItemStack> signContainers = ContainerBuilder.builder()
-                .containerItem(Items.LIGHT_GRAY_SHULKER_BOX)//todo
+                .containerItem(Items.GRAY_SHULKER_BOX)//todo
                 .maxItemByContainer(27)
                 .addAll(this.getSignItems(logic))
                 .getAsList();
@@ -100,7 +100,7 @@ public class ImagetextSignTab implements IImagetextTab {
 
     public List<ItemStack> getSignItems(ImagetextLogic logic) {
         List<SignBuilder> signBuilders = new ArrayList<>();
-        List<Text> imagetext = logic.get();
+        List<Text> imagetext = logic.getWrappedText();
         int width = logic.getWidth();
         int height = logic.getHeight();
 
@@ -115,15 +115,17 @@ public class ImagetextSignTab implements IImagetextTab {
             for (int x = 0; x != horizontalSigns; x++) {
                 int index = y * horizontalSigns + x;
 
-                if (signBuilders.size() <= index)
+                if (signBuilders.size() <= index) {
                     signBuilders.add(SignBuilder.builder().item(item));
+                }
 
                 SignBuilder signBuilder = signBuilders.get(index);
 
                 for (int i = 0; i != SignBuilder.MAX_ROWS; i++) {
                     int imagetextIndex = (y * SignBuilder.MAX_ROWS + i) * horizontalSigns + x;
-                    if (imagetext.size() > imagetextIndex)
+                    if (imagetext.size() > imagetextIndex) {
                         signBuilder.addFrontLine(imagetext.get(imagetextIndex), maxTextWidth);
+                    }
                 }
             }
         }
@@ -204,6 +206,14 @@ public class ImagetextSignTab implements IImagetextTab {
         SignMementoTab memento = (SignMementoTab) mementoTab;
         this.signTypeEnum.setValue(memento.signType);
         this.isHangingSignButton.checked(memento.isHangingSign());
+    }
+
+    @Override
+    public Text getTooltip(ImagetextLogic logic) {
+        int lineSplitInterval = this.getLineSplitInterval(this.characters);
+        int horizontalSigns = this.getHorizontalSigns(logic.getWidth(), lineSplitInterval);
+        int verticalSigns = this.getVerticalSigns(logic.getHeight());
+        return Text.translatable("fzmm.gui.imagetext.tab.sign.tooltip", horizontalSigns, verticalSigns);
     }
 
     private record SignMementoTab(SignTypeOption signType, boolean isHangingSign) implements IMementoObject {
