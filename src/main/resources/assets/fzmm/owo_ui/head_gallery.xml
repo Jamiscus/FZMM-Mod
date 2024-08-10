@@ -151,9 +151,9 @@
                                 </fzmm.styled-scroll>
                             </children>
 
-                            <padding>
+                            <margins>
                                 <bottom>25</bottom>
-                            </padding>
+                            </margins>
 
                             <sizing>
                                 <vertical method="fill">100</vertical>
