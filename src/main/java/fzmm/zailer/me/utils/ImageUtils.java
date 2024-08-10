@@ -56,12 +56,7 @@ public class ImageUtils {
         return skin;
     }
 
-    public static BufferedImage getImageFromPath(String path) throws IOException {
-        File imgFile = new File(path);
-        return ImageIO.read(imgFile);
-    }
-
-    public static Optional<BufferedImage> getImageFromUrl(String urlLocation) throws IOException {
+        public static Optional<BufferedImage> getImageFromUrl(String urlLocation) throws IOException {
         URL url = URI.create(urlLocation).toURL();
         return Optional.ofNullable(ImageIO.read(url));
     }

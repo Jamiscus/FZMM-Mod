@@ -75,7 +75,6 @@ public class ScreenshotSource implements IInteractiveImageLoader {
         return false;
     }
 
-    @Override
     public void setImage(BufferedImage image) {
         this.image = image;
         this.consumer.accept(this.image);

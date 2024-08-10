@@ -7,5 +7,4 @@ public interface IInteractiveImageLoader extends IImageGetter {
 
     void execute(Consumer<BufferedImage> consumer);
 
-    void setImage(BufferedImage image);
 }

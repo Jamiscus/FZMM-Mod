@@ -62,7 +62,6 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
         skinOptional.ifPresent(this::setImage);
     }
 
-    @Override
     public void setImage(BufferedImage image) {
         this.image = image;
         this.consumer.accept(this.image);
