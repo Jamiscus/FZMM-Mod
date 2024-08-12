@@ -410,6 +410,7 @@
 
                     <padding>
                         <vertical>20</vertical>
+                        <horizontal>3</horizontal>
                     </padding>
                 </fzmm.styled-flow-layout>
 
