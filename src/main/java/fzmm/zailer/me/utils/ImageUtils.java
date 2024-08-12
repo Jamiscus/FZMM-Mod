@@ -96,10 +96,58 @@ public class ImageUtils {
         return true;
     }
 
-    public static boolean isAlexModel(int scale, BufferedImage skin) {
-        int color = skin.getRGB((SkinPart.LEFT_ARM.x() + 15) * scale, (SkinPart.LEFT_ARM.y() + 15) * scale);
+    public static boolean isSlimSimpleCheck(BufferedImage skin) {
+        return isSlimSimpleCheck(skin, 1);
+    }
+
+    public static boolean isSlimSimpleCheck(BufferedImage skin, int scale) {
+        return !hasPixel(scale, SkinPart.LEFT_ARM.x() + 15, SkinPart.LEFT_ARM.y() + 15, skin);
+    }
+
+    public static boolean isSlimFullCheck(BufferedImage skin) {
+        var formatRectangles = new int[]{
+                // hand and shoulder
+                SkinPart.LEFT_ARM.x() + 10,
+                SkinPart.LEFT_ARM.y(),
+                SkinPart.LEFT_ARM.x() + 10 + 1,
+                SkinPart.LEFT_ARM.y() + 3,
+                // arm
+                SkinPart.LEFT_ARM.x() + 14,
+                SkinPart.LEFT_ARM.y() + 4,
+                SkinPart.LEFT_ARM.x() + 15,
+                SkinPart.LEFT_ARM.y() + 15,
+                // hand and shoulder
+                SkinPart.RIGHT_ARM.x() + 10,
+                SkinPart.RIGHT_ARM.y(),
+                SkinPart.RIGHT_ARM.x() + 10 + 1,
+                SkinPart.RIGHT_ARM.y() + 3,
+                // arm
+                SkinPart.RIGHT_ARM.x() + 14,
+                SkinPart.RIGHT_ARM.y() + 4,
+                SkinPart.RIGHT_ARM.x() + 15,
+                SkinPart.RIGHT_ARM.y() + 15
+        };
+
+        for (int i = 0; i != formatRectangles.length; i += 4) {
+            for (int j = formatRectangles[i]; j != formatRectangles[i + 2]; j++) {
+                for (int k = formatRectangles[i + 1]; k != formatRectangles[i + 3]; k++) {
+                    if (hasPixel(j, k, skin)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean hasPixel(int x, int y, BufferedImage skin) {
+        return hasPixel(1, x, y, skin);
+    }
+
+    public static boolean hasPixel(int scale, int x, int y, BufferedImage skin) {
+        int color = skin.getRGB(x * scale, y * scale);
         int alpha = new Color(color, true).getAlpha();
-        return alpha == 0;
+        return alpha != 0;
     }
 
     // TODO:

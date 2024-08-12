@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "testmod",
+  "version": "${version}",
+  "name": ":)",
+  "description": "FZMM TEST",
+  "authors": [
+    "Zailer43"
+  ],
+  "license": "Unlicense",
+  "icon": "assets/testmod/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "me.zailer.testmod.client.TestClient"
+    ]
+  },
+  "mixins": [
+    "testmod.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "fzmm": "*"
+  }
+}

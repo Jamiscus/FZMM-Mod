@@ -261,7 +261,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         SkinPreEditOption skinPreEditOption = this.skinPreEdit();
         BufferedImage selectedPreEdit = this.skinPreEdit(this.baseSkin, skinPreEditOption, compoundEntriesEditingSkinBody);
-        boolean isSlim = ImageUtils.isAlexModel(1, this.baseSkin);
+        boolean isSlim = ImageUtils.isSlimSimpleCheck(this.baseSkin);
 
         IPreviewUpdater updateAlgorithm;
         if (this.headCompoundComponentEntries.isEmpty() && FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels()) {

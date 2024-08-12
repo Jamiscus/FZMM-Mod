@@ -125,6 +125,15 @@ public class HeadComponentOverlay extends StyledFlowLayout {
     }
 
     public void saveSkinExecute(@Nullable BufferedImage skin) {
+        File skinFolder = HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile();
+        if (skinFolder.mkdirs()) {
+            FzmmClient.LOGGER.info("[HeadComponentOverlay] Skin save folder created");
+        }
+
+        saveSkinExecute(skin, ScreenshotRecorder.getScreenshotFilename(skinFolder));
+    }
+
+    public static void saveSkinExecute(@Nullable BufferedImage skin, File file) {
         ChatHud chatHud = MinecraftClient.getInstance().inGameHud.getChatHud();
         if (skin == null) {
             chatHud.addMessage(Text.translatable("fzmm.gui.headGenerator.saveSkin.thereIsNoSkin")
@@ -132,11 +141,6 @@ public class HeadComponentOverlay extends StyledFlowLayout {
             return;
         }
 
-        File skinFolder = HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile();
-        if (skinFolder.mkdirs())
-            FzmmClient.LOGGER.info("Skin save folder created");
-
-        File file = ScreenshotRecorder.getScreenshotFilename(skinFolder);
         try {
             ImageIO.write(skin, "png", file);
             MutableText fileMessage = Text.literal(file.getName())
@@ -247,7 +251,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
                 preview.flush();
                 preview = updatedSkin;
             }
-            headComponentEntry.updatePreview(preview, ImageUtils.isAlexModel(1, preview));
+            headComponentEntry.updatePreview(preview, ImageUtils.isSlimSimpleCheck(preview));
 
             if (callback != null) {
                 callback.accept(button);
@@ -317,9 +321,10 @@ public class HeadComponentOverlay extends StyledFlowLayout {
                 // resulting in the loss of this option
                 //
                 // TODO: rotate is also lost, but I haven't implemented a way to save it and then replicate it
-                if (this.selectedSkinFormat != null && ImageUtils.isAlexModel(1, baseSkin) != this.isSlimFormat) {
+                if (this.selectedSkinFormat != null && ImageUtils.isSlimSimpleCheck(baseSkin) != this.isSlimFormat) {
                     this.selectedSkinFormat.onPress();
                 }
+                baseSkin.flush();
             });
             preEditRow.child(layout);
         }
@@ -362,7 +367,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
         buttons.add(wide);
         buttons.add(slim);
 
-        if (ImageUtils.isAlexModel(1, headComponentEntry.getPreview())) {
+        if (ImageUtils.isSlimSimpleCheck(headComponentEntry.getPreview())) {
             slim.active = false;
         } else {
             wide.active = false;
