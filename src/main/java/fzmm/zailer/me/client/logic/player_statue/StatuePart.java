@@ -7,6 +7,7 @@ import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
 import fzmm.zailer.me.client.logic.player_statue.statue_head_skin.AbstractStatueSkinManager;
 import fzmm.zailer.me.client.logic.player_statue.statue_head_skin.HeadModelSkin;
 import fzmm.zailer.me.utils.HeadUtils;
+import fzmm.zailer.me.utils.SkinPart;
 import fzmm.zailer.me.utils.TagsConstant;
 import fzmm.zailer.me.utils.position.PosF;
 import net.minecraft.component.DataComponentTypes;
@@ -55,7 +56,7 @@ public class StatuePart {
         this.skinValue = DEFAULT_SKIN_VALUE;
         this.headModelSkin = HeadModelSkin.of(this.part.getDefaultHeadModel(), headModelSkin);
         this.setDirection(HorizontalDirectionOption.NORTH);
-        this.headSkin = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+        this.headSkin = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.skinManager = skinManager;
     }
 

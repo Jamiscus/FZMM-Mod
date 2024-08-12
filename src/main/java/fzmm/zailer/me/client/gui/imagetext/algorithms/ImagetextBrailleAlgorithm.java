@@ -83,14 +83,19 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     @Override
     public void cacheResizedImage(ImagetextData data) {
         if (this.colorsImage == null || this.colorsImage.getWidth() != data.width() || this.colorsImage.getHeight() != data.height()) {
+            this.clearCache();
             this.colorsImage = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
             BufferedImage upscaledImage = ImageUtils.fastResizeImage(data.image(), data.width() * BRAILLE_CHARACTER_WIDTH, data.height() * BRAILLE_CHARACTER_HEIGHT, data.smoothRescaling());
             this.grayScaleUpscaledImage = this.toGrayScale(upscaledImage);
+            upscaledImage.flush();
         }
     }
 
     @Override
     public void clearCache() {
+        if (this.colorsImage != null) {
+            this.colorsImage.flush();
+        }
         this.colorsImage = null;
         this.grayScaleUpscaledImage = null;
     }

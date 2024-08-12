@@ -1,18 +1,20 @@
 package fzmm.zailer.me.client.logic.head_generator.model;
 
+import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.head_generator.category.HeadModelCategory;
 import fzmm.zailer.me.client.gui.head_generator.category.HeadPaintableCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
+import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.*;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
-import fzmm.zailer.me.utils.ImageUtils;
-import net.minecraft.util.Identifier;
+import fzmm.zailer.me.utils.SkinPart;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class HeadModelEntry extends AbstractHeadEntry implements INestedParameters {
 
@@ -60,7 +62,8 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
 
     @Override
     public BufferedImage getHeadSkin(BufferedImage baseSkin) {
-        BufferedImage result = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage result = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        this.loadDefaultTexture();
 
         Graphics2D destinationGraphics = result.createGraphics();
 
@@ -69,6 +72,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
 
         this.apply(data, baseSkin, result);
         this.resetOffset(data.offsets());
+        this.resetTexture(data.textures());
 
         destinationGraphics.dispose();
 
@@ -146,7 +150,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
      * for existence. If it's false, a message will be displayed in the chat, and
      * it will be removed from the loaded resources.
      */
-    public boolean validate() throws IllegalArgumentException{
+    public boolean validate() throws IllegalArgumentException {
         for (var step : this.getSteps()) {
             if (!step.validate()) {
                 return false;
@@ -170,18 +174,26 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
         return this.colors == null ? new ParameterList<>() : this.colors;
     }
 
-    public void loadDefaultTexture() {
+    private void loadDefaultTexture() {
         for (var textureParameter : this.getNestedTextureParameters().parameterList()) {
-            BufferedImage texture;
+            if (textureParameter.isRequested()) {
+                continue;
+            }
+
+            BufferedImage texture = null;
             String defaultValue = textureParameter instanceof ResettableModelParameter<BufferedImage> resettableParam ?
                     resettableParam.getDefaultValue() : null;
 
             if (defaultValue != null) {
-                //TODO: HeadResourcesLoader
-                Identifier textureIdentifier = Identifier.of(defaultValue);
-                texture = ImageUtils.getBufferedImgFromIdentifier(textureIdentifier).orElseThrow(() -> new IllegalArgumentException(defaultValue));
-            } else {
-                texture = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+                Optional<BufferedImage> modelTexture = HeadResourcesLoader.getModelTexture(defaultValue);
+                texture = modelTexture.orElseGet(() -> {
+                    FzmmClient.LOGGER.warn("[HeadModelEntry] Could not find model texture '{}'", defaultValue);
+                    return null;
+                });
+            }
+
+            if (texture == null) {
+                texture = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
             }
 
             textureParameter.setValue(texture);
@@ -191,6 +203,17 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
     public void resetOffset(ParameterList<OffsetParameter> offsetParameters) {
         for (var offset : offsetParameters.parameterList()) {
             offset.value().ifPresent(OffsetParameter::reset);
+        }
+    }
+
+    public void resetTexture(ParameterList<BufferedImage> textureParameters) {
+        for (var parameter : textureParameters.parameterList()) {
+
+            if (parameter instanceof ResettableModelParameter<BufferedImage> resettableParam &&
+                    (!resettableParam.isRequested() && resettableParam.getDefaultValue() == null)
+            ) {
+                resettableParam.value().ifPresent(BufferedImage::flush);
+            }
         }
     }
 }

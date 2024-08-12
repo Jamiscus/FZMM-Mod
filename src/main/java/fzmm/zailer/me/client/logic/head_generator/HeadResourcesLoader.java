@@ -1,6 +1,7 @@
 package fzmm.zailer.me.client.logic.head_generator;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -14,6 +15,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.steps.select.ModelSelect
 import fzmm.zailer.me.client.logic.head_generator.model.steps.select.ModelSelectDestinationStep;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.select.ModelSelectTextureStep;
 import fzmm.zailer.me.client.logic.head_generator.texture.HeadTextureEntry;
+import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.core.Color;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
@@ -35,13 +37,20 @@ import java.util.function.Function;
 public class HeadResourcesLoader implements SynchronousResourceReloader, IdentifiableResourceReloadListener {
 
     private static ImmutableList<AbstractHeadEntry> LOADED_RESOURCES = ImmutableList.<AbstractHeadEntry>builder().build();
+    private static ImmutableMap<String, BufferedImage> LOADED_MODEL_TEXTURES = ImmutableMap.<String, BufferedImage>builder().build();
     public static final String HEADS_TEXTURES_FOLDER = "textures/heads";
     public static final String FZMM_MODELS_FOLDER = "fzmm_models";
     public static final String INTERNAL_FOLDER = "internal";
     public static final String INTERNAL_MODELS_FOLDER = FZMM_MODELS_FOLDER + "/" + INTERNAL_FOLDER;
 
-    public static ImmutableList<AbstractHeadEntry> getPreloaded() {
+    public static ImmutableList<AbstractHeadEntry> getAllLoaded() {
         return LOADED_RESOURCES;
+    }
+
+    public static ImmutableList<AbstractHeadEntry> getLoaded() {
+        return LOADED_RESOURCES.stream()
+                .filter(entry -> !(entry instanceof HeadModelEntry modelEntry) || !modelEntry.isInternal())
+                .collect(ImmutableList.toImmutableList());
     }
 
     public static Optional<AbstractHeadEntry> getByPath(String id) {
@@ -52,6 +61,10 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
         }
 
         return Optional.empty();
+    }
+
+    public static Optional<BufferedImage> getModelTexture(String path) {
+        return Optional.ofNullable(LOADED_MODEL_TEXTURES.get(path));
     }
 
     @Override
@@ -73,8 +86,10 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
                     .thenComparing(AbstractHeadEntry::getPath));
 
             LOADED_RESOURCES = ImmutableList.copyOf(builder);
-
             InternalModels.reload();
+
+            List<Identifier> modelTextureList = getModelTextureList(LOADED_RESOURCES);
+            LOADED_MODEL_TEXTURES = loadModelsTextures(manager, modelTextureList);
         } catch (Exception e) {
             FzmmClient.LOGGER.error("[HeadResourcesLoader] Error reloading resources", e);
         }
@@ -120,11 +135,11 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
             InputStream inputStream = null;
             try {
                 inputStream = resource.getInputStream();
-                BufferedImage nativeImage = ImageIO.read(inputStream);
+                BufferedImage bufferedImage = ImageUtils.withType(ImageIO.read(inputStream), BufferedImage.TYPE_INT_ARGB);
                 String path = identifier.getPath();
                 String fileName = path.substring(HEADS_TEXTURES_FOLDER.length() + 1, path.length() - ".png".length());
 
-                entries.add(new HeadTextureEntry(nativeImage, fileName));
+                entries.add(new HeadTextureEntry(bufferedImage, fileName));
             } catch (IOException e) {
                 FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading head generator texture", e);
             } finally {
@@ -138,6 +153,76 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
             }
         }));
         return entries;
+    }
+
+    private static ImmutableMap<String, BufferedImage> loadModelsTextures(ResourceManager manager, List<Identifier> modelTextureList) {
+        ImmutableMap.Builder<String, BufferedImage> entries = new ImmutableMap.Builder<>();
+
+        for (var modelTextureIdentifier : modelTextureList) {
+            manager.getResource(modelTextureIdentifier).ifPresentOrElse(resource -> {
+                InputStream inputStream = null;
+                try {
+                    inputStream = resource.getInputStream();
+                    BufferedImage bufferedImage = ImageUtils.withType(ImageIO.read(inputStream), BufferedImage.TYPE_INT_ARGB);
+
+                    entries.put(modelTextureIdentifier.toString(), bufferedImage);
+                } catch (IOException e) {
+                    FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading model texture", e);
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            FzmmClient.LOGGER.error("[HeadResourcesLoader] Error closing texture input stream", e);
+                        }
+                    }
+                }
+            }, () -> FzmmClient.LOGGER.warn("[HeadResourcesLoader] Error loading model texture: {}", modelTextureIdentifier.toString()));
+        }
+
+        return entries.build();
+    }
+
+    private static List<Identifier> getModelTextureList(List<AbstractHeadEntry> builder) {
+        List<Identifier> result = new ArrayList<>();
+
+        for (var entry : builder) {
+            if (!(entry instanceof HeadModelEntry modelEntry)) {
+                continue;
+            }
+
+            try {
+                addTexturePathsFromModelEntry(result, modelEntry);
+            } catch (IllegalArgumentException ignored) {
+                FzmmClient.LOGGER.error("[HeadResourcesLoader] Error loading textures of model '{}'", modelEntry.getKey());
+            }
+        }
+
+        return result.stream().distinct().toList();
+    }
+
+    private static void addTexturePathsFromModelEntry(List<Identifier> result, HeadModelEntry modelEntry) {
+        List<IParameterEntry<BufferedImage>> parameterList = modelEntry.getNestedTextureParameters().parameterList();
+
+        for (var parameter : parameterList) {
+            addTexturePathFromParameter(result, parameter);
+        }
+    }
+
+    private static void addTexturePathFromParameter(List<Identifier> result, IParameterEntry<BufferedImage> parameter) {
+        if (!(parameter instanceof ResettableModelParameter<?> resettableParam)) {
+            return;
+        }
+        String defaultValue = resettableParam.getDefaultValue();
+
+        if (defaultValue == null) {
+            return;
+        }
+        Identifier value = Identifier.tryParse(defaultValue);
+
+        if (value != null) {
+            result.add(value);
+        }
     }
 
     /**

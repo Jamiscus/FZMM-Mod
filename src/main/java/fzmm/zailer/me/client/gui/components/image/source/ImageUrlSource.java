@@ -18,6 +18,9 @@ public class ImageUrlSource implements IImageLoaderFromText {
 
     @Override
     public ImageStatus loadImage(String value) {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = null;
         try {
             if (value.isEmpty())
