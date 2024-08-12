@@ -105,7 +105,7 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
     }
 
     public void update(BufferedImage baseSkin) {
-        this.update(baseSkin, ImageUtils.isAlexModel(1, baseSkin));
+        this.update(baseSkin, ImageUtils.isSlimSimpleCheck(baseSkin));
     }
 
     public void update(BufferedImage baseSkin, boolean isSlim) {

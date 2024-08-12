@@ -3,6 +3,9 @@ package fzmm.zailer.me.client.logic.head_generator.texture;
 import fzmm.zailer.me.client.gui.head_generator.category.HeadTextureCategory;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.client.logic.head_generator.TextureOverlap;
+import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
+import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
+import fzmm.zailer.me.utils.ImageUtils;
 import fzmm.zailer.me.utils.SkinPart;
 
 import java.awt.image.BufferedImage;
@@ -14,7 +17,7 @@ public class HeadTextureEntry extends AbstractHeadEntry {
 
     /**
      * @param headSkin the skin of the head, this is where the hat, glasses, beard, hair or whatever is,
-     *                should not be confused with the base skin (the one to which this skin is applied on top)
+     *                 should not be confused with the base skin (the one to which this skin is applied on top)
      */
     public HeadTextureEntry(BufferedImage headSkin, String path) {
         super(path);
@@ -24,7 +27,22 @@ public class HeadTextureEntry extends AbstractHeadEntry {
 
     @Override
     public BufferedImage getHeadSkin(BufferedImage baseSkin) {
-        return new TextureOverlap(baseSkin).addTexture(this.headSkin).getHeadTexture();
+        TextureOverlap textureOverlap = new TextureOverlap(baseSkin);
+
+        // fixes skin formatting inconsistencies
+        if (this.isEditingSkinBody() &&
+                (ImageUtils.isSlimSimpleCheck(baseSkin) != ImageUtils.isSlimFullCheck(this.headSkin))) {
+            HeadModelEntry formatUpdater = ImageUtils.isSlimSimpleCheck(baseSkin) ?
+                    InternalModels.WIDE_TO_SLIM : InternalModels.SLIM_TO_WIDE;
+
+            BufferedImage adaptedHeadSkin = formatUpdater.getHeadSkin(this.headSkin);
+            textureOverlap.addTexture(adaptedHeadSkin);
+            adaptedHeadSkin.flush();
+        } else {
+            textureOverlap.addTexture(this.headSkin);
+        }
+
+        return textureOverlap.getHeadTexture();
     }
 
     @Override
@@ -37,7 +55,7 @@ public class HeadTextureEntry extends AbstractHeadEntry {
         return this.isEditingSkinBody;
     }
 
-        @Override
+    @Override
     public boolean isFirstResult() {
         return false;
     }
@@ -59,7 +77,7 @@ public class HeadTextureEntry extends AbstractHeadEntry {
     private boolean calculateIsEditingSkinBody(int width, int height, int x, int y) {
         for (int yOffset = 0; yOffset < height; yOffset++) {
             for (int xOffset = 0; xOffset < width; xOffset++) {
-                if (this.headSkin.getRGB(x + xOffset, y + yOffset) != 0)
+                if (ImageUtils.hasPixel(1, x + xOffset, y + yOffset, this.headSkin))
                     return true;
             }
         }

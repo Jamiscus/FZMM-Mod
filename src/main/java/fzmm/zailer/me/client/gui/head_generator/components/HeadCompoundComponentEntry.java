@@ -52,7 +52,7 @@ public class HeadCompoundComponentEntry extends AbstractHeadComponentEntry {
             button.mouseLeave().subscribe(() -> this.mouseLeaveEvents.sink().onMouseLeave());
         }
         this.parent = parentLayout;
-        this.updatePreview(initialPreview, ImageUtils.isAlexModel(1, initialPreview));
+        this.updatePreview(initialPreview, ImageUtils.isSlimSimpleCheck(initialPreview));
     }
 
     @Override
