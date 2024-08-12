@@ -25,6 +25,9 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
 
     @Override
     public void execute(Consumer<BufferedImage> consumer) {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = null;
         this.consumer = consumer;
         MinecraftClient client = MinecraftClient.getInstance();
@@ -63,6 +66,9 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
     }
 
     public void setImage(BufferedImage image) {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = image;
         this.consumer.accept(this.image);
 

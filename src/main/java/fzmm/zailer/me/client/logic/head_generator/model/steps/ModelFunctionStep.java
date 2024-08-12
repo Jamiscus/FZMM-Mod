@@ -88,7 +88,10 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
         data.offsets().put(functionData.offsets());
     }
 
-    public static Optional<HeadModelEntry> getFunction(String functionPath) {
+    /**
+     * @throws IllegalArgumentException if the function is not found
+     */
+    public static Optional<HeadModelEntry> getFunction(String functionPath) throws IllegalArgumentException {
         AbstractHeadEntry functionEntry = HeadResourcesLoader.getByPath(functionPath).orElseThrow(() -> {
             String message = String.format("[ModelFunctionStep] Could not find function step '%s'", functionPath);
             FzmmClient.LOGGER.error(message);
@@ -140,6 +143,9 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
         return this.colors == null ? new ParameterList<>() : this.colors;
     }
 
+    /**
+     * @throws IllegalArgumentException if the function is not found
+     */
     @Override
     public List<IModelStep> getSteps() {
         Optional<HeadModelEntry> functionOptional = getFunction(this.functionPath);

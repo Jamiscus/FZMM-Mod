@@ -144,7 +144,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
             chatHud.addMessage(Text.translatable("fzmm.gui.headGenerator.saveSkin.saved", fileMessage)
                     .setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
         } catch (IOException e) {
-            FzmmClient.LOGGER.error("Unexpected error saving the skin", e);
+            FzmmClient.LOGGER.error("[HeadComponentOverlay] Unexpected error saving the skin", e);
             chatHud.addMessage(Text.translatable("fzmm.gui.headGenerator.saveSkin.saveError")
                     .setStyle(Style.EMPTY.withColor(Formatting.RED)));
         }
@@ -241,11 +241,13 @@ public class HeadComponentOverlay extends StyledFlowLayout {
                                            int amount, int iconV, @Nullable Consumer<ButtonComponent> callback) {
         Icon icon = Icon.of(FzmmIcons.TEXTURE, 64, iconV, 256, 256);
         ButtonComponent result = Components.button(Text.empty(), button -> {
-            BufferedImage updatedSkin = headComponentEntry.getPreview();
+            BufferedImage preview = headComponentEntry.getPreview();
             for (int i = 0; i < amount; i++) {
-                updatedSkin = modelEntry.getHeadSkin(updatedSkin);
+                BufferedImage updatedSkin = modelEntry.getHeadSkin(preview);
+                preview.flush();
+                preview = updatedSkin;
             }
-            headComponentEntry.updatePreview(updatedSkin, ImageUtils.isAlexModel(1, updatedSkin));
+            headComponentEntry.updatePreview(preview, ImageUtils.isAlexModel(1, preview));
 
             if (callback != null) {
                 callback.accept(button);

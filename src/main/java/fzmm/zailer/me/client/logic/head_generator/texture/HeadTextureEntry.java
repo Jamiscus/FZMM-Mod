@@ -43,7 +43,7 @@ public class HeadTextureEntry extends AbstractHeadEntry {
     }
 
     private boolean calculateIsEditingSkinBody() {
-        if (this.headSkin.getWidth() != 64 || this.headSkin.getHeight() != 64)
+        if (this.headSkin.getWidth() != SkinPart.MAX_WIDTH || this.headSkin.getHeight() != SkinPart.MAX_HEIGHT)
             return false;
 
 

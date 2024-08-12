@@ -25,7 +25,6 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
-import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.utils.*;
 import fzmm.zailer.me.utils.list.IListEntry;
@@ -104,7 +103,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     protected void setupButtonsCallbacks(FlowLayout rootComponent) {
         this.headComponentEntries = new ArrayList<>();
         this.headCompoundComponentEntries = new ArrayList<>();
-        this.baseSkin = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+        this.baseSkin = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.gridBaseSkinOriginalBody = this.baseSkin;
         this.gridBaseSkinEditedBody = this.baseSkin;
         //general
@@ -229,7 +228,9 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             return;
         }
 
-        List<HeadComponentEntry> headComponentList = this.getHeadComponents(HeadResourcesLoader.getPreloaded());
+        List<HeadComponentEntry> headComponentList = HeadResourcesLoader.getLoaded().stream()
+                .map(entry -> new HeadComponentEntry(entry, this))
+                .toList();
 
         if (headComponentList.isEmpty()) {
             this.addNoResultsMessage(rootComponent);
@@ -238,25 +239,6 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         this.headComponentEntries.addAll(headComponentList);
         this.applyFilters();
-    }
-
-    private List<HeadComponentEntry> getHeadComponents(List<AbstractHeadEntry> headEntriesList) {
-        List<HeadComponentEntry> headEntries = new ArrayList<>();
-
-        for (AbstractHeadEntry entry : headEntriesList) {
-            HeadComponentEntry headComponentEntry = new HeadComponentEntry(entry, this);
-
-            if (entry instanceof HeadModelEntry modelEntry) {
-                modelEntry.loadDefaultTexture();
-                if (!modelEntry.isInternal()) {
-                    headEntries.add(headComponentEntry);
-                }
-            } else {
-                headEntries.add(headComponentEntry);
-            }
-        }
-
-        return headEntries;
     }
 
     private void addNoResultsMessage(FlowLayout parent) {
@@ -313,6 +295,8 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         scheduler.schedule(() -> {
             scheduler.shutdownNow();
+            selectedPreEdit.flush();
+            algorithmPreEdit.flush();
         }, (this.headComponentEntries.size() + 2) * HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS);
     }
 
@@ -321,7 +305,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     }
 
     public BufferedImage skinPreEdit(BufferedImage preview, SkinPreEditOption skinPreEditOption, boolean editBody) {
-        BufferedImage result = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage result = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         result = skinPreEditOption.getPreEdit().execute(result, preview, List.of(SkinPart.HEAD));
         result = (editBody ? skinPreEditOption : SkinPreEditOption.NONE).getPreEdit().execute(result, preview, SkinPart.BODY_PARTS);
 

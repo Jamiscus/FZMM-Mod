@@ -21,6 +21,9 @@ public class ImageFileDialogSource implements IInteractiveImageLoader {
 
     @Override
     public void execute(Consumer<BufferedImage> consumer) {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = null;
 
         CompletableFuture.runAsync(() -> {

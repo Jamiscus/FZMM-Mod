@@ -64,12 +64,16 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     @Override
     public void cacheResizedImage(ImagetextData data) {
         if (this.image == null || this.image.getWidth() != data.width() || this.image.getHeight() != data.height()) {
+            this.clearCache();
             this.image = ImageUtils.fastResizeImage(data.image(), data.width(), data.height(), data.smoothRescaling());
         }
     }
 
     @Override
     public void clearCache() {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = null;
     }
 

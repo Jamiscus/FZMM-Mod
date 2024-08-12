@@ -80,6 +80,10 @@ public class ImageButtonComponent extends ButtonComponent {
             MinecraftClient.getInstance().execute(() -> this.active = true);
             toast.get().setResponse(status);
 
+            if (this.image != null) {
+                this.image.flush();
+            }
+
             this.image = image.orElse(null);
             return status;
         }).thenAccept(status -> {
@@ -90,6 +94,9 @@ public class ImageButtonComponent extends ButtonComponent {
 
     public void interactiveImageLoad(IInteractiveImageLoader interactiveImageLoader) {
         interactiveImageLoader.execute(bufferedImage -> {
+            if (this.image != null) {
+                this.image.flush();
+            }
             this.image = bufferedImage;
 
             this.active = true;
@@ -112,6 +119,9 @@ public class ImageButtonComponent extends ButtonComponent {
     }
 
     public void setImage(@Nullable BufferedImage image) {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = image;
     }
 }

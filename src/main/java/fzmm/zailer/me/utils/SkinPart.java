@@ -6,6 +6,8 @@ import fzmm.zailer.me.utils.position.PosI;
 import java.util.List;
 
 public record SkinPart(byte x, byte y, byte hatX, byte hatY, byte width, byte height) {
+    public static final int MAX_WIDTH = 64;
+    public static final int MAX_HEIGHT = 64;
 
     // https://imgur.com/3LlJdua
     public static final SkinPart RIGHT_LEG = new SkinPart((byte) 16, (byte) 48, (byte) 0, (byte) 48, (byte) 16, (byte) 16);
