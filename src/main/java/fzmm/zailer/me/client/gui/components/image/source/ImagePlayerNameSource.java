@@ -24,6 +24,9 @@ public class ImagePlayerNameSource implements IImageLoaderFromText, IImageSugges
 
     @Override
     public ImageStatus loadImage(String value) {
+        if (this.image != null) {
+            this.image.flush();
+        }
         this.image = null;
 
         try {

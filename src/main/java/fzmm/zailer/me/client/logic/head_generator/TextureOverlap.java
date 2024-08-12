@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.util.List;
 
 public final class TextureOverlap {
-    private final BufferedImage image = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+    private final BufferedImage image = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
     public TextureOverlap(@NotNull BufferedImage skin) {
         this.addTexture(skin);

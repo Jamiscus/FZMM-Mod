@@ -3,31 +3,18 @@ package fzmm.zailer.me.utils;
 import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.resource.Resource;
-import net.minecraft.util.Identifier;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 
 public class ImageUtils {
-
-    public static Optional<BufferedImage> getBufferedImgFromIdentifier(Identifier identifier) {
-        try {
-            Optional<Resource> imageResource = MinecraftClient.getInstance().getResourceManager().getResource(identifier);
-            return imageResource.isEmpty() ? Optional.empty() : Optional.of(ImageIO.read(imageResource.get().getInputStream()));
-        } catch (IOException ignored) {
-            return Optional.empty();
-        }
-    }
 
     public static BufferedImage getBufferedImgFromNativeImg(NativeImage nativeImage) {
         int width = nativeImage.getWidth();
@@ -56,7 +43,7 @@ public class ImageUtils {
         return skin;
     }
 
-        public static Optional<BufferedImage> getImageFromUrl(String urlLocation) throws IOException {
+    public static Optional<BufferedImage> getImageFromUrl(String urlLocation) throws IOException {
         URL url = URI.create(urlLocation).toURL();
         return Optional.ofNullable(ImageIO.read(url));
     }
@@ -69,7 +56,9 @@ public class ImageUtils {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
 
-                // avoid using image.getRGB(x, y) to pack in argb, to unpack it, to pack it in abgr
+                // avoid using image.getRGB(x, y) because it will result in packing
+                // in ARGB format, and then it would have to unpack it to repack
+                // it in ABGR format. By avoiding this, it can directly pack in ABGR format
                 Object elements = image.getRaster().getDataElements(x, y, null);
 
                 int abgr = (colorModel.getAlpha(elements) << 24) |
@@ -81,6 +70,17 @@ public class ImageUtils {
             }
         }
         return nativeImage;
+    }
+
+    public static BufferedImage withType(BufferedImage image, int type) {
+        BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), type);
+
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+
+        image.flush();
+        return newImage;
     }
 
     public static boolean isEquals(BufferedImage image1, BufferedImage image2) {

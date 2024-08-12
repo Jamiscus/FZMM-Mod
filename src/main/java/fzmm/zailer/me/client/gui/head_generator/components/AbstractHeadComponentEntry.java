@@ -10,6 +10,7 @@ import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.head_generator.HeadGeneratorScreen;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.utils.ImageUtils;
+import fzmm.zailer.me.utils.SkinPart;
 import fzmm.zailer.me.utils.list.IListEntry;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.EntityComponent;
@@ -108,15 +109,18 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
     }
 
     public void update(BufferedImage baseSkin, boolean isSlim) {
-        this.close();
-
         if (this.updateHead(baseSkin)) {
             this.updatePreview(isSlim);
+        } else {
+            this.close();
         }
     }
 
     public boolean updateHead(BufferedImage baseSkin) {
         try {
+            if (this.previewHead != null) {
+                this.previewHead.flush();
+            }
             this.previewHead = this.entry.getHeadSkin(baseSkin);
         } catch (Exception e) {
             FzmmClient.LOGGER.error("[AbstractHeadListEntry] Failed to update preview skin of '{}'", this.entry.getKey(), e);
@@ -129,7 +133,6 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
     public void updatePreview(boolean isSlim) {
         if (this.previewHead != null) {
             this.updatePreview(this.previewHead, isSlim);
-            this.previewHead = null;
         }
     }
 
@@ -156,11 +159,18 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
     }
 
     public void close() {
-        if (this.previewTexture == null)
+        if (this.previewTexture == null) {
             return;
+        }
 
         this.previewTexture.close();
         this.previewTexture = null;
+
+        if (this.previewHead == null) {
+            return;
+        }
+
+        this.previewHead.flush();
         this.previewHead = null;
     }
 
@@ -168,7 +178,7 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
         NativeImage nativeImage = this.previewTexture.getImage();
         if (nativeImage == null) {
             FzmmClient.LOGGER.warn("[AbstractHeadListEntry] Failed to get preview image for {}", this.entry.getDisplayName().getString());
-            return new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
+            return new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         }
 
         return ImageUtils.getBufferedImgFromNativeImg(nativeImage);

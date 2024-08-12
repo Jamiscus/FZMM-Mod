@@ -113,6 +113,9 @@ public class ScreenshotSource implements IInteractiveImageLoader {
             BufferedImage scaled = screenshot.getSubimage(width / 2 - halfLongerSide, height / 2 - halfLongerSide, smallerSide, smallerSide);
             BufferedImage finalImage = this.removePadding(scaled);
 
+            screenshot.flush();
+            scaled.flush();
+
             this.setImage(finalImage);
         } catch (IOException e) {
             FzmmClient.LOGGER.error("Unexpected error loading an image", e);
