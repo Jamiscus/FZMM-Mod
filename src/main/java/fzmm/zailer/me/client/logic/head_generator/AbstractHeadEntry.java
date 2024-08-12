@@ -25,9 +25,14 @@ public abstract class AbstractHeadEntry {
         String[] folders = path.split("/");
         String fileName = folders.length != 0 ? folders[folders.length - 1] : path;
 
-        String displayName = fileName.replaceAll("_", " ");
-        String firstCharacter = String.valueOf(displayName.charAt(0));
-        return displayName.replaceFirst(firstCharacter, firstCharacter.toUpperCase());
+        String displayName = fileName.substring(0, 1).toUpperCase() + fileName.substring(1);
+
+        // If the fileName ends with a number and not have space before it, add a space before it
+        if (fileName.matches(".*[0-9]+$") && !fileName.matches(".* [0-9]+$")){
+            displayName = displayName.replaceFirst("([0-9]+$)", " $1");
+        }
+
+        return displayName.replaceAll("_", " ");
     }
 
     public Text getDisplayName() {
