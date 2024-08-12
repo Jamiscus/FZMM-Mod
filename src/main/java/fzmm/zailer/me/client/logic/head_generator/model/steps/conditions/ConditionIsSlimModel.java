@@ -6,6 +6,6 @@ import fzmm.zailer.me.utils.ImageUtils;
 public class ConditionIsSlimModel implements ICondition{
     @Override
     public boolean predicate(ModelData data) {
-        return ImageUtils.isAlexModel(1, data.selectedTexture());
+        return ImageUtils.isSlimSimpleCheck(data.selectedTexture());
     }
 }

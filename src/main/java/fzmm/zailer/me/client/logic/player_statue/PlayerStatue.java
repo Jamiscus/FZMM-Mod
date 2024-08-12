@@ -48,7 +48,7 @@ public class PlayerStatue {
         this.statueList.clear();
 
         int scale = this.getSkinScale();
-        if (FzmmClient.CONFIG.playerStatue.convertSkinWithAlexModelInSteveModel() && ImageUtils.isAlexModel(scale, this.playerSkin))
+        if (FzmmClient.CONFIG.playerStatue.convertSkinWithAlexModelInSteveModel() && ImageUtils.isSlimSimpleCheck(this.playerSkin, scale))
             this.playerSkin = ImageUtils.convertInSteveModel(this.playerSkin, scale);
 
         HeadModelSkin empty = new HeadModelSkin();
