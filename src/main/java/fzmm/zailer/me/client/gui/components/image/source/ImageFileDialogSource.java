@@ -25,8 +25,9 @@ public class ImageFileDialogSource implements IInteractiveImageLoader {
 
         CompletableFuture.runAsync(() -> {
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                PointerBuffer filterPatterns = stack.mallocPointer(4);
+                PointerBuffer filterPatterns = stack.mallocPointer(5);
                 filterPatterns.put(stack.UTF8("*.jpg"))
+                        .put(stack.UTF8("*.jpeg"))
                         .put(stack.UTF8("*.png"))
                         .put(stack.UTF8("*.gif"))
                         .put(stack.UTF8("*.bmp"));
