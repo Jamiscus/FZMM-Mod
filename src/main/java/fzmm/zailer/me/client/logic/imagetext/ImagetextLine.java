@@ -11,8 +11,9 @@ import java.util.List;
 
 public class ImagetextLine {
     public static final String DEFAULT_TEXT = "█";
-    private final ArrayList<ImagetextLineComponent> line;
-    private final List<String> charactersToUse;
+    private static final Style WITHOUT_ITALIC = Style.EMPTY.withItalic(false);
+    private final List<ImagetextLineComponent> line;
+    private final String[] charactersToUse;
     private final boolean isDefaultText;
     private final double percentageOfSimilarityToCompress;
     private final int splitLineEvery;
@@ -22,7 +23,7 @@ public class ImagetextLine {
 
     public ImagetextLine(String charactersToUse, double percentageOfSimilarityToCompress, int splitLineEvery) {
         this.line = new ArrayList<>();
-        this.charactersToUse = FzmmUtils.splitMessage(charactersToUse);
+        this.charactersToUse = FzmmUtils.splitMessage(charactersToUse).toArray(new String[0]);
         this.isDefaultText = charactersToUse.equals(DEFAULT_TEXT);
         this.percentageOfSimilarityToCompress = percentageOfSimilarityToCompress;
         this.splitLineEvery = splitLineEvery;
@@ -44,20 +45,20 @@ public class ImagetextLine {
 
     public void generateLine() {
         List<MutableText> lineList = new ArrayList<>();
-        MutableText line = Text.empty().setStyle(Style.EMPTY.withItalic(false));
+        MutableText line = Text.empty().setStyle(WITHOUT_ITALIC);
         short lineIndex = 0;
 
         int lineComponentSize = this.line.size();
         for (int i = 0; i != lineComponentSize; i++) {
             ImagetextLineComponent lineComponent = this.line.get(i);
-            short repetitions = (short) lineComponent.getRepetitions();
+            short repetitions = lineComponent.getRepetitions();
             Text lineComponentText = lineComponent.getText(this.charactersToUse, lineIndex, this.isDefaultText);
             lineIndex += repetitions;
             line.append(lineComponentText);
 
             if (this.shouldSplitLine(lineIndex)) {
                 lineList.add(line);
-                line = Text.empty().setStyle(Style.EMPTY.withItalic(false));
+                line = Text.empty().setStyle(WITHOUT_ITALIC);
             } else if (lineComponentSize - 1 == i) {
                 lineList.add(line);
             }

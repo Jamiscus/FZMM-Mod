@@ -5,11 +5,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 import java.awt.*;
-import java.util.List;
 
 public final class ImagetextLineComponent {
     private final int pixelColor;
-    private int repetitions;
+    private short repetitions;
 
     public ImagetextLineComponent(int pixelColor) {
         this.pixelColor = pixelColor;
@@ -53,17 +52,12 @@ public final class ImagetextLineComponent {
         return Math.abs(n - n2);
     }
 
-    public int getColor() {
-        return this.pixelColor;
-    }
-
-    public int getRepetitions() {
+    public short getRepetitions() {
         return this.repetitions;
     }
 
-    public Text getText(List<String> charactersToUse, int lineIndex, boolean isDefaultText) {
-        int color = this.getColor();
-        int alpha = (color >> 24) & 0xFF;
+    public Text getText(String[] charactersToUse, int lineIndex, boolean isDefaultText) {
+        int alpha = (this.pixelColor >> 24) & 0xFF;
         return isDefaultText && alpha < 128 ? this.getEmptyText() : this.getText(charactersToUse, lineIndex);
     }
 
@@ -72,7 +66,7 @@ public final class ImagetextLineComponent {
         return Text.literal(spaceString + Formatting.BOLD + spaceString + Formatting.RESET);
     }
 
-    private Text getText(List<String> charactersToUse, int lineIndex) {
+    private Text getText(String[] charactersToUse, int lineIndex) {
         StringBuilder textStrBuilder = new StringBuilder();
         int colorRGB = this.pixelColor & 0x00FFFFFF;
 
@@ -83,7 +77,7 @@ public final class ImagetextLineComponent {
         return Text.literal(textStrBuilder.toString()).setStyle(Style.EMPTY.withColor(colorRGB));
     }
 
-    private String getCharacter(List<String> charactersToUse, int index) {
-        return charactersToUse.get(index % charactersToUse.size());
+    private String getCharacter(String[] charactersToUse, int index) {
+        return charactersToUse[index % charactersToUse.length];
     }
 }

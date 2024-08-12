@@ -297,8 +297,11 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
             this.scheduledUpdatePreview = null;
         }
 
+        // FIXME: frequent updating of the preview consumes a significant amount of memory,
+        //  leading to frequent garbage collection calls and resulting in noticeable latency spikes
+        int delay = FzmmClient.CONFIG.imagetext.previewUpdateDelayInMillis();
         this.scheduledUpdatePreview = CompletableFuture.runAsync(() -> this.updatePreview(false),
-                CompletableFuture.delayedExecutor(5, TimeUnit.MILLISECONDS)
+                CompletableFuture.delayedExecutor(delay, TimeUnit.MILLISECONDS)
         );
     }
 
@@ -340,7 +343,9 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
         IImagetextAlgorithm algorithm = (IImagetextAlgorithm) this.algorithmsTabs.get(selectedAlgorithm.getId());
         ImagetextData data = new ImagetextData(image, width, height, smoothScaling, percentageOfSimilarityToCompress);
+        long startTime = System.currentTimeMillis();
         this.getTab(selectedMode, IImagetextTab.class).generate(algorithm, this.imagetextLogic, data, isExecute);
+        FzmmClient.LOGGER.warn("Time: {}", System.currentTimeMillis() - startTime);
 
         if (showResolution) {
             this.imagetextLogic.addResolution();
