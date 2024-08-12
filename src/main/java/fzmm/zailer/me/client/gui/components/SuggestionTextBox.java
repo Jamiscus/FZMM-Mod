@@ -232,7 +232,8 @@ public class SuggestionTextBox extends FontTextBoxComponent {
     }
 
     private int getSuggestionsHeight(int lines) {
-        return (int) (SUGGESTION_HEIGHT * (lines + 0.5f));
+        float totalLines = lines + (this.maxSuggestionLines > lines ? 0f : 0.5f);
+        return (int) (SUGGESTION_HEIGHT * totalLines);
     }
 
     private void updateSuggestionsPos() {
@@ -244,9 +245,12 @@ public class SuggestionTextBox extends FontTextBoxComponent {
             case TOP -> -this.getMaxSuggestionsHeight(this.suggestionsLayout.children().size());
             case BOTTOM -> this.height();
         };
+        int x = this.x();
+        int y = this.y();
 
         assert this.suggestionsContextMenu != null;
-        this.suggestionsContextMenu.positioning(Positioning.absolute(this.x(), this.y() + offset));
+        this.suggestionsContextMenu.updateX(x);
+        this.suggestionsContextMenu.updateY(y + offset);
     }
 
     @Override
