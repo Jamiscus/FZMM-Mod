@@ -63,7 +63,10 @@ public class InventoryUtils {
     public static List<ItemStack> getItemsFromContainer(ItemStack container) {
         List<ItemStack> items = new ArrayList<>();
 
-        NbtCompound blockEntityTag = container.getOrCreateSubNbt(TagsConstant.BLOCK_ENTITY);
+        if (!container.hasNbt())
+            return items;
+
+        NbtCompound blockEntityTag = container.getOrCreateNbt().copy().getCompound(TagsConstant.BLOCK_ENTITY);
         if (blockEntityTag.contains(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.LIST_TYPE)) {
             NbtList itemsTag = blockEntityTag.getList(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.COMPOUND_TYPE);
 

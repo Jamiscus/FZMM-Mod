@@ -119,7 +119,7 @@ public class StatuePart {
     public static boolean isStatue(ItemStack stack) {
         if (!stack.hasNbt())
             return false;
-        NbtCompound fzmmTag = stack.getOrCreateSubNbt(TagsConstant.FZMM);
+        NbtCompound fzmmTag = stack.getOrCreateNbt().copy().getCompound(TagsConstant.FZMM);
 
         if (!fzmmTag.contains(TagsConstant.FZMM_PLAYER_STATUE, NbtElement.COMPOUND_TYPE))
             return false;
