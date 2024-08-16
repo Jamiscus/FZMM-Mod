@@ -64,37 +64,37 @@ public class PlayerStatue {
         HeadModelSkin leftBottom = new HeadModelSkin(HeadFace.HEAD_FACE.BOTTOM_FACE, HeadFace.HEAD_FACE.LEFT_FACE);
         HeadModelSkin rightBottom = new HeadModelSkin(HeadFace.HEAD_FACE.BOTTOM_FACE, HeadFace.HEAD_FACE.RIGHT_FACE);
 
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_LEG, "Left bottom leg", 0, leftBottom, 0, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_LEG, AbstractStatueSkinManager.Height.LOWER)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_LEG, "Left middle leg", 1, left, -2, 0, 1, new ExtremitySkinManager(SkinPart.LEFT_LEG, AbstractStatueSkinManager.Height.MIDDLE)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_LEG, "Left top leg", 2, left, 2, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_LEG, AbstractStatueSkinManager.Height.UPPER)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_BODY, "Left bottom body", 3, empty, -1, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.LOWER, true)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_BODY, "Left middle body", 4, empty, 1, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.MIDDLE, true)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_BODY, "Left top body", 5, top, -1, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.UPPER, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_LEG, "Right bottom leg", 0, leftBottom, 0, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_LEG, AbstractStatueSkinManager.Height.LOWER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_LEG, "Right middle leg", 1, left, -2, 0, 1, new ExtremitySkinManager(SkinPart.LEFT_LEG, AbstractStatueSkinManager.Height.MIDDLE)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_LEG, "Right top leg", 2, left, 2, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_LEG, AbstractStatueSkinManager.Height.UPPER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_BODY, "Right bottom body", 3, empty, -1, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.LOWER, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_BODY, "Right middle body", 4, empty, 1, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.MIDDLE, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_BODY, "Right top body", 5, top, -1, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.UPPER, true)));
 
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_LEG, "Right bottom leg", 0, rightBottom, -1, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_LEG, AbstractStatueSkinManager.Height.LOWER)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_LEG, "Right middle leg", 1, right, 1, 0, -1, new ExtremitySkinManager(SkinPart.RIGHT_LEG, AbstractStatueSkinManager.Height.MIDDLE)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_LEG, "Right top leg", 2, right, -2, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_LEG, AbstractStatueSkinManager.Height.UPPER)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_BODY, "Right bottom body", 3, empty, 0, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.LOWER, false)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_BODY, "Right middle body", 4, empty, -2, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.MIDDLE, false)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_BODY, "Right top body", 5, top, 0, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.UPPER, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_LEG, "Left bottom leg", 0, rightBottom, -1, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_LEG, AbstractStatueSkinManager.Height.LOWER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_LEG, "Left middle leg", 1, right, 1, 0, -1, new ExtremitySkinManager(SkinPart.RIGHT_LEG, AbstractStatueSkinManager.Height.MIDDLE)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_LEG, "Left top leg", 2, right, -2, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_LEG, AbstractStatueSkinManager.Height.UPPER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_BODY, "Left bottom body", 3, empty, 0, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.LOWER, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_BODY, "Left middle body", 4, empty, -2, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.MIDDLE, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_BODY, "Left top body", 5, top, 0, 0, 0, new BodySkinManager(AbstractStatueSkinManager.Height.UPPER, false)));
 
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_ARM, "Left bottom arm", 3, bottom, 0, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_ARM, AbstractStatueSkinManager.Height.LOWER)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_ARM, "Left middle arm", 4, empty, -2, 0, 1, new ExtremitySkinManager(SkinPart.LEFT_ARM, AbstractStatueSkinManager.Height.MIDDLE)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_ARM, "Left top arm", 5, top, 0, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_ARM, AbstractStatueSkinManager.Height.UPPER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_ARM, "Right bottom arm", 3, bottom, 0, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_ARM, AbstractStatueSkinManager.Height.LOWER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_ARM, "Right middle arm", 4, empty, -2, 0, 1, new ExtremitySkinManager(SkinPart.LEFT_ARM, AbstractStatueSkinManager.Height.MIDDLE)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_ARM, "Right top arm", 5, top, 0, 0, 0, new ExtremitySkinManager(SkinPart.LEFT_ARM, AbstractStatueSkinManager.Height.UPPER)));
 
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_ARM, "Right bottom arm", 3, bottom, -1, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_ARM, AbstractStatueSkinManager.Height.LOWER)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_ARM, "Right middle arm", 4, empty, 1, 0, -1, new ExtremitySkinManager(SkinPart.RIGHT_ARM, AbstractStatueSkinManager.Height.MIDDLE)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_ARM, "Right top arm", 5, top, -1, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_ARM, AbstractStatueSkinManager.Height.UPPER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_ARM, "Left bottom arm", 3, bottom, -1, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_ARM, AbstractStatueSkinManager.Height.LOWER)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_ARM, "Left middle arm", 4, empty, 1, 0, -1, new ExtremitySkinManager(SkinPart.RIGHT_ARM, AbstractStatueSkinManager.Height.MIDDLE)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_ARM, "Left top arm", 5, top, -1, 0, 0, new ExtremitySkinManager(SkinPart.RIGHT_ARM, AbstractStatueSkinManager.Height.UPPER)));
 
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_FRONT, "Left bottom front head", 6, bottom, 1, 0, 0, new HeadSkinManager(false, true, false)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_FRONT, "Left top front head", 7, top, 2, 0, 2, new HeadSkinManager(false, false, false)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_BACK, "Left bottom back head", 6, bottom, 0, 0, 1, new HeadSkinManager(false, true, true)));
-        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_BACK, "Left top back head", 7, top, -3, 0, -3, new HeadSkinManager(false, false, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_FRONT, "Right bottom front head", 6, bottom, 1, 0, 0, new HeadSkinManager(false, true, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_FRONT, "Right top front head", 7, top, 2, 0, 2, new HeadSkinManager(false, false, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_BACK, "Right bottom back head", 6, bottom, 0, 0, 1, new HeadSkinManager(false, true, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.LEFT_HEAD_BACK, "Right top back head", 7, top, -3, 0, -3, new HeadSkinManager(false, false, true)));
 
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_FRONT, "Right bottom front head", 6, bottom, -1, 0, 0, new HeadSkinManager(true, true, false)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_FRONT, "Right top front head", 7, top, 1, 0, -1, new HeadSkinManager(true, false, false)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_BACK, "Right bottom back head", 6, bottom, 1, 0, -2, new HeadSkinManager(true, true, true)));
-        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_BACK, "Right top back head", 7, top, -2, 0, 1, new HeadSkinManager(true, false, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_FRONT, "Left bottom front head", 6, bottom, -1, 0, 0, new HeadSkinManager(true, true, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_FRONT, "Left top front head", 7, top, 1, 0, -1, new HeadSkinManager(true, false, false)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_BACK, "Left bottom back head", 6, bottom, 1, 0, -2, new HeadSkinManager(true, true, true)));
+        this.statueList.add(new StatuePart(StatuePartEnum.RIGHT_HEAD_BACK, "Left top back head", 7, top, -2, 0, 1, new HeadSkinManager(true, false, true)));
 
         this.totalToGenerate = this.statueList.size();
         this.partsGenerated = 0;
