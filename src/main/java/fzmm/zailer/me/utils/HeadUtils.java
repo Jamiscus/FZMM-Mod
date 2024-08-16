@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
+import io.wispforest.owo.Owo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.item.ItemStack;
@@ -13,7 +14,6 @@ import net.minecraft.item.PlayerHeadItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -134,7 +134,10 @@ public class HeadUtils {
                     conn.disconnect();
                 }
             }
-            this.delayForNextInMillis = this.requestDelayMillis();
+            if (!this.skinGenerated) {
+                this.delayForNextInMillis = 6000;
+            }
+
             return this;
         }, Util.getDownloadWorkerExecutor());
     }
@@ -147,53 +150,10 @@ public class HeadUtils {
         this.signature = texture.get("signature").getAsString();
         this.url = texture.get("url").getAsString();
         this.skinGenerated = true;
-    }
-
-    // the delay returned in api.mineskin.org/generate/upload is wrong,
-    // it gives 100 ms when it should be 2000 ms with api key and 6000 ms without api key
-    private int requestDelayMillis() {
-        HttpURLConnection conn = null;
-        try {
-            FzmmConfig.Mineskin config = FzmmClient.CONFIG.mineskin;
-            String urlStr = MINESKIN_API + "get/delay";
-            // mineskin does not seem to detect the api key from bearer
-            if (!config.apiKey().isEmpty()) {
-                urlStr += "?key=" + config.apiKey();
-            }
-
-            URL url = URI.create(urlStr).toURL();
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
-            conn.setRequestMethod("GET");
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode / 100 == 2) {
-                try (InputStreamReader streamReader = new InputStreamReader(conn.getInputStream())) {
-                    StringBuilder stringBuilder = new StringBuilder();
-                    int character;
-                    while ((character = streamReader.read()) != -1) {
-                        stringBuilder.append((char) character);
-                    }
-                    JsonObject json = JsonParser.parseString(stringBuilder.toString()).getAsJsonObject();
-                    long lastRequest = json.getAsJsonObject("lastRequest").get("time").getAsLong();
-                    long nextRequest = json.getAsJsonObject("nextRequest").get("time").getAsLong();
-                    long nextRequestDelay = nextRequest - lastRequest;
-
-                    return (int) MathHelper.clamp(nextRequestDelay, 0L, 6000L);
-                } catch (NullPointerException e) {
-                    FzmmClient.LOGGER.error("[HeadUtils] Failed to get delay values from mineskin api", e);
-                }
-            } else {
-                FzmmClient.LOGGER.error("[HeadUtils] HTTP error {} getting delay, 6 seconds will be used", responseCode);
-            }
-        } catch (IOException e) {
-            FzmmClient.LOGGER.error("[HeadUtils] Failed to get delay, 6 seconds will be used", e);
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
+        this.delayForNextInMillis = json.getAsJsonObject("delayInfo").get("millis").getAsInt();
+        if (Owo.DEBUG) {
+            FzmmClient.LOGGER.info("[DEBUG] [HeadUtils] HTTP Code: {}, Delay: {}, Received response: {}", this.httpResponseCode, this.delayForNextInMillis, reply);
         }
-        return 6001;
     }
 
     public static Optional<BufferedImage> getSkin(ItemStack stack) throws IOException {
