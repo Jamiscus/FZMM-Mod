@@ -65,8 +65,12 @@ public class HeadUtils {
         return this.skinGenerated;
     }
 
-    public int getDelayForNextInMillis() {
-        return this.delayForNextInMillis;
+    public int getHttpResponseCode() {
+        return this.httpResponseCode;
+    }
+
+    public int getDelayForNext(TimeUnit unit) {
+        return (int) unit.convert(this.delayForNextInMillis, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<HeadUtils> uploadHead(BufferedImage headSkin, String skinName) {

@@ -9,6 +9,9 @@ import fzmm.zailer.me.client.gui.components.row.ColorRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
@@ -31,15 +34,10 @@ import io.wispforest.owo.ui.component.EntityComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.entity.Entity;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
@@ -50,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class HeadComponentOverlay extends StyledFlowLayout {
@@ -134,23 +133,38 @@ public class HeadComponentOverlay extends StyledFlowLayout {
     }
 
     public static void saveSkinExecute(@Nullable BufferedImage skin, File file) {
-        ChatHud chatHud = MinecraftClient.getInstance().inGameHud.getChatHud();
         if (skin == null) {
-            chatHud.addMessage(Text.translatable("fzmm.gui.headGenerator.saveSkin.thereIsNoSkin")
-                    .setStyle(Style.EMPTY.withColor(Formatting.RED)));
+            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.thereIsNoSkin"))
+                    .closeButton()
+                    .build();
+            FzmmUtils.addSnackBar(snackBar);
             return;
         }
 
         try {
             ImageIO.write(skin, "png", file);
-            MutableText fileMessage = Text.literal(file.getName())
-                    .setStyle(Style.EMPTY.withUnderline(true).withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
-            chatHud.addMessage(Text.translatable("fzmm.gui.headGenerator.saveSkin.saved", fileMessage)
-                    .setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
+            FzmmClient.LOGGER.info("[HeadComponentOverlay] Saved skin to file: {}", file.toPath());
+            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+                    .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
+                    .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.saved"))
+                    .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.button.openFolder"), buttonComponent ->
+                            Util.getOperatingSystem().open(HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile())))
+                    .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.button.openSkin"), buttonComponent ->
+                            Util.getOperatingSystem().open(file)))
+                    .timer(15, TimeUnit.SECONDS)
+                    .startTimer().canClose(true)
+                    .build();
+            FzmmUtils.addSnackBar(snackBar);
         } catch (IOException e) {
             FzmmClient.LOGGER.error("[HeadComponentOverlay] Unexpected error saving the skin", e);
-            chatHud.addMessage(Text.translatable("fzmm.gui.headGenerator.saveSkin.saveError")
-                    .setStyle(Style.EMPTY.withColor(Formatting.RED)));
+            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.saveError"))
+                    .closeButton()
+                    .build();
+            FzmmUtils.addSnackBar(snackBar);
         }
     }
 

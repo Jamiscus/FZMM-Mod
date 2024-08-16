@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
-    public static final Text EMPTY_COLOR_TEXT = Text.translatable("fzmm.gui.textFormat.error.emptyColor").setStyle(Style.EMPTY.withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb()));
+    public static final Text EMPTY_COLOR_TEXT = Text.translatable("fzmm.gui.textFormat.error.emptyColor").setStyle(Style.EMPTY.withColor(FzmmStyles.TEXT_ERROR_COLOR.rgb()));
     private static final String MESSAGE_PREVIEW_ID = "message-preview";
     private static final String MESSAGE_ID = "message";
     private static final String BOLD_ID = "bold";

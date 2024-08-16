@@ -6,6 +6,10 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
 import io.netty.buffer.ByteBuf;
@@ -44,6 +48,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class FzmmUtils {
@@ -321,5 +326,24 @@ public class FzmmUtils {
     public static DynamicRegistryManager getRegistryManager() {
         assert MinecraftClient.getInstance().player != null;
         return MinecraftClient.getInstance().player.getRegistryManager();
+    }
+
+    public static void addSnackBar(ISnackBarComponent toast) {
+        if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarManager manager) {
+            manager.addSnackBar(toast);
+        }
+    }
+
+    public static void copyToClipboard(String text) {
+        MinecraftClient.getInstance().keyboard.setClipboard(text);
+
+        addSnackBar(BaseSnackBarComponent.builder()
+                .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
+                .title(Text.translatable("fzmm.snack_bar.clipboard.title"))
+                .timer(3, TimeUnit.SECONDS)
+                .startTimer()
+                .canClose(true)
+                .build()
+        );
     }
 }

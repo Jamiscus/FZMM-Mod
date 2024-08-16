@@ -5,8 +5,11 @@ import fzmm.zailer.me.client.gui.components.image.source.IImageGetter;
 import fzmm.zailer.me.client.gui.components.image.source.IImageLoaderFromText;
 import fzmm.zailer.me.client.gui.components.image.source.IInteractiveImageLoader;
 import fzmm.zailer.me.client.gui.components.image.source.ImagePlayerNameSource;
-import fzmm.zailer.me.client.toast.LoadingImageToast;
-import fzmm.zailer.me.client.toast.status.ImageStatus;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.SnackBarBuilder;
+import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
@@ -16,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -57,28 +60,43 @@ public class ImageButtonComponent extends ButtonComponent {
 
     public void loadImageFromText(IImageLoaderFromText imageLoaderFromText, String value) {
         MinecraftClient.getInstance().execute(() -> this.active = false);
-        AtomicReference<LoadingImageToast> toast = new AtomicReference<>();
+        ISnackBarComponent loadingSnackBar = BaseSnackBarComponent.builder()
+                .title(Text.translatable("fzmm.snack_bar.image.loading.title"))
+                .backgroundColor(FzmmStyles.ALERT_LOADING_COLOR)
+                .build();
 
         CompletableFuture.supplyAsync(() -> {
-            toast.set(new LoadingImageToast());
-            MinecraftClient.getInstance().getToastManager().add(toast.get());
+            MinecraftClient.getInstance().execute(() -> {
+                this.active = true;
+                FzmmUtils.addSnackBar(loadingSnackBar);
+            });
 
             return imageLoaderFromText.loadImage(value);
         }).thenApply(status -> {
             Optional<BufferedImage> image = imageLoaderFromText.getImage();
 
-            if (status.statusType() == ImageStatus.StatusType.SUCCESSFUL) {
+            SnackBarBuilder snackBarStatus = BaseSnackBarComponent.builder()
+                    .title(status.getStatusTranslation())
+                    .backgroundColor(status.getColor());
+
+            if (status.isError() && status.hasDetails()) {
+                snackBarStatus.details(status.getDetailsTranslation()).closeButton();
+                FzmmClient.LOGGER.warn("[ImageButtonComponent] Failed to load image");
+            } else {
                 if (this.imageLoadEvent != null) {
                     assert image.isPresent();
                     status = this.imageLoadEvent.apply(image.get());
                 }
+                snackBarStatus.timer(3, TimeUnit.SECONDS).startTimer().canClose(true);
                 FzmmClient.LOGGER.info("[ImageButtonComponent] Image loaded successfully");
-            } else {
-                FzmmClient.LOGGER.warn("[ImageButtonComponent] Failed to load image");
             }
 
-            MinecraftClient.getInstance().execute(() -> this.active = true);
-            toast.get().setResponse(status);
+            MinecraftClient.getInstance().execute(() -> {
+                this.active = true;
+                loadingSnackBar.close();
+                FzmmUtils.addSnackBar(snackBarStatus.canClose(true).build());
+            });
+
 
             if (this.image != null) {
                 this.image.flush();

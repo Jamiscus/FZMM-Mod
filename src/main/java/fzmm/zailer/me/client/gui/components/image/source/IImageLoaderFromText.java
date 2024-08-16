@@ -1,6 +1,6 @@
 package fzmm.zailer.me.client.gui.components.image.source;
 
-import fzmm.zailer.me.client.toast.status.ImageStatus;
+import fzmm.zailer.me.client.gui.components.image.ImageStatus;
 
 public interface IImageLoaderFromText extends IImageGetter {
 

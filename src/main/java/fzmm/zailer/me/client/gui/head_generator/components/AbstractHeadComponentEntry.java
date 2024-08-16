@@ -197,8 +197,7 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
             }
         };
         this.overlayContainer.zIndex(300);
-
-        ((FlowLayout) this.root()).child(this.overlayContainer);
+        parent.addOverlay(this.overlayContainer);
     }
 
     protected void onCloseOverlay() {

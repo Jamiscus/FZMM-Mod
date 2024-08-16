@@ -21,6 +21,9 @@ import fzmm.zailer.me.client.gui.head_generator.options.SkinPreEditOption;
 import fzmm.zailer.me.client.gui.head_generator.preview_algorithm.DefaultPreviewUpdater;
 import fzmm.zailer.me.client.gui.head_generator.preview_algorithm.ForceNonePreEditPreviewUpdater;
 import fzmm.zailer.me.client.gui.head_generator.preview_algorithm.IPreviewUpdater;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.SnackBarBuilder;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
@@ -242,7 +245,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private void addNoResultsMessage(FlowLayout parent) {
         FzmmClient.LOGGER.warn("[HeadGeneratorScreen] No head entries found");
         Component label = StyledComponents.label(Text.translatable("fzmm.gui.headGenerator.label.noResults")
-                        .setStyle(Style.EMPTY.withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb())))
+                        .setStyle(Style.EMPTY.withColor(FzmmStyles.TEXT_ERROR_COLOR.rgb())))
                 .horizontalTextAlignment(HorizontalAlignment.CENTER)
                 .sizing(Sizing.expand(100), Sizing.content())
                 .margins(Insets.top(4));
@@ -388,16 +391,49 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             this.setUndefinedDelay();
             String headName = this.getHeadName();
 
+            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+                    .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.loading"))
+                    .backgroundColor(FzmmStyles.ALERT_LOADING_COLOR)
+                    .build();
+            this.addSnackBar(snackBar);
+
             new HeadUtils().uploadHead(image, headName + " + " + textureName).thenAccept(headUtils -> {
-                int delay = (int) TimeUnit.MILLISECONDS.toSeconds(headUtils.getDelayForNextInMillis());
                 HeadBuilder builder = headUtils.getBuilder();
                 if (!headName.isBlank())
                     builder.headName(headName);
 
                 FzmmUtils.giveItem(builder.get());
-                this.client.execute(() -> this.setDelay(delay));
+
+                this.client.execute(() -> {
+                    this.setDelay(headUtils.getDelayForNext(TimeUnit.SECONDS));
+                    snackBar.close();
+                    this.addStatusSnackBar(headUtils, image, textureName);
+                });
             });
         });
+    }
+
+    private void addStatusSnackBar(HeadUtils headUtils, BufferedImage image, String textureName) {
+        SnackBarBuilder snackBar = BaseSnackBarComponent.builder();
+        if (headUtils.isSkinGenerated()) {
+            snackBar.title(Text.translatable("fzmm.gui.headGenerator.snack_bar.success"))
+                    .timer(3, TimeUnit.SECONDS)
+                    .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
+                    .startTimer();
+        } else {
+            String translationKey = headUtils.getHttpResponseCode() / 500 == 5 ? "external" : "internal";
+
+            snackBar.title(Text.translatable("fzmm.gui.headGenerator.snack_bar.error." + translationKey))
+                    .details(Text.translatable("fzmm.gui.headGenerator.snack_bar.error." + translationKey + ".description", headUtils.getHttpResponseCode()))
+                    .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.error.button.retry"), buttonComponent -> {
+                        this.giveHead(image, textureName);
+                        iSnackBarComponent.close();
+                    }))
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .closeButton();
+        }
+
+        this.addSnackBar(snackBar.build());
     }
 
     public void setUndefinedDelay() {

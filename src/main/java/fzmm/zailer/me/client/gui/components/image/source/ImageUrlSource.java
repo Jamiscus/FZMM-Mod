@@ -1,7 +1,7 @@
 package fzmm.zailer.me.client.gui.components.image.source;
 
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.toast.status.ImageStatus;
+import fzmm.zailer.me.client.gui.components.image.ImageStatus;
 import fzmm.zailer.me.utils.ImageUtils;
 
 import java.awt.image.BufferedImage;

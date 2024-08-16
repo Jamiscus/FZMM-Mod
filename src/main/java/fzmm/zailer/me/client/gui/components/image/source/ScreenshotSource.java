@@ -2,10 +2,12 @@ package fzmm.zailer.me.client.gui.components.image.source;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
-import fzmm.zailer.me.client.toast.LoadingImageToast;
-import fzmm.zailer.me.client.toast.status.ImageStatus;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.HorizontalAlignment;
@@ -119,11 +121,17 @@ public class ScreenshotSource implements IInteractiveImageLoader {
             this.setImage(finalImage);
         } catch (IOException e) {
             FzmmClient.LOGGER.error("Unexpected error loading an image", e);
-            LoadingImageToast toast = new LoadingImageToast();
-            MinecraftClient.getInstance().getToastManager().add(toast);
 
-            toast.setResponse(ImageStatus.UNEXPECTED_ERROR);
-            this.setImage(null);
+            ISnackBarComponent toast = BaseSnackBarComponent.builder()
+                    .title(Text.translatable("fzmm.toast.image.error.title"))
+                    .details(Text.translatable("fzmm.toast.image.error.details.unexpectedError"))
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .closeButton()
+                    .build();
+
+            if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarManager manager) {
+                manager.addSnackBar(toast);
+            }
         }
 
         Hud.remove(HUD_CAPTURE_SCREENSHOT);

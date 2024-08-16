@@ -6,23 +6,28 @@ import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.EnumWidget;
 import fzmm.zailer.me.client.gui.components.row.EnumRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.imagetext.ImagetextBookOption;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
-import fzmm.zailer.me.client.toast.BookNbtOverflowToast;
 import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.TextAreaComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.type.WrittenBookContentComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import java.util.concurrent.TimeUnit;
 
 public class ImagetextBookTooltipTab implements IImagetextTab {
     private static final String BOOK_TOOLTIP_MODE_ID = "bookTooltipMode";
@@ -55,7 +60,17 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
 
         int serializedLength = bookBuilder.exceedsSerializedLengthLimit();
         if (serializedLength != -1) {
-            MinecraftClient.getInstance().getToastManager().add(new BookNbtOverflowToast(serializedLength));
+            MinecraftClient.getInstance().execute(() -> {
+                ISnackBarComponent toast = BaseSnackBarComponent.builder()
+                        .title(Text.translatable("fzmm.snack_bar.bookTooltip.overflow.title", serializedLength, WrittenBookContentComponent.MAX_SERIALIZED_PAGE_LENGTH))
+                        .details(Text.translatable("fzmm.snack_bar.bookTooltip.overflow.details"))
+                        .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                        .timer(5, TimeUnit.SECONDS)
+                        .startTimer()
+                        .closeButton()
+                        .build();
+                FzmmUtils.addSnackBar(toast);
+            });
             return;
         }
 

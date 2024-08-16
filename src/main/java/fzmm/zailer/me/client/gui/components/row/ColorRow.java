@@ -2,6 +2,7 @@ package fzmm.zailer.me.client.gui.components.row;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.containers.ColorOverlay;
+import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.list.IListEntry;
 import io.wispforest.owo.config.ui.OptionComponentFactory;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
@@ -13,6 +14,7 @@ import io.wispforest.owo.ui.core.Color;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.CursorStyle;
 import io.wispforest.owo.ui.core.Sizing;
+import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
@@ -97,7 +99,10 @@ public class ColorRow extends AbstractRow implements IListEntry<Color> {
         colorPreview.mouseDown().subscribe((mouseX, mouseY, button) -> {
             ColorOverlay colorOverlay = new ColorOverlay(valueGetter.get(), withAlpha, onPress, colorPreview);
             colorOverlay.zIndex(colorOverlay.zIndex() + additionalZIndex);
-            ((FlowLayout) colorPreview.root()).child(colorOverlay);
+
+            if (MinecraftClient.getInstance().currentScreen instanceof BaseFzmmScreen screen) {
+                screen.addOverlay(colorOverlay);
+            }
 
             return true;
         });

@@ -71,7 +71,7 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
 
         MutableText currentLore = Text.literal(String.valueOf(loreSize));
         if (loreSize > LoreComponent.MAX_LORES) {
-           currentLore.setStyle(currentLore.getStyle().withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb()));
+           currentLore.setStyle(currentLore.getStyle().withColor(FzmmStyles.TEXT_ERROR_COLOR.rgb()));
         }
 
         return Text.translatable("fzmm.gui.imagetext.tab.lore.tooltip", currentLore, LoreComponent.MAX_LORES);
