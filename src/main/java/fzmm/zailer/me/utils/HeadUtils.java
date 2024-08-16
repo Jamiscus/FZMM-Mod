@@ -10,20 +10,19 @@ import net.minecraft.client.util.SkinTextures;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.MathHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class HeadUtils {
     public static final String MINESKIN_API = "https://api.mineskin.org/";
@@ -32,6 +31,7 @@ public class HeadUtils {
     private String signature;
     private String url;
     private boolean skinGenerated;
+    private int httpResponseCode;
     private int delayForNextInMillis;
 
     public HeadUtils() {
@@ -39,6 +39,7 @@ public class HeadUtils {
         this.signature = "";
         this.url = "";
         this.skinGenerated = false;
+        this.httpResponseCode = 0;
         this.delayForNextInMillis = 6000;
     }
 
@@ -70,6 +71,7 @@ public class HeadUtils {
 
     public CompletableFuture<HeadUtils> uploadHead(BufferedImage headSkin, String skinName) {
         return CompletableFuture.supplyAsync(() -> {
+            HttpURLConnection conn = null;
             try {
                 FzmmConfig.Mineskin config = FzmmClient.CONFIG.mineskin;
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -77,11 +79,13 @@ public class HeadUtils {
                 byte[] skin = baos.toByteArray();
 
                 URL url = URI.create(MINESKIN_API + "generate/upload").toURL();
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn = (HttpURLConnection) url.openConnection();
                 conn.setDoOutput(true);
                 conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("Authorization", "Bearer " + config.apiKey());
+                if (!config.apiKey().isEmpty()) {
+                    conn.setRequestProperty("Authorization", "Bearer " + config.apiKey());
+                }
                 conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
 
                 try (DataOutputStream dataOutputStream = new DataOutputStream(conn.getOutputStream())) {
@@ -96,29 +100,37 @@ public class HeadUtils {
                     dataOutputStream.writeBytes("\r\n--" + BOUNDARY + "--\r\n");
                 }
 
-                int httpCode = conn.getResponseCode();
-                if (httpCode / 100 == 2) {
-                    try (InputStreamReader isr = new InputStreamReader(conn.getInputStream())) {
-                        StringBuilder sb = new StringBuilder();
-                        int ch;
-                        while ((ch = isr.read()) != -1) {
-                            sb.append((char) ch);
+                this.httpResponseCode = conn.getResponseCode();
+                if (this.httpResponseCode / 100 == 2) {
+                    try (InputStreamReader streamReader = new InputStreamReader(conn.getInputStream())) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        int character;
+                        while ((character = streamReader.read()) != -1) {
+                            stringBuilder.append((char) character);
                         }
-                        this.useResponse(sb.toString());
+                        this.useResponse(stringBuilder.toString());
                         FzmmClient.LOGGER.info("[HeadUtils] '{}' head generated using mineskin", skinName);
+                    } catch (NullPointerException e) {
+                        FzmmClient.LOGGER.error("[HeadUtils] Failed to get head values from mineskin api", e);
                     }
                 } else {
-                    FzmmClient.LOGGER.error("[HeadUtils] HTTP error {} generating skin in '{}'", httpCode, skinName);
-                    this.delayForNextInMillis = 6000;
+                    FzmmClient.LOGGER.error("[HeadUtils] HTTP error {} generating skin in '{}'", this.httpResponseCode, skinName);
                 }
             } catch (IOException e) {
-                FzmmClient.LOGGER.error("Head '{}' could not be generated", skinName, e);
+                FzmmClient.LOGGER.error("[HeadUtils] Head '{}' could not be generated", skinName, e);
                 this.skinValue = "";
                 this.skinGenerated = false;
-                this.delayForNextInMillis = 6000;
+                if (this.httpResponseCode == 0) {
+                    this.httpResponseCode = 400;
+                }
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
             }
+            this.delayForNextInMillis = this.requestDelayMillis();
             return this;
-        });
+        }, Util.getDownloadWorkerExecutor());
     }
 
     private void useResponse(String reply) {
@@ -129,17 +141,60 @@ public class HeadUtils {
         this.signature = texture.get("signature").getAsString();
         this.url = texture.get("url").getAsString();
         this.skinGenerated = true;
-        this.delayForNextInMillis = (short) this.getDelay(json.getAsJsonObject("delayInfo").get("millis").getAsInt());
     }
 
-    private int getDelay(int delay) {
-        return MathHelper.clamp(delay, 2000, 6000);
+    // the delay returned in api.mineskin.org/generate/upload is wrong,
+    // it gives 100 ms when it should be 2000 ms with api key and 6000 ms without api key
+    private int requestDelayMillis() {
+        HttpURLConnection conn = null;
+        try {
+            FzmmConfig.Mineskin config = FzmmClient.CONFIG.mineskin;
+            String urlStr = MINESKIN_API + "get/delay";
+            // mineskin does not seem to detect the api key from bearer
+            if (!config.apiKey().isEmpty()) {
+                urlStr += "?key=" + config.apiKey();
+            }
+
+            URL url = URI.create(urlStr).toURL();
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
+            conn.setRequestMethod("GET");
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode / 100 == 2) {
+                try (InputStreamReader streamReader = new InputStreamReader(conn.getInputStream())) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    int character;
+                    while ((character = streamReader.read()) != -1) {
+                        stringBuilder.append((char) character);
+                    }
+                    JsonObject json = JsonParser.parseString(stringBuilder.toString()).getAsJsonObject();
+                    long lastRequest = json.getAsJsonObject("lastRequest").get("time").getAsLong();
+                    long nextRequest = json.getAsJsonObject("nextRequest").get("time").getAsLong();
+                    long nextRequestDelay = nextRequest - lastRequest;
+
+                    return (int) MathHelper.clamp(nextRequestDelay, 0L, 6000L);
+                } catch (NullPointerException e) {
+                    FzmmClient.LOGGER.error("[HeadUtils] Failed to get delay values from mineskin api", e);
+                }
+            } else {
+                FzmmClient.LOGGER.error("[HeadUtils] HTTP error {} getting delay, 6 seconds will be used", responseCode);
+            }
+        } catch (IOException e) {
+            FzmmClient.LOGGER.error("[HeadUtils] Failed to get delay, 6 seconds will be used", e);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return 6001;
     }
 
     public static Optional<BufferedImage> getSkin(ItemStack stack) throws IOException {
         Optional<SkinTextures> skinTextures = getSkinTextures(stack);
-        if (skinTextures.isEmpty())
+        if (skinTextures.isEmpty()) {
             return Optional.empty();
+        }
 
         String textureUrl = skinTextures.get().textureUrl();
 
