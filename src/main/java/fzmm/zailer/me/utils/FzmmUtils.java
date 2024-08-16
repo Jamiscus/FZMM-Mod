@@ -6,6 +6,10 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
@@ -38,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public class FzmmUtils {
@@ -62,12 +67,12 @@ public class FzmmUtils {
     };
 
     public static void giveItem(ItemStack stack) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
 
         long sizeLength = getLengthInBytes(stack);
         if (sizeLength > 1950000) {
-            mc.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit").setStyle(Style.EMPTY.withColor(Formatting.RED)));
+            client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit").setStyle(Style.EMPTY.withColor(Formatting.RED)));
             FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes", sizeLength);
             return;
         }
@@ -78,12 +83,12 @@ public class FzmmUtils {
             FzmmHistory.addGeneratedItems(stack);
 
         if (!isAllowedToGive()) {
-            mc.player.sendMessage(Text.translatable("fzmm.item.error.notAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
+            client.player.sendMessage(Text.translatable("fzmm.item.error.notAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
         } else if (FzmmClient.CONFIG.general.giveClientSide()) {
-            mc.player.equipStack(EquipmentSlot.MAINHAND, stack);
+            client.player.equipStack(EquipmentSlot.MAINHAND, stack);
         } else {
-            assert mc.interactionManager != null;
-            PlayerInventory playerInventory = mc.player.getInventory();
+            assert client.interactionManager != null;
+            PlayerInventory playerInventory = client.player.getInventory();
 
             playerInventory.addPickBlock(stack);
             updateHand(stack);
@@ -271,5 +276,24 @@ public class FzmmUtils {
         }
 
         return sortedArray;
+    }
+
+    public static void addSnackBar(ISnackBarComponent toast) {
+        if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarManager manager) {
+            manager.addSnackBar(toast);
+        }
+    }
+
+    public static void copyToClipboard(String text) {
+        MinecraftClient.getInstance().keyboard.setClipboard(text);
+
+        addSnackBar(BaseSnackBarComponent.builder()
+                .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
+                .title(Text.translatable("fzmm.snack_bar.clipboard.title"))
+                .timer(3, TimeUnit.SECONDS)
+                .startTimer()
+                .canClose(true)
+                .build()
+        );
     }
 }

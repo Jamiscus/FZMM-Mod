@@ -1,6 +1,6 @@
 package fzmm.zailer.me.client.logic.copy_text_algorithm;
 
-import net.minecraft.client.MinecraftClient;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -12,7 +12,7 @@ public abstract class AbstractCopyTextAlgorithm {
 
     public void copy(Text text) {
         String value = this.getString(text);
-        MinecraftClient.getInstance().keyboard.setClipboard(value);
+        FzmmUtils.copyToClipboard(value);
     }
 
     public String getString(Text text) {
@@ -20,7 +20,7 @@ public abstract class AbstractCopyTextAlgorithm {
 
         StringBuilder stringBuilder = new StringBuilder();
         List<Text> siblings = text.getSiblings();
-        this.getStringRecursive(stringBuilder, baseStyle, siblings.size() > 0 ? siblings : List.of(text));
+        this.getStringRecursive(stringBuilder, baseStyle, !siblings.isEmpty() ? siblings : List.of(text));
 
         return stringBuilder.toString();
     }

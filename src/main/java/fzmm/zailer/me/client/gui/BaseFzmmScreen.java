@@ -6,6 +6,7 @@ import fzmm.zailer.me.client.gui.components.image.ImageButtonComponent;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
 import fzmm.zailer.me.client.gui.components.row.*;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
+import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.components.style.component.StyledLabelComponent;
 import fzmm.zailer.me.client.gui.components.style.container.StyledScrollContainer;
@@ -15,6 +16,7 @@ import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
 import fzmm.zailer.me.client.gui.components.tabs.ScreenTabContainer;
 import fzmm.zailer.me.client.gui.main.components.MainButtonComponent;
 import fzmm.zailer.me.client.gui.text_format.components.ColorListContainer;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
 import fzmm.zailer.me.client.gui.utils.memento.IMemento;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
@@ -25,8 +27,7 @@ import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.base.BaseUIModelScreen;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.core.Component;
-import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.parsing.UIModel;
 import io.wispforest.owo.ui.parsing.UIParsing;
 import net.minecraft.client.MinecraftClient;
@@ -39,13 +40,10 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.w3c.dom.Element;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout> {
+public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout> implements ISnackBarManager {
     @Nullable
     protected Screen parent;
     protected final String baseScreenTranslationKey;
@@ -53,6 +51,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     public static final int COMPONENT_DISTANCE = 8;
     private final SymbolChatCompat symbolChatCompat;
     protected final HashMap<String, IScreenTab> tabs;
+    protected final FlowLayout snackBarLayout;
 
     public BaseFzmmScreen(String screenPath, String baseScreenTranslationKey, @Nullable Screen parent) {
         super(StyledFlowLayout.class, DataSource.asset(Identifier.of(FzmmClient.MOD_ID, screenPath)));
@@ -60,24 +59,40 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         this.parent = parent;
         this.tabs = new HashMap<>();
         this.symbolChatCompat = new SymbolChatCompat();
+        this.snackBarLayout = StyledContainers.verticalFlow(Sizing.content(), Sizing.content());
     }
 
     @Override
     protected void build(StyledFlowLayout rootComponent) {
         assert this.client != null;
         ButtonComponent backButton = rootComponent.childById(ButtonComponent.class, "back-button");
-        if (backButton != null)
+        if (backButton != null) {
             backButton.onPress(button -> this.close());
+        }
 
         this.symbolChatCompat.addSymbolChatComponents(this);
 
         this.setupButtonsCallbacks(rootComponent);
 
-        if (FzmmClient.CONFIG.history.automaticallyRecoverScreens() && this instanceof IMementoScreen mementoScreen)
+        this.snackBarLayout.positioning(Positioning.relative(100, 0));
+        this.snackBarLayout.margins(Insets.right(3).withTop(3));
+        this.snackBarLayout.horizontalAlignment(HorizontalAlignment.RIGHT);
+        rootComponent.child(this.snackBarLayout);
+
+
+        if (FzmmClient.CONFIG.history.automaticallyRecoverScreens() && this instanceof IMementoScreen mementoScreen) {
             mementoScreen.getMemento().ifPresent(mementoScreen::restoreMemento);
+        }
     }
 
     protected abstract void setupButtonsCallbacks(FlowLayout rootComponent);
+
+    @Override
+    public void removed() {
+        this.clearSnackBars();
+
+        super.removed();
+    }
 
     @Override
     public void close() {
@@ -92,7 +107,6 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
             }
         }
     }
-
 
     protected void setTabs(Enum<? extends ITabsEnum> tabs) {
         this.setTabs(this.tabs, tabs);
@@ -195,6 +209,11 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     }
 
     @Override
+    public FlowLayout getSnackBarLayout() {
+        return this.snackBarLayout;
+    }
+
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             if (this.symbolChatCompat.isSelectionPanelVisible()) {
@@ -261,7 +280,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
 
     @Contract(value = "null, _, _ -> fail;", pure = true)
     public static void checkNull(Component component, String componentTagName, String id) {
-        Objects.requireNonNull(component, String.format("No '%s' found with component id '%s'", componentTagName, id));
+        Objects.requireNonNull(component, String.format("No '%s' found with component titleId '%s'", componentTagName, id));
     }
 
     public UIModel getModel() {

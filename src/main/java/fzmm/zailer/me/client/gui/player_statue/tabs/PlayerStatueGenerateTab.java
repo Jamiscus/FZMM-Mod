@@ -7,25 +7,29 @@ import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
 import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
 import fzmm.zailer.me.client.gui.player_statue.PlayerStatueScreen;
+import fzmm.zailer.me.client.gui.utils.InvisibleEntityWarning;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.client.logic.player_statue.PlayerStatue;
-import fzmm.zailer.me.client.toast.status.ImageStatus;
+import fzmm.zailer.me.client.gui.components.image.ImageStatus;
+import fzmm.zailer.me.client.logic.player_statue.StatuePart;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 import org.joml.Vector3f;
 
 import java.awt.image.BufferedImage;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class PlayerStatueGenerateTab implements IPlayerStatueTab {
-    private static final ImageStatus INVALID_SKIN_SIZE = new ImageStatus("playerStatue.invalidSkinSize", ImageStatus.StatusType.ERROR);
+    private static final ImageStatus INVALID_SKIN_SIZE = new ImageStatus("error.title", "error.details.playerStatue.invalidSkinSize", true);
     private static final String SKIN_ID = "skin";
     private static final String SKIN_SOURCE_ID = "skin-source";
-    private static Thread CREATE_PLAYER_STATUE_THREAD = null;
+    private static CompletableFuture<Void> CREATE_COMPLETABLE_FUTURE = null;
     private ImageRowsElements skinElements;
     private ButtonWidget executeButton;
 
@@ -59,7 +63,7 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
         if (image.isEmpty())
             return;
 
-        CREATE_PLAYER_STATUE_THREAD = new Thread(() -> {
+        CREATE_COMPLETABLE_FUTURE = CompletableFuture.runAsync(() -> {
             this.executeButton.active = false;
 
 
@@ -70,11 +74,11 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
                     .getStatueInContainer();
 
             FzmmUtils.giveItem(statueGenerated);
+            InvisibleEntityWarning.add(true, true, Text.translatable("fzmm.snack_bar.entityDifficultToRemove.entity.playerStatue"), StatuePart.PLAYER_STATUE_TAG);
 
             this.executeButton.active = true;
+            CREATE_COMPLETABLE_FUTURE = null;
         });
-
-        CREATE_PLAYER_STATUE_THREAD.start();
     }
 
     @Override
@@ -83,7 +87,7 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
     }
 
     public boolean canExecute(boolean hasImage) {
-        return hasImage && (CREATE_PLAYER_STATUE_THREAD == null || !CREATE_PLAYER_STATUE_THREAD.isAlive());
+        return hasImage && CREATE_COMPLETABLE_FUTURE == null;
     }
 
     public ImageStatus skinCallback(BufferedImage image) {

@@ -342,9 +342,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
         IImagetextAlgorithm algorithm = (IImagetextAlgorithm) this.algorithmsTabs.get(selectedAlgorithm.getId());
         ImagetextData data = new ImagetextData(image, width, height, smoothScaling, percentageOfSimilarityToCompress);
-        long startTime = System.currentTimeMillis();
         this.getTab(selectedMode, IImagetextTab.class).generate(algorithm, this.imagetextLogic, data, isExecute);
-        FzmmClient.LOGGER.warn("Time: {}", System.currentTimeMillis() - startTime);
 
         if (showResolution) {
             this.imagetextLogic.addResolution();

@@ -6,6 +6,7 @@ import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.row.NumberRow;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
+import fzmm.zailer.me.client.gui.utils.InvisibleEntityWarning;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
@@ -69,6 +70,8 @@ public class ImagetextHologramTab implements IImagetextTab {
                 .get();
 
         FzmmUtils.giveItem(hologramMainContainer);
+
+        InvisibleEntityWarning.add(true, true, Text.translatable("fzmm.snack_bar.entityDifficultToRemove.entity.hologram"), HOLOGRAM_TAG);
     }
 
     public List<ItemStack> getHologramItems(ImagetextLogic logic, int x, double y, int z) {

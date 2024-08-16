@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class HeadUtils {
     public static final String MINESKIN_API = "https://api.mineskin.org/";
@@ -66,8 +67,12 @@ public class HeadUtils {
         return this.skinGenerated;
     }
 
-    public int getDelayForNextInMillis() {
-        return this.delayForNextInMillis;
+    public int getHttpResponseCode() {
+        return this.httpResponseCode;
+    }
+
+    public int getDelayForNext(TimeUnit unit) {
+        return (int) unit.convert(this.delayForNextInMillis, TimeUnit.MILLISECONDS);
     }
 
     public CompletableFuture<HeadUtils> uploadHead(BufferedImage headSkin, String skinName) {

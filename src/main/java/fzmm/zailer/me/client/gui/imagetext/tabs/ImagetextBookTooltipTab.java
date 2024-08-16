@@ -6,12 +6,14 @@ import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.EnumWidget;
 import fzmm.zailer.me.client.gui.components.row.EnumRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
+import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.imagetext.ImagetextBookOption;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
-import fzmm.zailer.me.client.toast.BookNbtOverflowToast;
 import fzmm.zailer.me.exceptions.BookNbtOverflow;
 import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.TextAreaComponent;
@@ -24,6 +26,8 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+
+import java.util.concurrent.TimeUnit;
 
 public class ImagetextBookTooltipTab implements IImagetextTab {
     private static final String BOOK_TOOLTIP_MODE_ID = "bookTooltipMode";
@@ -44,27 +48,32 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
         String author = this.bookTooltipAuthor.getText();
         String bookMessage = this.bookTooltipMessage.getText();
 
-        try {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            assert mc.player != null;
-            BookBuilder bookBuilder = bookOption.getBookBuilder()
-                    .author(author)
-                    .addPage(Text.literal(Formatting.BLUE + bookMessage)
-                            .setStyle(Style.EMPTY
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, logic.getText()))
-                            )
-                    );
+        BookBuilder bookBuilder = bookOption.getBookBuilder()
+                .author(author)
+                .addPage(Text.literal(Formatting.BLUE + bookMessage)
+                        .setStyle(Style.EMPTY
+                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, logic.getText()))
+                        )
+                );
 
-            ItemStack book = bookBuilder.get();
-            assert book.getNbt() != null;
+        ItemStack book = bookBuilder.get();
+        assert book.getNbt() != null;
 
-            long bookLength = FzmmUtils.getLengthInBytes(book);
-            if (bookLength > BookNbtOverflow.MAX_BOOK_NBT_SIZE)
-                throw new BookNbtOverflow(bookLength);
-            else
-                FzmmUtils.giveItem(book);
-        } catch (BookNbtOverflow e) {
-            MinecraftClient.getInstance().getToastManager().add(new BookNbtOverflowToast(e));
+        long bookLength = FzmmUtils.getLengthInBytes(book);
+        if (bookLength > BookNbtOverflow.MAX_BOOK_NBT_SIZE) {
+            MinecraftClient.getInstance().execute(() -> {
+                ISnackBarComponent toast = BaseSnackBarComponent.builder()
+                        .title(Text.translatable("fzmm.snack_bar.bookTooltip.overflow.title", bookLength, BookNbtOverflow.MAX_BOOK_NBT_SIZE))
+                        .details(Text.translatable("fzmm.snack_bar.bookTooltip.overflow.details"))
+                        .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                        .timer(5, TimeUnit.SECONDS)
+                        .startTimer()
+                        .closeButton()
+                        .build();
+                FzmmUtils.addSnackBar(toast);
+            });
+        } else {
+            FzmmUtils.giveItem(book);
         }
     }
 

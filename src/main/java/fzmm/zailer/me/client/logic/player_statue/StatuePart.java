@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class StatuePart {
+    public static final String PLAYER_STATUE_TAG = "PlayerStatue";
     private static final String DEFAULT_SKIN_VALUE = "Error!";
     private static final float Z_FIGHT_FIX_DISTANCE = 0.00001f;
     private final HeadModelSkin headModelSkin;
@@ -179,7 +180,7 @@ public class StatuePart {
     }
 
     /**
-     * @return seconds left to generate another skin
+     * @return milliseconds left to generate another skin
      */
     public CompletableFuture<Integer> setStatueSkin(BufferedImage playerSkin, int scale) {
         this.draw(playerSkin, this.headSkin, scale);
@@ -188,10 +189,11 @@ public class StatuePart {
                     this.skinValue = headUtils.getSkinValue();
                     this.skinGenerated = headUtils.isSkinGenerated();
 
-                    if (!this.skinGenerated)
+                    if (!this.skinGenerated) {
                         FzmmClient.LOGGER.error("[StatuePart] The statue {} had an error generating its skin", this.name);
+                    }
 
-                    return (int) TimeUnit.MILLISECONDS.toSeconds(headUtils.getDelayForNextInMillis());
+                    return headUtils.getDelayForNext(TimeUnit.MILLISECONDS);
                 });
     }
     public boolean isSkinGenerated() {

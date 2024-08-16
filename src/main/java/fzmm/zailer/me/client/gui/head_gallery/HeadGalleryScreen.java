@@ -110,7 +110,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
         FlowLayout tagsLayout = rootComponent.childById(FlowLayout.class, TAGS_LAYOUT_ID);
         checkNull(tagsLayout, "flow-layout", TAGS_LAYOUT_ID);
 
-        this.tagButton = Components.button(this.getTagButtonText(), buttonComponent -> this.openTagsExecute(rootComponent));
+        this.tagButton = Components.button(this.getTagButtonText(), buttonComponent -> this.openTagsExecute());
         this.tagButton.horizontalSizing(Sizing.fill(100));
 
         tagsLayout.child(this.tagButton);
@@ -203,7 +203,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
             this.setPage(1);
 
             this.errorLabel.text(Text.translatable("fzmm.gui.headGallery.label.error", category, throwable.getMessage())
-                    .setStyle(Style.EMPTY.withColor(FzmmStyles.ERROR_TEXT_COLOR.rgb())));
+                    .setStyle(Style.EMPTY.withColor(FzmmStyles.TEXT_ERROR_COLOR.rgb())));
             FzmmClient.LOGGER.error("[HeadGalleryScreen] Error while fetching category '{}'", category, throwable);
 
             for (var component : this.categoryButtonList) {
@@ -227,7 +227,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
         this.tagOverlay = null;
     }
 
-    private void openTagsExecute(FlowLayout rootComponent) {
+    private void openTagsExecute() {
         // because owo-lib does not let me modify the scroll of the scroll container
         // and I don't want to scroll back to the start
         if (this.tagOverlay == null) {
@@ -283,8 +283,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
             this.tagOverlay = Containers.overlay(tagSelectPanel);
             this.tagOverlay.zIndex(500);
         }
-
-        rootComponent.child(this.tagOverlay);
+        this.addOverlay(this.tagOverlay);
     }
 
     private void tagButtonExecute(ButtonComponent selectedButton, LabelComponent tagsOverlayLabel) {
