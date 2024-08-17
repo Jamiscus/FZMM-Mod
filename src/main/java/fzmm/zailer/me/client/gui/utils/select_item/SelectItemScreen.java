@@ -6,6 +6,7 @@ import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
+import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
@@ -161,15 +162,17 @@ public class SelectItemScreen extends BaseFzmmScreen {
     private ItemComponent getItemCallback(ItemStack stack) {
         assert this.client != null;
 
-        ItemComponent itemComponent = (ItemComponent) Components.item(stack)
-                .tooltip(stack.getTooltip(
+        ItemStack processedStack = FzmmUtils.processStack(stack);
+
+        ItemComponent itemComponent = (ItemComponent) Components.item(processedStack)
+                .tooltip(processedStack.getTooltip(
                         this.client.player,
                         this.client.options.advancedItemTooltips ? TooltipContext.Default.ADVANCED : TooltipContext.Default.BASIC
                 ));
 
         itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            this.selectedRequestedItem.setStack(stack);
-            this.requestedItems.get(this.selectedRequestedItem).stack(stack);
+            this.selectedRequestedItem.setStack(processedStack);
+            this.requestedItems.get(this.selectedRequestedItem).stack(processedStack);
             this.executeButton.active = this.canExecute();
             return true;
         });

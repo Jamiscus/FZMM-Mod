@@ -25,6 +25,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -117,7 +118,7 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
 
         boolean executeButtonsActive = this.messageTextField.getText().length() > 1;
         ButtonWidget addLoreButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(ADD_LORE_ID), executeButtonsActive, button -> {
-            ItemStack handItem = client.player.getInventory().getMainHandStack();
+            ItemStack handItem = FzmmUtils.getHandStack(Hand.MAIN_HAND);
             Text text = this.messagePreviewLabel.text();
 
             DisplayBuilder builder = DisplayBuilder.of(handItem.isEmpty() ?
@@ -127,12 +128,12 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
             FzmmUtils.giveItem(builder.get());
         });
         ButtonWidget setNameButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(SET_NAME_ID), executeButtonsActive, button -> {
-            ItemStack handItem = client.player.getInventory().getMainHandStack();
+            ItemStack handItem = FzmmUtils.getHandStack(Hand.MAIN_HAND);
             Text text = this.messagePreviewLabel.text();
 
             DisplayBuilder builder = DisplayBuilder.of(handItem.isEmpty() ?
                     FzmmUtils.getItem(config.defaultItem()).getDefaultStack() : handItem
-            ).setName(text);
+            ).setName(text.copy());
 
             FzmmUtils.giveItem(builder.get());
         });

@@ -37,10 +37,11 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.NotNull;
-import net.minecraft.util.Formatting;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -61,7 +62,7 @@ public class FzmmCommand {
 
                     Text name = ctx.getArgument("name", Text.class);
 
-                    DisplayBuilder.renameHandItem(name);
+                    DisplayBuilder.renameHandItem(name.copy());
                     return 1;
                 }))
         );
@@ -70,11 +71,11 @@ public class FzmmCommand {
                 .executes(ctx -> sendHelpMessage("commands.fzmm.lore.help", BASE_COMMAND + " lore add/remove"))
                 .then(ClientCommandManager.literal("add")
                         .executes(ctx -> sendHelpMessage("commands.fzmm.lore.add.help", BASE_COMMAND + " lore add <message>"))
-                        .then(ClientCommandManager.argument("id", TextArgumentType.text()).executes(ctx -> {
+                        .then(ClientCommandManager.argument("message", TextArgumentType.text()).executes(ctx -> {
 
-                            Text message = ctx.getArgument("id", Text.class);
+                            Text message = ctx.getArgument("message", Text.class);
 
-                            DisplayBuilder.addLoreToHandItem(message);
+                            DisplayBuilder.addLoreToHandItem(message.copy());
                             return 1;
                         }))
                 ).then(ClientCommandManager.literal("remove")
@@ -321,7 +322,7 @@ public class FzmmCommand {
 
     private static void giveItem(ItemStackArgument item, int amount) throws CommandSyntaxException {
         ItemStack itemStack = item.createStack(amount, false);
-        FzmmUtils.giveItem(itemStack);
+        FzmmUtils.giveItem(FzmmUtils.processStack(itemStack));
     }
 
     private static void oldGiveItem(Identifier item, NbtCompound nbtCompound, Pair<String, Integer> oldVersion) {
@@ -351,7 +352,7 @@ public class FzmmCommand {
             if (error.get() || result.isEmpty() || result.get().isEmpty()) {
                 chatHud.addMessage(errorMessage);
             } else {
-                FzmmUtils.giveItem(result.get());
+                FzmmUtils.giveItem(FzmmUtils.processStack(result.get()));
                 chatHud.addMessage(Text.translatable("commands.fzmm.old_give.success", item.toString(), oldVersion.getLeft())
                         .withColor(FzmmClient.CHAT_BASE_COLOR)
                 );
@@ -399,9 +400,7 @@ public class FzmmCommand {
 
     private static void addEnchant(Enchantment enchant, short level) {
         //{Enchantments:[{message:"minecraft:aqua_affinity",lvl:1s}]}
-
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
         NbtCompound tag = stack.getOrCreateNbt();
         NbtList enchantments = new NbtList();
 
@@ -495,12 +494,8 @@ public class FzmmCommand {
     }
 
     private static void amount(int amount) {
-        assert MinecraftClient.getInstance().player != null;
-
-        ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
-
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
         stack.setCount(amount);
-
         FzmmUtils.updateHand(stack);
     }
 
@@ -519,15 +514,10 @@ public class FzmmCommand {
      * @param firstSlot if -1, it will fill empty slots starting at 0
      */
     private static void fullContainer(int slotsToFill, int firstSlot) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
+        ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack itemStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
 
-        //{BlockEntityTag:{Items:[{Slot:0b,id:"minecraft:stone",Count:1b}]}}
-
-        ItemStack containerItemStack = client.player.getInventory().getMainHandStack();
-        ItemStack itemStack = client.player.getOffHandStack();
-
-        NbtCompound nbt = containerItemStack.getOrCreateNbt();
+        NbtCompound nbt = containerStack.getOrCreateNbt();
         NbtCompound blockEntityTag = new NbtCompound();
         NbtList containerItems = nbt.getCompound(TagsConstant.BLOCK_ENTITY)
                 .getList(ShulkerBoxBlockEntity.ITEMS_KEY, NbtElement.COMPOUND_TYPE);
@@ -549,11 +539,11 @@ public class FzmmCommand {
         }
 
         blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, containerItems);
-        blockEntityTag.putString("id", containerItemStack.getItem().toString());
+        blockEntityTag.putString("id", containerStack.getItem().toString());
 
         nbt.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
-        containerItemStack.setNbt(nbt);
-        FzmmUtils.giveItem(containerItemStack);
+        containerStack.setNbt(nbt);
+        FzmmUtils.giveItem(containerStack);
     }
     private static void fullContainer(NbtList stackList, ItemStack stack, int slotsToFill, int firstSlot) {
         int finalSlot = firstSlot + slotsToFill;
@@ -591,20 +581,16 @@ public class FzmmCommand {
 
     private static void lockContainer(String key) {
         MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
 
-        //{BlockEntityTag:{Lock:"abc"}}
-
-        ItemStack containerItemStack = client.player.getInventory().getMainHandStack();
-        ItemStack itemStack = client.player.getOffHandStack();
+        ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack lockStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
 
         NbtCompound tag = new NbtCompound();
         NbtCompound blockEntityTag = new NbtCompound();
 
-        if (containerItemStack.hasNbt() || tag.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE)) {
-            tag = containerItemStack.getNbt();
+        if (containerStack.hasNbt() || tag.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE)) {
+            tag = containerStack.getNbt();
             assert tag != null;
-
             if (tag.contains(TagsConstant.BLOCK_ENTITY, NbtElement.COMPOUND_TYPE)) {
                 tag.getCompound(TagsConstant.BLOCK_ENTITY).putString("Lock", key);
             }
@@ -614,18 +600,17 @@ public class FzmmCommand {
             tag.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
         }
 
-        containerItemStack.setNbt(tag);
-        itemStack.setCustomName(Text.literal(key));
+        containerStack.setNbt(tag);
+        lockStack.setCustomName(Text.literal(key));
 
-        FzmmUtils.giveItem(containerItemStack);
+        FzmmUtils.giveItem(containerStack);
         assert client.interactionManager != null;
         // PlayerInventory.OFF_HAND_SLOT is 40, but OFF_HAND_SLOT is 45 (PlayerInventory.MAIN_SIZE + PlayerInventory.HOTBAR_SIZE)
-        client.interactionManager.clickCreativeStack(itemStack, PlayerInventory.MAIN_SIZE + PlayerInventory.getHotbarSize());
+        client.interactionManager.clickCreativeStack(lockStack, PlayerInventory.MAIN_SIZE + PlayerInventory.getHotbarSize());
     }
 
     private static void removeLore() {
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         NbtCompound display = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
         if (display.contains(ItemStack.LORE_KEY, NbtElement.LIST_TYPE)) {
@@ -634,13 +619,9 @@ public class FzmmCommand {
     }
 
     private static void removeLore(int lineToRemove) {
-        assert MinecraftClient.getInstance().player != null;
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
-        //{display:{Lore:['{"text":"1"}','{"text":"2"}','[{"text":"3"},{"text":"4"}]']}}
-
-        ItemStack itemStack = MinecraftClient.getInstance().player.getMainHandStack();
-
-        NbtCompound display = itemStack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
+        NbtCompound display = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
 
         if (!display.contains(ItemStack.LORE_KEY, NbtElement.LIST_TYPE))
             return;
@@ -652,8 +633,8 @@ public class FzmmCommand {
         lore.remove(lineToRemove);
         display.put(ItemStack.LORE_KEY, lore);
 
-        itemStack.setSubNbt(ItemStack.DISPLAY_KEY, display);
-        FzmmUtils.giveItem(itemStack);
+        stack.setSubNbt(ItemStack.DISPLAY_KEY, display);
+        FzmmUtils.giveItem(stack);
     }
 
     private static void swapItemWithHand(EquipmentSlot slot) {

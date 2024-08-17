@@ -1,16 +1,16 @@
 package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.FzmmUtils;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +39,19 @@ public class DisplayBuilder {
                 .count(stack.getCount());
     }
 
-    public static void addLoreToHandItem(Text text) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
+    public static void addLoreToHandItem(MutableText text) {
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
-        ItemStack stack = of(mc.player.getMainHandStack()).addLore(text).get();
+        stack = of(stack)
+                .addLore(FzmmUtils.disableItalicConfig(text))
+                .get();
+
         FzmmUtils.giveItem(stack);
     }
 
-    public static void renameHandItem(Text text) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
+    public static void renameHandItem(MutableText text) {
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
-        ItemStack stack = mc.player.getInventory().getMainHandStack();
         stack.setCustomName(FzmmUtils.disableItalicConfig(text));
         FzmmUtils.giveItem(stack);
     }
@@ -116,10 +116,10 @@ public class DisplayBuilder {
         return this;
     }
 
-    public DisplayBuilder setName(NbtString name) {
+    public DisplayBuilder setName(Text name) {
         NbtCompound display = this.getDisplay();
 
-        display.put(ItemStack.NAME_KEY, name);
+        display.put(ItemStack.NAME_KEY, FzmmUtils.toNbtString(name.copy(), false));
         this.nbt.put(ItemStack.DISPLAY_KEY, display);
         return this;
     }
@@ -134,10 +134,6 @@ public class DisplayBuilder {
 
     public DisplayBuilder setName(String name, int color) {
         return this.setName(Text.literal(name).setStyle(Style.EMPTY.withColor(color)));
-    }
-
-    public DisplayBuilder setName(Text name) {
-        return this.setName(FzmmUtils.toNbtString(name, true));
     }
 
     public DisplayBuilder addLore(NbtList lore) {

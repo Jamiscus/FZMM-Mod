@@ -11,6 +11,7 @@ import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.logic.FzmmHistory;
+import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -22,12 +23,16 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -44,6 +49,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class FzmmUtils {
 
@@ -66,11 +72,22 @@ public class FzmmUtils {
 
     };
 
+    /**
+     * Process the hand item to be able to edit it
+     * @return Hand item copy and ready to be modified
+     */
+    public static ItemStack getHandStack(Hand hand) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
+        ItemStack stack = client.player.getStackInHand(hand);
+        return processStack(stack);
+    }
+
     public static void giveItem(ItemStack stack) {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        long sizeLength = getLengthInBytes(stack);
+        long sizeLength = getLengthInBytes(stack) + getInventorySizeInBytes();
         if (sizeLength > 1950000) {
             client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit").setStyle(Style.EMPTY.withColor(Formatting.RED)));
             FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes", sizeLength);
@@ -95,6 +112,72 @@ public class FzmmUtils {
         }
     }
 
+    /**
+     * Process the item to be able to edit it
+     * @return The item ready to be modified
+     */
+    public static ItemStack processStack(ItemStack stack) {
+        ItemStack stackCopy = stack.copy();
+        if (!FzmmClient.CONFIG.general.removeViaVersionTags()) {
+            return stackCopy;
+        }
+
+        NbtCompound customTag = stackCopy.getOrCreateNbt();
+
+        // This affects multiplayer when the server is on a lower version and ViaVersion is used.
+        //
+        // When removing ViaVersion tags, the cached version for ViaVersion is deleted.
+        // These cached versions are used for players on older versions, but these tags
+        // are more important than those for the higher version. Consequently, if you
+        // modify an item with these tags, it will later revert to the cached version, losing the changes.
+        recursiveRemoveTags(customTag, s -> s.startsWith("VV|Protocol"));
+
+        return stackCopy;
+    }
+
+    public static void recursiveRemoveTags(NbtCompound tags, Predicate<String> keyPredicate) {
+        List<String> keysToRemove = new ArrayList<>();
+        for (String key : tags.getKeys()) {
+            if (keyPredicate.test(key)) {
+                keysToRemove.add(key);
+                continue;
+            }
+
+            NbtElement value = tags.get(key);
+            if (value instanceof NbtCompound compound) {
+                recursiveRemoveTags(compound, keyPredicate);
+                continue;
+            }
+
+            if (value instanceof NbtList list) {
+                for (var element : list) {
+                    if (element instanceof NbtCompound compoundElement) {
+                        recursiveRemoveTags(compoundElement, keyPredicate);
+                    }
+                }
+            }
+        }
+
+        for (String key : keysToRemove) {
+            tags.remove(key);
+        }
+    }
+
+    private static long getInventorySizeInBytes() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
+        List<DefaultedList<ItemStack>> combinedInventory = ((PlayerInventoryAccessor) client.player.getInventory()).getCombinedInventory();
+        long size = 0;
+
+        for (DefaultedList<ItemStack> defaultedList : combinedInventory) {
+            for (ItemStack itemStack : defaultedList) {
+                size += getLengthInBytes(itemStack);
+            }
+        }
+
+        return size;
+    }
+
     public static void updateHand(ItemStack stack) {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.interactionManager != null;
@@ -104,11 +187,12 @@ public class FzmmUtils {
         client.interactionManager.clickCreativeStack(stack, PlayerInventory.MAIN_SIZE + playerInventory.selectedSlot);
     }
 
-    public static Text disableItalicConfig(Text message) {
+    public static MutableText disableItalicConfig(Text text) {
+        MutableText message = text.copy();
         Style style = message.getStyle();
 
         if (FzmmClient.CONFIG.general.disableItalic() && !style.isItalic()) {
-            ((MutableText) message).setStyle(style.withItalic(false));
+            message.setStyle(style.withItalic(false));
         }
 
         return message;
@@ -133,13 +217,14 @@ public class FzmmUtils {
     }
 
     public static NbtString toNbtString(String string, boolean useDisableItalicConfig) {
-        Text text = Text.of(string);
+        MutableText text = Text.of(string).copy();
         return toNbtString(text, useDisableItalicConfig);
     }
 
     public static NbtString toNbtString(Text text, boolean useDisableItalicConfig) {
-        if (useDisableItalicConfig)
+        if (useDisableItalicConfig) {
             disableItalicConfig(text);
+        }
         return NbtString.of(Text.Serialization.toJsonString(text));
     }
 
@@ -190,7 +275,6 @@ public class FzmmUtils {
     }
 
     /**
-     *
      * @param widthGetter Object is either StringVisitable or OrderedText
      */
     public static <T> int getMaxWidth(Collection<T> collection, Function<T, Object> widthGetter) {

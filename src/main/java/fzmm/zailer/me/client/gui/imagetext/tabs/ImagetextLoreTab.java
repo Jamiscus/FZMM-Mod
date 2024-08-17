@@ -14,6 +14,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 
 public class ImagetextLoreTab implements IImagetextTab {
     private static final String LORE_MODE_ID = "loreMode";
@@ -59,7 +60,7 @@ public class ImagetextLoreTab implements IImagetextTab {
 
     private ItemStack getStack(LoreOption option) {
         assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack().copy();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         if (stack.isEmpty()) {
             stack = FzmmUtils.getItem(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();

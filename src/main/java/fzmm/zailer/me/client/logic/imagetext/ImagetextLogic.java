@@ -35,7 +35,7 @@ public class ImagetextLogic {
 
         List<MutableText> rawLinesList = algorithm.get(this, data, lineSplitInterval);
         List<Text> linesList = rawLinesList.stream()
-                .map(FzmmUtils::disableItalicConfig)
+                .map(mutableText -> (Text) FzmmUtils.toNbtString(mutableText, false))
                 .toList();
 
         Text firstLine = linesList.isEmpty() ? Text.empty() : linesList.get(0);
@@ -61,8 +61,7 @@ public class ImagetextLogic {
     public void addResolution() {
         String message = Text.translatable("fzmm.item.imagetext.resolution", this.width, this.height).getString();
         int color = FzmmClient.CONFIG.colors.imagetextMessages().rgb();
-        Text text = Text.translatable(message)
-                .setStyle(Style.EMPTY.withColor(color));
+        MutableText text = Text.translatable(message).setStyle(Style.EMPTY.withColor(color));
         this.imagetext.add(FzmmUtils.disableItalicConfig(text));
     }
 
