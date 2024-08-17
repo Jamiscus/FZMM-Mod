@@ -19,12 +19,14 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.*;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import net.minecraft.registry.DynamicRegistryManager;
@@ -32,6 +34,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import org.apache.http.HttpEntity;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class FzmmUtils {
 
@@ -72,6 +76,17 @@ public class FzmmUtils {
 
     };
 
+    /**
+     * Process the hand item to be able to edit it
+     * @return Hand item copy and ready to be modified
+     */
+    public static ItemStack getHandStack(Hand hand) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
+        ItemStack stack = client.player.getStackInHand(hand);
+        return processStack(stack);
+    }
+
     public static void giveItem(ItemStack stack) {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
@@ -81,9 +96,9 @@ public class FzmmUtils {
             long inventorySize = getInventorySizeInBytes();
             if ((stackSize + inventorySize) > 8000000) {
                 client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit",
-                                getLengthInKB(stackSize + inventorySize),
-                                getLengthInKB(8000000L)
-                        ).setStyle(Style.EMPTY.withColor(Formatting.RED)));
+                        getLengthInKB(stackSize + inventorySize),
+                        getLengthInKB(8000000L)
+                ).setStyle(Style.EMPTY.withColor(Formatting.RED)));
 
                 FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes (with {} bytes already in inventory)",
                         stackSize, inventorySize);
@@ -109,6 +124,64 @@ public class FzmmUtils {
 
             playerInventory.addPickBlock(stack);
             updateHand(stack);
+        }
+    }
+
+    /**
+     * Process the item to be able to edit it
+     * @return The item ready to be modified
+     */
+    public static ItemStack processStack(ItemStack stack) {
+        ItemStack stackCopy = stack.copy();
+        if (!FzmmClient.CONFIG.general.removeViaVersionTags()) {
+            return stackCopy;
+        }
+        stackCopy.apply(DataComponentTypes.CUSTOM_DATA, null, nbtComponent -> {
+            if (nbtComponent == null) {
+                return NbtComponent.DEFAULT;
+            }
+
+            NbtCompound customTag = nbtComponent.copyNbt();
+
+            // This affects multiplayer when the server is on a lower version and ViaVersion is used.
+            //
+            // When removing ViaVersion tags, the cached version for ViaVersion is deleted.
+            // These cached versions are used for players on older versions, but these tags
+            // are more important than those for the higher version. Consequently, if you
+            // modify an item with these tags, it will later revert to the cached version, losing the changes.
+            recursiveRemoveTags(customTag, s -> s.startsWith("VV|Protocol"));
+
+            return customTag.getKeys().isEmpty() ? NbtComponent.DEFAULT : NbtComponent.of(customTag);
+        });
+
+        return stackCopy;
+    }
+
+    public static void recursiveRemoveTags(NbtCompound tags, Predicate<String> keyPredicate) {
+        List<String> keysToRemove = new ArrayList<>();
+        for (String key : tags.getKeys()) {
+            if (keyPredicate.test(key)) {
+                keysToRemove.add(key);
+                continue;
+            }
+
+            NbtElement value = tags.get(key);
+            if (value instanceof NbtCompound compound) {
+                recursiveRemoveTags(compound, keyPredicate);
+                continue;
+            }
+
+            if (value instanceof NbtList list) {
+                for (var element : list) {
+                    if (element instanceof NbtCompound compoundElement) {
+                        recursiveRemoveTags(compoundElement, keyPredicate);
+                    }
+                }
+            }
+        }
+
+        for (String key : keysToRemove) {
+            tags.remove(key);
         }
     }
 
@@ -149,11 +222,11 @@ public class FzmmUtils {
         client.interactionManager.clickCreativeStack(stack, PlayerInventory.MAIN_SIZE + playerInventory.selectedSlot);
     }
 
-    public static Text disableItalicConfig(Text message) {
+    public static MutableText disableItalicConfig(MutableText message) {
         Style style = message.getStyle();
 
         if (FzmmClient.CONFIG.general.disableItalic() && !style.isItalic()) {
-            ((MutableText) message).setStyle(style.withItalic(false));
+            message.setStyle(style.withItalic(false));
         }
 
         return message;
@@ -179,13 +252,14 @@ public class FzmmUtils {
         return count;
     }
 
-    public static Text disableItalicConfig(String string, boolean useDisableItalicConfig) {
-        return disableItalicConfig(Text.of(string), useDisableItalicConfig);
+    public static MutableText disableItalicConfig(String string, boolean useDisableItalicConfig) {
+        return disableItalicConfig(Text.literal(string), useDisableItalicConfig);
     }
 
-    public static Text disableItalicConfig(Text text, boolean useDisableItalicConfig) {
-        if (useDisableItalicConfig)
-            disableItalicConfig(text);
+    public static MutableText disableItalicConfig(MutableText text, boolean useDisableItalicConfig) {
+        if (useDisableItalicConfig) {
+            return disableItalicConfig(text);
+        }
         return text;
     }
 

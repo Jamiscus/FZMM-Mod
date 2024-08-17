@@ -2,8 +2,10 @@ package fzmm.zailer.me.client.gui.imagetext;
 
 import fzmm.zailer.me.builders.BookBuilder;
 import fzmm.zailer.me.client.gui.components.IMode;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 
 import java.util.function.Supplier;
 
@@ -13,7 +15,7 @@ public enum ImagetextBookOption implements IMode {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        return BookBuilder.of(client.player.getMainHandStack()).orElse(CREATE_BOOK.bookBuilderSupplier.get());
+        return BookBuilder.of(FzmmUtils.getHandStack(Hand.MAIN_HAND)).orElse(CREATE_BOOK.bookBuilderSupplier.get());
     });
 
 

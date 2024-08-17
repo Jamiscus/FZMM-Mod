@@ -18,6 +18,7 @@ import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 
 import java.util.List;
 
@@ -79,7 +80,7 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
 
     private ItemStack getStack(LoreOption option) {
         assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack().copy();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         if (stack.isEmpty()) {
             stack = FzmmUtils.getItem(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();

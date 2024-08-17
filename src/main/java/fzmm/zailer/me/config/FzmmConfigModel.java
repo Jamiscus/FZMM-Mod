@@ -55,6 +55,7 @@ public class FzmmConfigModel {
         public boolean showItemSize = true;
         public boolean checkValidCodec = true;
         public boolean giveItemSizeLimit = true;
+        public boolean removeViaVersionTags = true;
     }
 
     public static class GuiStyleNest {

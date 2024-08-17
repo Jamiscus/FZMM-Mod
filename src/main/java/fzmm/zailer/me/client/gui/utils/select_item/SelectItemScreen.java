@@ -166,16 +166,18 @@ public class SelectItemScreen extends BaseFzmmScreen {
     private ItemComponent getItemCallback(ItemStack stack) {
         assert this.client != null;
 
-        ItemComponent itemComponent = (ItemComponent) Components.item(stack)
-                .tooltip(stack.getTooltip(
+        ItemStack processedStack = FzmmUtils.processStack(stack);
+
+        ItemComponent itemComponent = (ItemComponent) Components.item(processedStack)
+                .tooltip(processedStack.getTooltip(
                         Item.TooltipContext.DEFAULT,
                         this.client.player,
                         this.client.options.advancedItemTooltips ? TooltipType.Default.ADVANCED : TooltipType.Default.BASIC
                 ));
 
         itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            this.selectedRequestedItem.setStack(stack);
-            this.requestedItems.get(this.selectedRequestedItem).stack(stack);
+            this.selectedRequestedItem.setStack(processedStack);
+            this.requestedItems.get(this.selectedRequestedItem).stack(processedStack);
             this.executeButton.active = this.canExecute();
             return true;
         });
