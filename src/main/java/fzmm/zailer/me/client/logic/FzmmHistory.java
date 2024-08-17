@@ -1,18 +1,20 @@
 package fzmm.zailer.me.client.logic;
 
-import com.google.common.collect.ImmutableList;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.DynamicRegistryManager;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FzmmHistory {
-    private static final ArrayDeque<ItemStack> GENERATED_ITEMS = new ArrayDeque<>();
-    private static final ArrayDeque<ItemStack> GENERATED_HEADS = new ArrayDeque<>();
+    private static final ArrayDeque<NbtCompound> GENERATED_ITEMS = new ArrayDeque<>();
+    private static final ArrayDeque<NbtCompound> GENERATED_HEADS = new ArrayDeque<>();
 
     public static void update() {
         FzmmConfig.History config = FzmmClient.CONFIG.history;
@@ -21,11 +23,11 @@ public class FzmmHistory {
     }
 
     public static List<ItemStack> getGeneratedItems() {
-        return ImmutableList.copyOf(GENERATED_ITEMS);
+        return GENERATED_ITEMS.stream().map(FzmmHistory::parseNbt).toList();
     }
 
     public static List<ItemStack> getGeneratedHeads() {
-        return ImmutableList.copyOf(GENERATED_HEADS);
+        return GENERATED_HEADS.stream().map(FzmmHistory::parseNbt).toList();
     }
 
     public static void add(ItemStack stack) {
@@ -44,31 +46,44 @@ public class FzmmHistory {
         add(stack, GENERATED_HEADS, FzmmClient.CONFIG.history.maxHeadHistory());
     }
 
-    public static void add(ItemStack stack, ArrayDeque<ItemStack> stacks, int max) {
-        for (var stackFromHistory : stacks) {
-            if (ItemStack.areEqual(stackFromHistory, stack)) {
-                stacks.remove(stackFromHistory);
+    public static void add(ItemStack stack, ArrayDeque<NbtCompound> compounds, int max) {
+        NbtCompound stackCompound = (NbtCompound) stack.encodeAllowEmpty(FzmmUtils.getRegistryManager());
+        for (var compoundsFromHistory : compounds) {
+            if (compoundsFromHistory.equals(stackCompound)) {
+                compounds.remove(compoundsFromHistory);
                 break;
             }
         }
-        stacks.addFirst(stack);
-        removeExcess(stacks, max);
+        compounds.addFirst(stackCompound);
+        removeExcess(compounds, max);
     }
 
-    public static void removeExcess(ArrayDeque<ItemStack> stacks, int max){
+    public static void removeExcess(ArrayDeque<NbtCompound> compounds, int max){
         if (max < 1) {
-            stacks.clear();
+            compounds.clear();
             return;
         }
 
-        while (max < stacks.size())
-            stacks.removeLast();
+        while (max < compounds.size()) {
+            compounds.removeLast();
+        }
     }
 
     public static List<ItemStack> getAllItems() {
         List<ItemStack> result = new ArrayList<>();
-        result.addAll(GENERATED_ITEMS);
-        result.addAll(GENERATED_HEADS);
+        result.addAll(getGeneratedItems());
+        result.addAll(getGeneratedHeads());
         return result;
+    }
+
+    /**
+     * This is necessary because of how registries work.
+     * If an item was created in one world with one registry,
+     * and then you go to another world with a different registry,
+     * it will cause a codec error
+     */
+    private static ItemStack parseNbt(NbtCompound nbt) {
+        DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
+        return ItemStack.fromNbtOrEmpty(registryManager, nbt);
     }
 }
