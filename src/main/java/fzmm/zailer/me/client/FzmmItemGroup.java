@@ -23,6 +23,7 @@ import net.minecraft.village.raid.Raid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class FzmmItemGroup {
@@ -37,7 +38,6 @@ public class FzmmItemGroup {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(entries -> {
             ArrayList<ItemStack> newEntries = new ArrayList<>();
 
-            newEntries.add(Items.DRAGON_EGG.getDefaultStack());
             newEntries.add(new ItemStack(Items.FILLED_MAP));
             newEntries.add(new ItemStack(Items.WRITTEN_BOOK));
             newEntries.add(new ItemStack(Items.ENCHANTED_BOOK));
@@ -47,7 +47,9 @@ public class FzmmItemGroup {
             newEntries.add(new ItemStack(Items.SPLASH_POTION));
             newEntries.add(new ItemStack(Items.LINGERING_POTION));
             newEntries.add(new ItemStack(Items.TIPPED_ARROW));
+            newEntries.add(Items.DRAGON_EGG.getDefaultStack());
 
+            addSpawnEggs(newEntries);
             addArmorStand(newEntries);
             addItemFrames(newEntries);
             addNameTags(newEntries);
@@ -159,6 +161,22 @@ public class FzmmItemGroup {
         Registry.register(Registries.ITEM_GROUP, LOOT_CHESTS_IDENTIFIER, lootChestsItemGroup);
     }
 
+    private static void addSpawnEggs(List<ItemStack> entries) {
+        Predicate<ItemStack> hasGroup = stack -> {
+            for (var group : Registries.ITEM_GROUP) {
+                if (group.contains(stack)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        for (var item : Registries.ITEM) {
+            if (item instanceof SpawnEggItem && !hasGroup.test(item.getDefaultStack())) {
+                entries.add(item.getDefaultStack());
+            }
+        }
+    }
+
     private static void addArmorStand(List<ItemStack> entries) {
         String baseTranslation = "armorStand.";
         ItemStack armorStandWithArms = ArmorStandBuilder.builder()
@@ -251,24 +269,30 @@ public class FzmmItemGroup {
     }
 
     private static void addLeaves(ItemGroup.Entries entries) {
+        ItemPredicate predicate = itemPredicate(ItemTags.LEAVES);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.LEAVES))
+            if (predicate.test(new ItemStack(item))) {
                 entries.add(new BlockStateItemBuilder(item, "nonPersistentLeaves", item).add("persistent", false).get());
+            }
         }
     }
 
     private static void addHalfDoors(ItemGroup.Entries entries) {
+        ItemPredicate predicate = itemPredicate(ItemTags.DOORS);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.DOORS))
+            if (predicate.test(new ItemStack(item))) {
                 addHalfUpper(entries, item, "halfDoor");
+            }
         }
     }
 
     private static void addTallFlowers(ItemGroup.Entries entries) {
         String suffix = "tallFlowerSelfDestructs";
+        ItemPredicate predicate = itemPredicate(ItemTags.TALL_FLOWERS);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.TALL_FLOWERS))
+            if (predicate.test(new ItemStack(item))) {
                 addHalfUpper(entries, item, suffix);
+            }
         }
         addHalfUpper(entries, Items.TALL_GRASS, suffix);
         addHalfUpper(entries, Items.LARGE_FERN, suffix);
@@ -280,35 +304,43 @@ public class FzmmItemGroup {
     }
 
     private static void addLitCandles(ItemGroup.Entries entries) {
+        ItemPredicate predicate = itemPredicate(ItemTags.CANDLES);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.CANDLES))
+            if (predicate.test(new ItemStack(item))) {
                 entries.add(new BlockStateItemBuilder(item, "litCandle", item).add("lit", true).get());
+            }
         }
     }
 
     private static void addHalfBed(ItemGroup.Entries entries) {
+        ItemPredicate predicate = itemPredicate(ItemTags.BEDS);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.BEDS))
+            if (predicate.test(new ItemStack(item))) {
                 entries.add(new BlockStateItemBuilder(item, "bedHeadPart", item).add("part", "head").get());
+            }
         }
     }
 
     private static void addLockedBed(ItemGroup.Entries entries) {
+        ItemPredicate predicate = itemPredicate(ItemTags.BEDS);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.BEDS))
+            if (predicate.test(new ItemStack(item))) {
                 entries.add(new BlockStateItemBuilder(item, "lockedBed", item).add("occupied", true).get());
+            }
         }
     }
 
     private static void addWaterloggedBlocks(ItemGroup.Entries entries) {
+        ItemPredicate predicate = itemPredicate(ItemTags.SLABS);
         for (var item : Registries.ITEM) {
-            if (contains(item, ItemTags.SLABS))
+            if (predicate.test(new ItemStack(item))) {
                 entries.add(new BlockStateItemBuilder(item, "waterloggedBlock", item).add("type", "double").add("waterlogged", true).get());
+            }
         }
     }
 
-    private static boolean contains(Item item, TagKey<Item> tag) {
-        return ItemPredicate.Builder.create().tag(tag).build().test(new ItemStack(item));
+    private static ItemPredicate itemPredicate(TagKey<Item> tag) {
+        return ItemPredicate.Builder.create().tag(tag).build();
     }
 
     private static void addLootChest(ItemGroup.Entries entries, Item item, List<String> pathList) {
