@@ -43,6 +43,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -68,7 +69,7 @@ public class FzmmCommand {
 
                     Text name = ctx.getArgument("name", Text.class);
 
-                    DisplayBuilder.renameHandItem(name);
+                    DisplayBuilder.renameHandItem(name.copy());
                     return 1;
                 }))
         );
@@ -77,11 +78,11 @@ public class FzmmCommand {
                 .executes(ctx -> sendHelpMessage("commands.fzmm.lore.help", BASE_COMMAND + " lore add/remove"))
                 .then(ClientCommandManager.literal("add")
                         .executes(ctx -> sendHelpMessage("commands.fzmm.lore.add.help", BASE_COMMAND + " lore add <message>"))
-                        .then(ClientCommandManager.argument("id", TextArgumentType.text(registryAccess)).executes(ctx -> {
+                        .then(ClientCommandManager.argument("message", TextArgumentType.text(registryAccess)).executes(ctx -> {
 
-                            Text message = ctx.getArgument("id", Text.class);
+                            Text message = ctx.getArgument("message", Text.class);
 
-                            DisplayBuilder.addLoreToHandItem(message);
+                            DisplayBuilder.addLoreToHandItem(message.copy());
                             return 1;
                         }))
                 ).then(ClientCommandManager.literal("remove")
@@ -328,7 +329,7 @@ public class FzmmCommand {
 
     private static void giveItem(ItemStackArgument item, int amount) throws CommandSyntaxException {
         ItemStack itemStack = item.createStack(amount, false);
-        FzmmUtils.giveItem(itemStack);
+        FzmmUtils.giveItem(FzmmUtils.processStack(itemStack));
     }
 
     private static void oldGiveItem(Identifier item, NbtCompound nbtCompound, Pair<String, Integer> oldVersion) {
@@ -362,7 +363,7 @@ public class FzmmCommand {
             } else if (result.isEmpty() || result.get(0).isEmpty()) {
                 chatHud.addMessage(errorMessage);
             } else {
-                FzmmUtils.giveItem(result.get(0));
+                FzmmUtils.giveItem(FzmmUtils.processStack(result.get(0)));
                 chatHud.addMessage(Text.translatable("commands.fzmm.old_give.success", item.toString(), oldVersion.getLeft())
                                 .withColor(FzmmClient.CHAT_BASE_COLOR)
                         );
@@ -414,9 +415,7 @@ public class FzmmCommand {
 
     private static void addEnchant(RegistryEntry.Reference<Enchantment> enchant, short level) {
         //{Enchantments:[{message:"minecraft:aqua_affinity",lvl:1s}]}
-
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         stack.apply(DataComponentTypes.ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT, component -> {
             ItemEnchantmentsComponent.Builder builder = new ItemEnchantmentsComponent.Builder(component);
@@ -428,8 +427,7 @@ public class FzmmCommand {
     }
 
     private static void addFakeEnchant(RegistryEntry.Reference<Enchantment>  enchant, int level) {
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         stack.apply(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, null, component -> true);
 
@@ -548,12 +546,8 @@ public class FzmmCommand {
     }
 
     private static void amount(int amount) {
-        assert MinecraftClient.getInstance().player != null;
-
-        ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
-
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
         stack.setCount(amount);
-
         FzmmUtils.updateHand(stack);
     }
 
@@ -572,11 +566,8 @@ public class FzmmCommand {
      * @param firstSlot if -1, it will fill empty slots starting at 0
      */
     private static void fullContainer(int slotsToFill, int firstSlot) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
-
-        ItemStack containerStack = client.player.getMainHandStack();
-        ItemStack itemStack = client.player.getOffHandStack();
+        ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack itemStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
 
         containerStack.apply(DataComponentTypes.CONTAINER, ContainerComponent.DEFAULT, component -> {
             List<ItemStack> stacksCopy = new ArrayList<>(component.stream().toList());
@@ -629,10 +620,9 @@ public class FzmmCommand {
 
     private static void lockContainer(String key) {
         MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
 
-        ItemStack containerStack = client.player.getMainHandStack();
-        ItemStack lockStack = client.player.getOffHandStack();
+        ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack lockStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
 
         containerStack.apply(DataComponentTypes.LOCK, ContainerLock.EMPTY, component -> new ContainerLock(key));
 
@@ -645,8 +635,7 @@ public class FzmmCommand {
     }
 
     private static void removeLore() {
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         LoreComponent loreComponent = stack.getComponents().get(DataComponentTypes.LORE);
         if (loreComponent != null) {
@@ -655,9 +644,7 @@ public class FzmmCommand {
     }
 
     private static void removeLore(int lineToRemove) {
-        assert MinecraftClient.getInstance().player != null;
-
-        ItemStack stack = MinecraftClient.getInstance().player.getMainHandStack();
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         if (!stack.getComponents().contains(DataComponentTypes.LORE)) {
             return;

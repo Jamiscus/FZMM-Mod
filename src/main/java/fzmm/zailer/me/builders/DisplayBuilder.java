@@ -1,14 +1,15 @@
 package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.FzmmUtils;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Hand;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -33,22 +34,20 @@ public class DisplayBuilder {
         return builder().stack(stack.copy());
     }
 
-    public static void addLoreToHandItem(Text text) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
+    public static void addLoreToHandItem(MutableText text) {
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
-        ItemStack stack = of(mc.player.getMainHandStack())
-                .addLore(FzmmUtils.disableItalicConfig(text))
-                .get();
+        stack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, loreComponent -> {
+            List<Text> loreList = new ArrayList<>(loreComponent.lines());
+            loreList.add(FzmmUtils.disableItalicConfig(text));
+            return new LoreComponent(loreList);
+        });
 
         FzmmUtils.giveItem(stack);
     }
 
-    public static void renameHandItem(Text text) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
-
-        ItemStack stack = client.player.getInventory().getMainHandStack();
+    public static void renameHandItem(MutableText text) {
+        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
 
         stack.apply(DataComponentTypes.CUSTOM_NAME, null, component -> FzmmUtils.disableItalicConfig(text));
         FzmmUtils.giveItem(stack);
@@ -101,7 +100,7 @@ public class DisplayBuilder {
         return this;
     }
 
-    public DisplayBuilder setName(Text name) {
+    public DisplayBuilder setName(MutableText name) {
         this.customName = FzmmUtils.disableItalicConfig(name, true);
         return this;
     }
@@ -129,7 +128,7 @@ public class DisplayBuilder {
 
     public DisplayBuilder addLore(String[] loreArr) {
         List<Text> loreList = Arrays.stream(loreArr)
-                .map(loreLine -> FzmmUtils.disableItalicConfig(loreLine, true))
+                .map(loreLine -> (Text) FzmmUtils.disableItalicConfig(loreLine, true))
                 .toList();
 
         return this.addLore(loreList);
