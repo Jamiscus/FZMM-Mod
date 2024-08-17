@@ -4,9 +4,6 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.ItemComponent;
 import io.wispforest.owo.ui.core.CursorStyle;
 import io.wispforest.owo.ui.util.UISounds;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.item.TooltipType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class GiveItemComponent extends ItemComponent {
@@ -14,12 +11,7 @@ public class GiveItemComponent extends ItemComponent {
         super(stack);
         this.showOverlay(true);
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        this.tooltip(stack.getTooltip(
-                Item.TooltipContext.DEFAULT,
-                client.player,
-                client.options.advancedItemTooltips ? TooltipType.Default.ADVANCED : TooltipType.Default.BASIC
-        ));
+        this.setTooltipFromStack(true);
 
         this.cursorStyle(CursorStyle.HAND);
         this.mouseDown().subscribe((mouseX, mouseY, button) -> {
