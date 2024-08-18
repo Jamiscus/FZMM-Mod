@@ -153,6 +153,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
                             Util.getOperatingSystem().open(HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile())))
                     .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.button.openSkin"), buttonComponent ->
                             Util.getOperatingSystem().open(file)))
+                    .sizing(Sizing.fixed(180), Sizing.content())
                     .timer(15, TimeUnit.SECONDS)
                     .startTimer().canClose(true)
                     .build();
