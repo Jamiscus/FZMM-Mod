@@ -47,7 +47,13 @@ public class FzmmHistory {
     }
 
     public static void add(ItemStack stack, ArrayDeque<NbtCompound> compounds, int max) {
-        NbtCompound stackCompound = (NbtCompound) stack.encodeAllowEmpty(FzmmUtils.getRegistryManager());
+        NbtCompound stackCompound;
+        try {
+            // May throw an exception if the codec is invalid
+            stackCompound = (NbtCompound) stack.encodeAllowEmpty(FzmmUtils.getRegistryManager());
+        } catch (Exception ignored) {
+            return;
+        }
         for (var compoundsFromHistory : compounds) {
             if (compoundsFromHistory.equals(stackCompound)) {
                 compounds.remove(compoundsFromHistory);
