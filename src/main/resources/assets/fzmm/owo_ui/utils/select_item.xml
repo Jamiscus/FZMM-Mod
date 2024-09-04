@@ -97,7 +97,7 @@
                     <children>
 
                         <button id="execute-button">
-                            <text translate="true">fzmm.gui.button.execute</text>
+                            <text translate="true">gui.done</text>
 
                             <sizing>
                                 <vertical method="fixed">16</vertical>

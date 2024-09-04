@@ -6,7 +6,6 @@ import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Sizing;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
@@ -17,7 +16,7 @@ public class BooleanRow extends AbstractRow {
 
     @Override
     public Component[] getComponents(String id, String tooltipId) {
-        Component buttonComponent = new BooleanButton(Text.translatable("text.owo.config.boolean_toggle.enabled"), Text.translatable("text.owo.config.boolean_toggle.disabled"))
+        Component buttonComponent = new BooleanButton()
                 .id(getBooleanButtonId(id));
 
         return new Component[] {
