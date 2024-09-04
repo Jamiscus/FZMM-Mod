@@ -263,6 +263,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "styled-scroll"), StyledScrollContainer::parse);
 
         // these are necessary in case you want to create the fields manually with XML
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "book"), element -> new BookComponent());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "boolean-button"), BooleanButton::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "context-menu-button"), element -> new ContextMenuButton(Text.empty()));
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "number-slider"), element -> new SliderWidget());

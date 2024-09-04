@@ -1,6 +1,7 @@
 package fzmm.zailer.me.config;
 
 import fzmm.zailer.me.client.gui.imagetext.ImagetextScreen;
+import fzmm.zailer.me.client.logic.enycrpt_book.TranslationEncryptProfile;
 import io.wispforest.owo.config.annotation.*;
 import io.wispforest.owo.ui.core.Color;
 import net.minecraft.item.Items;
@@ -117,14 +118,15 @@ public class FzmmConfigModel {
     }
 
     public static class EncryptbookNest {
-        public int asymmetricEncryptKey = 0;
         public String defaultBookMessage = "Hello world";
         public String defaultBookTitle = "Encode book (%s)";
-        @RangeConstraint(min = 1, max = 512)
-        public int maxMessageLength = 255;
-        public String padding = "1234567890qwertyuiopsdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_,.";
+        public String padding = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_,.";
         public String separatorMessage = "-----";
-        public String translationKeyPrefix = "secret_mc_";
+
+        @ExcludeFromScreen
+        public List<TranslationEncryptProfileModel> profiles = new ArrayList<>(
+                List.of(new TranslationEncryptProfileModel())
+        );
     }
 
     public static class ColorsNest {
@@ -157,6 +159,33 @@ public class FzmmConfigModel {
         @Hook
         public int maxHeadHistory = 100;
         public boolean automaticallyRecoverScreens = true;
+    }
+
+    public static final class TranslationEncryptProfileModel {
+        public int seed = 0;
+        @RangeConstraint(min = 1, max = TranslationEncryptProfile.MAX_LENGTH)
+        public int length = 255;
+        public String key = "secret_mc_%s";
+        public int asymmetricValue = 0;
+        @RangeConstraint(min = 1, max = TranslationEncryptProfile.ALGORITHM_VERSION)
+        public int algorithmVersion = TranslationEncryptProfile.ALGORITHM_VERSION;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            TranslationEncryptProfileModel that = (TranslationEncryptProfileModel) o;
+            return seed == that.seed &&
+                    length == that.length &&
+                    asymmetricValue == that.asymmetricValue &&
+                    algorithmVersion == that.algorithmVersion &&
+                    Objects.equals(key, that.key);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(seed, length, key, asymmetricValue, algorithmVersion);
+        }
     }
 
     @SuppressWarnings("unused")
