@@ -1,6 +1,5 @@
 package fzmm.zailer.me.mixin.item_stack.auto_placer;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import fzmm.zailer.me.client.gui.utils.auto_placer.AutoPlacerHud;
 import fzmm.zailer.me.utils.FzmmUtils;
@@ -10,10 +9,12 @@ import net.minecraft.client.network.SequencedPacketCreator;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public abstract class ClientPlayerInteractionManagerMixin {
@@ -28,7 +29,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
      * - is not in creative,
      * - item block has nbt,
      * - the block is in the main hand
-     * - and coincides with an autoplacer
+     * - and coincides with an auto-placer
      */
     @WrapWithCondition(
             method = "interactBlock(Lnet/minecraft/client/network/ClientPlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;",
@@ -47,14 +48,18 @@ public abstract class ClientPlayerInteractionManagerMixin {
     }
 
     /**
-     * Fixes that the mixin above these cancels SequencedPacketCreator and the return is not initialized
+     * Fixes related to the mixin {@link #fzmm$openAutoPlacerHud(ClientPlayerInteractionManager, ClientWorld, SequencedPacketCreator)}
+     * which cancels {@link ClientPlayerInteractionManager#sendSequencedPacket(ClientWorld, SequencedPacketCreator)}
+     * and the return value could be null if it returns false (indicating that the auto-placer HUD is opened)
      */
-    @ModifyReturnValue(
+    @SuppressWarnings("JavadocReference")
+    @ModifyVariable(
             method = "interactBlock(Lnet/minecraft/client/network/ClientPlayerEntity;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;",
-            at = @At("RETURN")
+            at = @At("STORE")
     )
-    private ActionResult fzmm$avoidNullActionResult(ActionResult original) {
-        return original == null ? ActionResult.PASS : original;
+    private MutableObject<ActionResult> fzmm$initActionResult(MutableObject<ActionResult> mutableObject) {
+        mutableObject.setValue(ActionResult.PASS);
+        return mutableObject;
     }
 
 }
