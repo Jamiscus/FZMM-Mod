@@ -65,7 +65,7 @@
                 <fzmm.styled-flow-layout direction="horizontal">
                     <children>
                         <button id="execute-button">
-                            <text translate="true">fzmm.gui.button.execute</text>
+                            <text translate="true">gui.done</text>
 
                             <sizing>
                                 <vertical method="fixed">16</vertical>
@@ -107,6 +107,10 @@
                                 <right>3</right>
                                 <top>3</top>
                             </margins>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
                         </button>
 
                     </children>

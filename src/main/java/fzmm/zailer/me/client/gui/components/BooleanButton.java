@@ -36,6 +36,11 @@ public class BooleanButton extends ButtonComponent {
         this.updateMessage();
     }
 
+    @SuppressWarnings("NoTranslation")
+    public BooleanButton() {
+        this(Text.translatable("text.owo.config.boolean_toggle.enabled"), Text.translatable("text.owo.config.boolean_toggle.disabled"));
+    }
+
     @Override
     public void onPress() {
         this.enabled = !this.enabled;

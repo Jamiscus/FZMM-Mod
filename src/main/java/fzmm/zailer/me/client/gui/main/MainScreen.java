@@ -2,7 +2,7 @@ package fzmm.zailer.me.client.gui.main;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import fzmm.zailer.me.client.gui.EncryptBookScreen;
+import fzmm.zailer.me.client.gui.encrypt_book.EncryptBookScreen;
 import fzmm.zailer.me.client.gui.HistoryScreen;
 import fzmm.zailer.me.client.gui.banner_editor.BannerEditorScreen;
 import fzmm.zailer.me.client.gui.converters.ConvertersScreen;
