@@ -675,5 +675,7 @@
   "text.config.fzmm.option.textFormat.maxRainbowHueStep.tooltip": "Maximum value for the step between the change of each hue in the rainbow tab,\nvery high values can cause it to not look like a rainbow.",
   "text.config.fzmm.option.textFormat.minRainbowHueStep": "Minimum rainbow hue step",
   "text.config.fzmm.option.textFormat.minRainbowHueStep.tooltip": "Minimum value for the step between the change of each hue in the rainbow tab.",
+  "text.config.fzmm.section.externalAPIs": "External APIs",
+  "text.config.fzmm.section.gui": "GUIs",
   "text.config.fzmm.title": "FZMM configs"
 }
