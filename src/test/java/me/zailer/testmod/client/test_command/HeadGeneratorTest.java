@@ -1,4 +1,4 @@
-package me.zailer.testmod.client.test;
+package me.zailer.testmod.client.test_command;
 
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.image.source.ImageFileDialogSource;

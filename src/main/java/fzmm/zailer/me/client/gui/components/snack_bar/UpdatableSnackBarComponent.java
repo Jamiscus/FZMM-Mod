@@ -23,8 +23,8 @@ public class UpdatableSnackBarComponent extends BaseSnackBarComponent {
         this.details.text(text);
     }
 
-    public static SnackBarBuilder builder() {
+    public static SnackBarBuilder builder(String id) {
         UpdatableSnackBarComponent component = new UpdatableSnackBarComponent(Sizing.content(), Sizing.content());
-        return SnackBarBuilder.builder(component, component.title, component.details);
+        return SnackBarBuilder.builder(component, component.title, component.details, id);
     }
 }

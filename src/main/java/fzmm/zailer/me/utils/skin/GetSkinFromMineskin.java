@@ -33,7 +33,7 @@ public class GetSkinFromMineskin extends GetSkinDecorator {
         try {
             new GetSkinFromCache().getSkin(playerName).ifPresent(bufferedImage -> this.skin = bufferedImage);
         } catch (IOException e) {
-            FzmmClient.LOGGER.error("[GetSkinFromMineskin] Failed to get skin for player " + playerName, e);
+            FzmmClient.LOGGER.error("[GetSkinFromMineskin] Failed to get skin for player '{}'", playerName, e);
         }
         return this;
     }
@@ -41,7 +41,7 @@ public class GetSkinFromMineskin extends GetSkinDecorator {
     @Override
     public Optional<BufferedImage> getSkin(String playerName) throws IOException {
         if (this.skin == null) {
-            FzmmClient.LOGGER.warn("[GetSkinFromMineskin] No skin found for player " + playerName);
+            FzmmClient.LOGGER.warn("[GetSkinFromMineskin] No skin found for player '{}'", playerName);
             return super.getSkin(playerName);
         }
 
@@ -60,7 +60,7 @@ public class GetSkinFromMineskin extends GetSkinDecorator {
     @Override
     public Optional<ItemStack> getHead(String playerName) {
         if (this.skin == null) {
-            FzmmClient.LOGGER.warn("[GetSkinFromMineskin] No skin found for player " + playerName);
+            FzmmClient.LOGGER.warn("[GetSkinFromMineskin] No skin found for player '{}'", playerName);
             return super.getHead(playerName);
         }
 
@@ -73,7 +73,7 @@ public class GetSkinFromMineskin extends GetSkinDecorator {
 
             return headUtils.isSkinGenerated() ? Optional.of(builder.get()) : super.getHead(playerName);
         } catch (InterruptedException | ExecutionException e) {
-            FzmmClient.LOGGER.error("Failed to upload head for player '{}'", playerName, e);
+            FzmmClient.LOGGER.error("[GetSkinFromMineskin] Failed to upload head for player '{}'", playerName, e);
         }
         return super.getHead(playerName);
     }

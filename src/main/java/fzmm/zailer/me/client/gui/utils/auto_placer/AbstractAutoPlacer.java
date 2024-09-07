@@ -32,7 +32,6 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
     protected LabelComponent loadingLabel;
     protected ButtonComponent cancelButton;
 
-
     public AbstractAutoPlacer(String screenPath, String baseScreenTranslationKey, @Nullable Screen parent) {
         super(screenPath, baseScreenTranslationKey, parent);
     }
@@ -73,6 +72,7 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
         assert this.client != null;
         assert this.client.player != null;
         this.client.execute(() -> {
+            //noinspection resource
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
             PlayerStatuePlacerScreen.isActive = true;
             this.cancelButton.active = false;
@@ -113,8 +113,6 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
 
                 sneakToggled.setValue(isSneakToggled);
                 this.client.options.sneakKey.setPressed(false);
-
-                scheduler.shutdownNow();
             }, (containerItemsSize + 2) * (long) DELAY_IN_MILLISECONDS, TimeUnit.MILLISECONDS);
 
             scheduler.shutdown();

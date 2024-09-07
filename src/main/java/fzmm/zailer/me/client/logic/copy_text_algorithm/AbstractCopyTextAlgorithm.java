@@ -1,6 +1,6 @@
 package fzmm.zailer.me.client.logic.copy_text_algorithm;
 
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -12,7 +12,7 @@ public abstract class AbstractCopyTextAlgorithm {
 
     public void copy(Text text) {
         String value = this.getString(text);
-        FzmmUtils.copyToClipboard(value);
+        SnackBarManager.copyToClipboard(value);
     }
 
     public String getString(Text text) {

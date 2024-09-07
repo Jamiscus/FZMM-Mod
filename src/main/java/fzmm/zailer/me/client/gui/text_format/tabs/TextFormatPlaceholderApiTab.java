@@ -11,10 +11,8 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +42,7 @@ public class TextFormatPlaceholderApiTab implements ITextFormatTab {
 
         Component wikiInfo = Components.button(Text.translatable("fzmm.gui.textFormat.button.placeholderApiWiki"), buttonComponent -> {
             MinecraftClient client = MinecraftClient.getInstance();
-            Screen currentScreen = client.currentScreen;
-            client.setScreen(new ConfirmLinkScreen(bool -> {
-                if (bool)
-                    Util.getOperatingSystem().open(PLACEHOLDER_WIKI);
-
-                client.setScreen(currentScreen);
-            }, PLACEHOLDER_WIKI, true));
+            ConfirmLinkScreen.open(client.currentScreen, PLACEHOLDER_WIKI, true);
         });
         this.infoLayout.child(wikiInfo);
 

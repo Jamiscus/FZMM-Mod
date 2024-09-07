@@ -49,7 +49,7 @@ public class MainScreen extends BaseFzmmScreen {
             MainButtonComponent button = rootComponent.childById(MainButtonComponent.class, key);
             ButtonData data = openScreenButtons.get(key);
             if (button != null) {
-                button.onPress(button1 -> this.client.setScreen(data.screen.get()));
+                button.onPress(button1 -> this.setScreen(data.screen.get()));
                 button.setIcon(data.icon);
             }
         }

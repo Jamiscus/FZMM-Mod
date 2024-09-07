@@ -3,7 +3,8 @@ package me.zailer.testmod.client;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import me.zailer.testmod.client.test.HeadGeneratorTest;
+import me.zailer.testmod.client.test_command.HeadGeneratorTest;
+import me.zailer.testmod.client.test_command.SnackBarTest;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
@@ -49,6 +50,27 @@ public class TestCommands {
                     HeadGeneratorTest.checkPixel(x, y, false);
                     return 0;
                 })))
+        );
+
+        testCommand.then(ClientCommandManager.literal("snack_bar:timer")
+                .executes(ctx -> {
+                    SnackBarTest.showTimer();
+                    return 0;
+                })
+        );
+
+        testCommand.then(ClientCommandManager.literal("snack_bar:color")
+                .executes(ctx -> {
+                    SnackBarTest.showColor();
+                    return 0;
+                })
+        );
+
+        testCommand.then(ClientCommandManager.literal("snack_bar:button")
+                .executes(ctx -> {
+                    SnackBarTest.showButton();
+                    return 0;
+                })
         );
 
         dispatcher.register(testCommand);
