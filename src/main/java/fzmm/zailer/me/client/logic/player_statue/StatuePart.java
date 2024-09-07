@@ -176,6 +176,7 @@ public class StatuePart {
                 .setImmutableAndInvisible()
                 .setRightArmPose(new Vector3f(-45f, this.rotation, 0f))
                 .setRightHandItem(HeadBuilder.builder().skinValue(this.skinValue).get())
+                .setTags(PLAYER_STATUE_TAG)
                 .getItem(this.name);
 
         statuePart.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT, nbtComponent -> {
