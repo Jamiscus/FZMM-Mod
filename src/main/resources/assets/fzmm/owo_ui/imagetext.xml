@@ -63,7 +63,7 @@
                                                             </fzmm.styled-flow-layout>
                                                         </children>
 
-                                                        <gap>2</gap>
+                                                        <gap>6</gap>
                                                     </fzmm.styled-flow-layout>
 
                                                     <fzmm.styled-flow-layout direction="vertical">
@@ -79,7 +79,7 @@
                                                             <horizontal method="expand">100</horizontal>
                                                         </sizing>
 
-                                                        <gap>2</gap>
+                                                        <gap>6</gap>
                                                     </fzmm.styled-flow-layout>
 
                                                     <fzmm.boolean-button id="preserveImageAspectRatio">
@@ -118,7 +118,7 @@
                                             </template>
 
                                         </children>
-                                        <gap>3</gap>
+                                        <gap>6</gap>
 
                                         <padding>
                                             <all>6</all>
@@ -135,7 +135,7 @@
                                                 causing them to occupy 2 lines instead of 1
                                             -->
                                             <horizontal method="fill">49</horizontal>
-                                            <vertical method="fixed">148</vertical>
+                                            <vertical method="fixed">170</vertical>
                                         </sizing>
                                     </fzmm.styled-flow-layout>
 
@@ -165,6 +165,7 @@
                                                         <id>characters-text-box</id>
                                                     </template>
                                                 </children>
+
                                             </fzmm.screen-tab>
                                             <fzmm.screen-tab>
                                                 <id>algorithm.braille</id>
@@ -191,6 +192,7 @@
                                                 <margins>
                                                     <bottom>1</bottom>
                                                 </margins>
+
                                             </fzmm.screen-tab>
 
                                         </children>
@@ -205,12 +207,12 @@
 
                                         <sizing>
                                             <horizontal method="fill">50</horizontal>
-                                            <vertical method="fixed">148</vertical>
+                                            <vertical method="fixed">170</vertical>
                                         </sizing>
                                     </fzmm.styled-flow-layout>
 
                                     <!-- image mode -->
-                                    <fzmm.styled-flow-layout direction="vertical">
+                                    <fzmm.styled-flow-layout direction="vertical" id="image-mode-layout">
                                         <children>
                                             <fzmm.context-menu-button id="mode-button">
                                                 <text translate="true">fzmm.gui.imagetext.tab.mode</text>
@@ -468,10 +470,6 @@
                         <text translate="true">fzmm.gui.imagetext.option.{{translation-id}}</text>
                         <tooltip-text translate="true">fzmm.gui.imagetext.option.{{translation-id}}.tooltip</tooltip-text>
 
-                        <margins>
-                            <top>4</top>
-                        </margins>
-
                         <sizing>
                             <horizontal method="fixed">125</horizontal>
                         </sizing>
@@ -486,9 +484,6 @@
                 <gap>2</gap>
                 <vertical-alignment>top</vertical-alignment>
 
-                <sizing>
-                    <vertical method="fixed">18</vertical>
-                </sizing>
             </fzmm.styled-flow-layout>
         </small-option>
 
@@ -500,9 +495,6 @@
                     </small-checkbox>
                 </children>
 
-                <sizing>
-                    <vertical method="expand">100</vertical>
-                </sizing>
                 <vertical-alignment>center</vertical-alignment>
             </fzmm.styled-flow-layout>
         </checkbox-option-type>

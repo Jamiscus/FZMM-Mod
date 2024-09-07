@@ -201,10 +201,15 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         FlowLayout algorithmOptionsLayout = rootComponent.childById(FlowLayout.class, "algorithm-options-layout");
         BaseFzmmScreen.checkNull(algorithmOptionsLayout, "layout", "algorithm-options-layout");
 
+        FlowLayout imageModeLayout = rootComponent.childById(FlowLayout.class, "image-mode-layout");
+        BaseFzmmScreen.checkNull(imageModeLayout, "layout", "image-mode-layout");
+
         Animation<Sizing> imageLayoutAnimation = imageOptionsLayout.horizontalSizing().animate(100, Easing.LINEAR, Sizing.expand(100));
         Animation<Sizing> algorithmLayoutAnimationHorizontal = algorithmOptionsLayout.horizontalSizing().animate(100, Easing.LINEAR, Sizing.expand(100));
         Animation<Sizing> algorithmLayoutAnimationVertical = algorithmOptionsLayout.verticalSizing().animate(100, Easing.LINEAR, Sizing.content());
-        this.smallGuiAnimation = Animation.compose(imageLayoutAnimation, algorithmLayoutAnimationHorizontal, algorithmLayoutAnimationVertical);
+        // workaround to fix alignment issue (owo-lib sizing rounds up related)
+        Animation<Sizing> imageModeFixAnimation = imageModeLayout.horizontalSizing().animate(100, Easing.LINEAR, Sizing.expand(100));
+        this.smallGuiAnimation = Animation.compose(imageLayoutAnimation, algorithmLayoutAnimationHorizontal, algorithmLayoutAnimationVertical, imageModeFixAnimation);
 
         this.setSmallGuiAnimation(this.width);
     }
