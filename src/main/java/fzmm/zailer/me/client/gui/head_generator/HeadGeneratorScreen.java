@@ -32,6 +32,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.utils.*;
 import fzmm.zailer.me.utils.list.IListEntry;
 import fzmm.zailer.me.utils.list.ListUtils;
+import io.wispforest.owo.config.ui.ConfigScreen;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
@@ -260,6 +261,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     public void updatePreviews() {
         assert this.client != null;
 
+        //noinspection resource
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         boolean compoundEntriesEditingSkinBody = this.headCompoundComponentEntries.stream()
                 .anyMatch(entry -> entry.getValue().isEditingSkinBody());
@@ -301,6 +303,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             selectedPreEdit.flush();
             algorithmPreEdit.flush();
         }, (this.headComponentEntries.size() + 2) * HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        scheduler.shutdown();
     }
 
     public BufferedImage skinPreEdit(SkinPreEditOption skinPreEditOption, boolean editBody) {
@@ -393,9 +396,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             this.setUndefinedDelay();
             String headName = this.getHeadName();
 
-            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+            ISnackBarComponent snackBar = BaseSnackBarComponent.builder(SnackBarManager.HEAD_GENERATOR_ID)
                     .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.loading"))
                     .backgroundColor(FzmmStyles.ALERT_LOADING_COLOR)
+                    .keepOnLimit()
                     .build();
             this.addSnackBar(snackBar);
 
@@ -416,22 +420,33 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     }
 
     private void addStatusSnackBar(HeadUtils headUtils, BufferedImage image, String textureName) {
-        SnackBarBuilder snackBar = BaseSnackBarComponent.builder();
+        SnackBarBuilder snackBar = BaseSnackBarComponent.builder(SnackBarManager.HEAD_GENERATOR_ID);
         if (headUtils.isSkinGenerated()) {
             snackBar.title(Text.translatable("fzmm.gui.headGenerator.snack_bar.success"))
-                    .timer(3, TimeUnit.SECONDS)
+                    .lowTimer()
                     .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
                     .startTimer();
+        } else if (headUtils.getHttpResponseCode() == 403) {
+            snackBar.title(Text.translatable("fzmm.snack_bar.mineskin.error.invalidApiKey"))
+                    .details(Text.translatable("fzmm.snack_bar.mineskin.error.invalidApiKey.description"))
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .keepOnLimit()
+                    .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.title.configs.icon"),
+                            buttonComponent -> this.setScreen(ConfigScreen.create(FzmmClient.CONFIG, this))))
+                    .highTimer()
+                    .closeButton();
         } else {
             String translationKey = headUtils.getHttpResponseCode() / 500 == 5 ? "external" : "internal";
 
             snackBar.title(Text.translatable("fzmm.gui.headGenerator.snack_bar.error." + translationKey))
                     .details(Text.translatable("fzmm.gui.headGenerator.snack_bar.error." + translationKey + ".description", headUtils.getHttpResponseCode()))
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .keepOnLimit()
                     .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.error.button.retry"), buttonComponent -> {
                         this.giveHead(image, textureName);
                         iSnackBarComponent.close();
                     }))
-                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .highTimer()
                     .closeButton();
         }
 
@@ -518,12 +533,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private void wikiExecute() {
         assert this.client != null;
 
-        this.client.setScreen(new ConfirmLinkScreen(bool -> {
-            if (bool)
-                Util.getOperatingSystem().open(FzmmWikiConstants.HEAD_GENERATOR_WIKI_LINK);
-
-            this.client.setScreen(this);
-        }, FzmmWikiConstants.HEAD_GENERATOR_WIKI_LINK, true));
+        ConfirmLinkScreen.open(this.client.currentScreen, FzmmWikiConstants.HEAD_GENERATOR_WIKI_LINK);
     }
 
     public SkinPreEditOption skinPreEdit() {

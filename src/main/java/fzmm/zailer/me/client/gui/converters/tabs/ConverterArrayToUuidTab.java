@@ -3,9 +3,9 @@ package fzmm.zailer.me.client.gui.converters.tabs;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.NumberRow;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.container.FlowLayout;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.random.Random;
 
 import java.util.UUID;
@@ -48,7 +48,7 @@ public class ConverterArrayToUuidTab implements IScreenTab {
             msb = (msb << 32) | Integer.toUnsignedLong(intArray[1]);
             lsb = (lsb << 32) | Integer.toUnsignedLong(intArray[3]);
 
-            MinecraftClient.getInstance().keyboard.setClipboard(new UUID(msb, lsb).toString());
+            SnackBarManager.copyToClipboard(new UUID(msb, lsb).toString());
         });
     }
     public String getArrayId(int index) {

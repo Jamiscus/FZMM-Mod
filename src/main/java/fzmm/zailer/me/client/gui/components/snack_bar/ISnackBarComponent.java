@@ -1,8 +1,10 @@
 package fzmm.zailer.me.client.gui.components.snack_bar;
 
+import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.ParentComponent;
-import net.minecraft.client.MinecraftClient;
+
+import java.util.List;
 
 
 public interface ISnackBarComponent extends ParentComponent {
@@ -15,15 +17,20 @@ public interface ISnackBarComponent extends ParentComponent {
 
     ISnackBarComponent startTimer();
 
-    boolean canClose();
+    boolean removeOnLimit();
 
-    void canClose(boolean value);
+    void removeOnLimit(boolean value);
 
     default void close() {
-        if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarManager manager) {
-            manager.removeSnackBar(this);
+        ParentComponent parent = this.parent();
+        if (parent != null) {
+            parent.removeChild(this);
         }
     }
 
     void add(Component snackBar);
+
+    void setButtons(List<ButtonComponent> buttons);
+
+    void buttonsEnabled(boolean value);
 }

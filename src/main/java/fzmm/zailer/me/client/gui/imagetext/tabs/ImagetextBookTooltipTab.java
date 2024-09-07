@@ -16,6 +16,7 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.exceptions.BookNbtOverflow;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.TextAreaComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -26,8 +27,6 @@ import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-
-import java.util.concurrent.TimeUnit;
 
 public class ImagetextBookTooltipTab implements IImagetextTab {
     private static final String BOOK_TOOLTIP_MODE_ID = "bookTooltipMode";
@@ -62,15 +61,16 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
         long bookLength = FzmmUtils.getLengthInBytes(book);
         if (bookLength > BookNbtOverflow.MAX_BOOK_NBT_SIZE) {
             MinecraftClient.getInstance().execute(() -> {
-                ISnackBarComponent toast = BaseSnackBarComponent.builder()
+                ISnackBarComponent snackBar = BaseSnackBarComponent.builder(SnackBarManager.IMAGETEXT_ID)
                         .title(Text.translatable("fzmm.snack_bar.bookTooltip.overflow.title", bookLength, BookNbtOverflow.MAX_BOOK_NBT_SIZE))
                         .details(Text.translatable("fzmm.snack_bar.bookTooltip.overflow.details"))
                         .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
-                        .timer(5, TimeUnit.SECONDS)
+                        .keepOnLimit()
+                        .highTimer()
                         .startTimer()
                         .closeButton()
                         .build();
-                FzmmUtils.addSnackBar(toast);
+                SnackBarManager.getInstance().add(snackBar);
             });
         } else {
             FzmmUtils.giveItem(book);

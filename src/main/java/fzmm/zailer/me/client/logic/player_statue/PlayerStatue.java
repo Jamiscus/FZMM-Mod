@@ -101,8 +101,9 @@ public class PlayerStatue {
         this.currentErrors = 0;
         this.isSecondTry = false;
         MinecraftClient.getInstance().execute(() -> {
-            this.snackBar = (UpdatableSnackBarComponent) UpdatableSnackBarComponent.builder()
+            this.snackBar = (UpdatableSnackBarComponent) UpdatableSnackBarComponent.builder(SnackBarManager.PLAYER_STATUE_ID)
                     .backgroundColor(FzmmStyles.ALERT_LOADING_COLOR)
+                    .keepOnLimit()
                     .title(Text.translatable("fzmm.snack_bar.playerStatue.loading.title"))
                     .details(Text.translatable("fzmm.snack_bar.playerStatue.loading.details",
                             this.partsGenerated, 0, 0, 0, this.statueList.get(0).getName()))
@@ -110,7 +111,7 @@ public class PlayerStatue {
                     .startTimer()
                     .build();
 
-            FzmmUtils.addSnackBar(this.snackBar);
+            SnackBarManager.getInstance().add(this.snackBar);
         });
 
         this.generate();
@@ -118,20 +119,20 @@ public class PlayerStatue {
         this.generate();
 
         MinecraftClient.getInstance().execute(() -> {
-            this.snackBar.canClose(true);
             this.snackBar.close();
 
             boolean success = this.currentErrors == 0;
-            ISnackBarComponent finalStatus = BaseSnackBarComponent.builder()
+            ISnackBarComponent finalStatus = BaseSnackBarComponent.builder(SnackBarManager.PLAYER_STATUE_ID)
                     .backgroundColor(success ? FzmmStyles.ALERT_SUCCESS_COLOR : FzmmStyles.ALERT_ERROR_COLOR)
+                    .keepOnLimit()
                     .title(success ? Text.translatable("fzmm.snack_bar.playerStatue.successful.title") :
                             Text.translatable("fzmm.snack_bar.playerStatue.error.title", this.currentErrors))
                     .sizing(Sizing.fixed(220), Sizing.content())
-                    .timer(10, TimeUnit.SECONDS)
+                    .mediumTimer()
                     .startTimer()
                     .build();
 
-            FzmmUtils.addSnackBar(finalStatus);
+            SnackBarManager.getInstance().add(finalStatus);
         });
         return this;
     }
@@ -265,9 +266,8 @@ public class PlayerStatue {
             ));
             this.snackBar.updateTimerBar(this.partsGenerated / (float) this.totalToGenerate);
 
-            //TODO: if possible, to be able to see them with a closed screen (Hud)
             if (!this.snackBar.hasParent()) {
-                FzmmUtils.addSnackBar(this.snackBar);
+                SnackBarManager.getInstance().add(this.snackBar);
             }
         });
     }

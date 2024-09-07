@@ -1,13 +1,16 @@
 package fzmm.zailer.me.client.gui.components.image.source;
 
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarScreen;
+import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.HorizontalAlignment;
@@ -17,7 +20,6 @@ import io.wispforest.owo.ui.core.VerticalAlignment;
 import io.wispforest.owo.ui.hud.Hud;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -35,7 +37,7 @@ public class ScreenshotSource implements IInteractiveImageLoader {
     private static ScreenshotSource instance;
     private BufferedImage image;
     private Consumer<BufferedImage> consumer;
-    private Screen previousScreen;
+    private BaseFzmmScreen previousScreen;
 
     public ScreenshotSource() {
         this.image = null;
@@ -61,7 +63,8 @@ public class ScreenshotSource implements IInteractiveImageLoader {
         // as owo-lib makes the HUD change when an event is called.
         client.options.hudHidden = false;
 
-        this.previousScreen = client.currentScreen;
+        this.previousScreen = client.currentScreen instanceof BaseFzmmScreen baseScreen ? baseScreen : null;
+        SnackBarManager.getInstance().moveToHud(this.previousScreen);
         client.setScreen(null);
         Hud.add(HUD_CAPTURE_SCREENSHOT, this::getHud);
         instance = this;
@@ -128,15 +131,15 @@ public class ScreenshotSource implements IInteractiveImageLoader {
         } catch (IOException e) {
             FzmmClient.LOGGER.error("Unexpected error loading an image", e);
 
-            ISnackBarComponent toast = BaseSnackBarComponent.builder()
-                    .title(Text.translatable("fzmm.toast.image.error.title"))
-                    .details(Text.translatable("fzmm.toast.image.error.details.unexpectedError"))
+            ISnackBarComponent snackBar = BaseSnackBarComponent.builder(SnackBarManager.IMAGE_ID)
+                    .title(Text.translatable("fzmm.snack_bar.image.error.title"))
+                    .details(Text.translatable("fzmm.snack_bar.image.error.details.unexpectedError"))
                     .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
                     .closeButton()
                     .build();
 
-            if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarManager manager) {
-                manager.addSnackBar(toast);
+            if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarScreen manager) {
+                manager.addSnackBar(snackBar);
             }
         }
         // Activate the HUD, as due to errors in the owo-lib,
@@ -146,7 +149,7 @@ public class ScreenshotSource implements IInteractiveImageLoader {
         client.options.hudHidden = false;
 
         Hud.remove(HUD_CAPTURE_SCREENSHOT);
-        client.setScreen(this.previousScreen);
+        FzmmUtils.setScreen(this.previousScreen);
         this.previousScreen = null;
         instance = null;
     }

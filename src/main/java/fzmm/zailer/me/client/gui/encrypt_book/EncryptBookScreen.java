@@ -31,7 +31,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -237,13 +236,7 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
     private void faqExecute(ButtonWidget buttonWidget) {
         assert this.client != null;
 
-        this.client.setScreen(new ConfirmLinkScreen(bool -> {
-            if (bool) {
-                Util.getOperatingSystem().open(FzmmWikiConstants.ENCRYPT_BOOK_WIKI_LINK);
-            }
-
-            this.client.setScreen(this);
-        }, FzmmWikiConstants.ENCRYPT_BOOK_WIKI_LINK, true));
+        ConfirmLinkScreen.open(client.currentScreen, FzmmWikiConstants.ENCRYPT_BOOK_WIKI_LINK);
     }
 
     public static List<TranslationEncryptProfile> getProfiles() {

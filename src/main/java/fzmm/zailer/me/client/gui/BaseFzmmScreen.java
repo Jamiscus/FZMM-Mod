@@ -6,7 +6,6 @@ import fzmm.zailer.me.client.gui.components.image.ImageButtonComponent;
 import fzmm.zailer.me.client.gui.components.image.ScreenshotZoneComponent;
 import fzmm.zailer.me.client.gui.components.row.*;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
-import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.components.style.component.StyledLabelComponent;
 import fzmm.zailer.me.client.gui.components.style.container.StyledScrollContainer;
@@ -16,7 +15,7 @@ import fzmm.zailer.me.client.gui.components.tabs.ITabsEnum;
 import fzmm.zailer.me.client.gui.components.tabs.ScreenTabContainer;
 import fzmm.zailer.me.client.gui.main.components.MainButtonComponent;
 import fzmm.zailer.me.client.gui.text_format.components.ColorListContainer;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarScreen;
 import fzmm.zailer.me.client.gui.utils.memento.IMemento;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
@@ -43,7 +42,7 @@ import org.w3c.dom.Element;
 import java.util.*;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout> implements ISnackBarManager {
+public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout> implements ISnackBarScreen {
     @Nullable
     protected Screen parent;
     protected final String baseScreenTranslationKey;
@@ -59,7 +58,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         this.parent = parent;
         this.tabs = new HashMap<>();
         this.symbolChatCompat = new SymbolChatCompat();
-        this.snackBarLayout = StyledContainers.verticalFlow(Sizing.content(), Sizing.content());
+        this.snackBarLayout = new SnackBarLayout(Sizing.content(), Sizing.content());
     }
 
     @Override
@@ -73,10 +72,6 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         this.symbolChatCompat.addSymbolChatComponents(this);
 
         this.setupButtonsCallbacks(rootComponent);
-
-        this.snackBarLayout.positioning(Positioning.relative(100, 0));
-        this.snackBarLayout.margins(Insets.right(3).withTop(3));
-        this.snackBarLayout.horizontalAlignment(HorizontalAlignment.RIGHT);
         rootComponent.child(this.snackBarLayout);
 
 
@@ -97,7 +92,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     @Override
     public void close() {
         assert this.client != null;
-        this.client.setScreen(this.parent);
+        this.setScreen(this.parent);
 
         if (FzmmClient.CONFIG.history.automaticallyRecoverScreens() && this instanceof IMementoScreen mementoScreen) {
             try {
@@ -246,6 +241,8 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     }
 
     static {
+        // rows
+        //TODO: replace rows with better UI components
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "boolean-row"), BooleanRow::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "button-row"), ButtonRow::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "color-row"), ColorRow::parse);

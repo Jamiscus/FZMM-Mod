@@ -1,18 +1,19 @@
 package fzmm.zailer.me.client.gui.utils.auto_placer;
 
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.client.gui.imagetext.HologramPlacerScreen;
 import fzmm.zailer.me.client.gui.player_statue.PlayerStatuePlacerScreen;
+import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.base.BaseComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.hud.Hud;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -29,7 +30,7 @@ public class AutoPlacerHud {
     private static final Identifier HUD_IDENTIFIER = new Identifier(FzmmClient.MOD_ID, "auto_placer_hud");
     private static final List<Activation> activationList = new ArrayList<>();
 
-    private static void addHud(Screen screen, List<Requirement> requirements) {
+    private static void addHud(BaseFzmmScreen screen, List<Requirement> requirements) {
         if (isHudActive) {
             return;
         }
@@ -82,7 +83,7 @@ public class AutoPlacerHud {
                     }
 
                     removeHud();
-                    MinecraftClient.getInstance().setScreen(screen);
+                    FzmmUtils.setScreen(screen);
                 }
             };
 
@@ -93,7 +94,7 @@ public class AutoPlacerHud {
                     .child(requirementLayout)
                     .child(bottomTextLayout)
                     .padding(Insets.of(16))
-                    .surface(mainLayout.styledBackground())
+                    .surface(Surface.VANILLA_TRANSLUCENT)
                     .alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
                     .positioning(Positioning.relative(50, 50));
 
@@ -153,7 +154,7 @@ public class AutoPlacerHud {
 
     }
 
-    public record Activation(Predicate<ItemStack> predicate, Function<ItemStack, Screen> screenGetter,
+    public record Activation(Predicate<ItemStack> predicate, Function<ItemStack, BaseFzmmScreen> screenGetter,
                              List<Requirement> requirements) {
     }
 }

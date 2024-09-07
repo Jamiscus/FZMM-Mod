@@ -168,7 +168,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         );
 
         assert this.client != null;
-        this.client.setScreen(new SelectItemScreen(this, requestedItem));
+        this.setScreen(new SelectItemScreen(this, requestedItem));
     }
 
     public void updatePreview(BannerBuilder builder) {

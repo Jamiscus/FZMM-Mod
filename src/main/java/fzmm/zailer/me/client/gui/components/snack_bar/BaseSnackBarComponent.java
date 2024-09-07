@@ -2,9 +2,15 @@ package fzmm.zailer.me.client.gui.components.snack_bar;
 
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
+import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.MutableText;
+import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBarComponent {
     protected boolean timerEnabled;
@@ -12,7 +18,8 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
     protected long startTimeMillis = 0;
     @Nullable
     protected FlowLayout timerComponent = null;
-    protected boolean canClose = true;
+    protected boolean removeOnLimit = true;
+    protected List<ButtonComponent> buttons = List.of();
 
     protected BaseSnackBarComponent(Sizing horizontalSizing, Sizing verticalSizing) {
         super(horizontalSizing, verticalSizing, Algorithm.VERTICAL);
@@ -31,7 +38,6 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
             this.child(timerLayout);
         }
 
-        this.canClose(false);
         this.timerEnabled = true;
         this.startTimeMillis = System.currentTimeMillis();
 
@@ -39,13 +45,13 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
     }
 
     @Override
-    public boolean canClose() {
-        return this.canClose;
+    public boolean removeOnLimit() {
+        return this.removeOnLimit;
     }
 
     @Override
-    public void canClose(boolean value) {
-        this.canClose = value;
+    public void removeOnLimit(boolean value) {
+        this.removeOnLimit = value;
     }
 
     @Override
@@ -58,7 +64,8 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
 
     @Override
     public void setTimer(long timerMillis) {
-        this.timerMillis = timerMillis;
+        double configDisplayTime = MinecraftClient.getInstance().options.getNotificationDisplayTime().getValue();
+        this.timerMillis = (long) (timerMillis * configDisplayTime);
     }
 
     @Override
@@ -72,7 +79,6 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
 
         if (time > this.timerMillis) {
             this.timerEnabled = false;
-            this.canClose(true);
             this.close();
         }
     }
@@ -96,7 +102,23 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
         this.child(toast);
     }
 
-    public static SnackBarBuilder builder() {
-        return SnackBarBuilder.builder(new BaseSnackBarComponent(Sizing.content(), Sizing.content()));
+    @Override
+    public void setButtons(List<ButtonComponent> buttons) {
+        this.buttons = buttons;
+    }
+
+    @Override
+    public void buttonsEnabled(boolean value) {
+        // dark_gray instead of gray because the background color of loading makes it not very visible
+        Formatting color = value ? Formatting.WHITE : Formatting.DARK_GRAY;
+        for (var button : this.buttons) {
+            MutableText text = button.getMessage().copy();
+            button.setMessage(text.setStyle(text.getStyle().withFormatting(color)));
+            button.active = value;
+        }
+    }
+
+    public static SnackBarBuilder builder(String id) {
+        return SnackBarBuilder.builder(new BaseSnackBarComponent(Sizing.content(), Sizing.content()), id);
     }
 }

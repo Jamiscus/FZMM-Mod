@@ -6,12 +6,15 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.HistoryScreen;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarManager;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarScreen;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
+import io.wispforest.owo.config.ui.ConfigScreen;
+import io.wispforest.owo.ui.component.Components;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -26,6 +29,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
@@ -47,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -74,6 +77,7 @@ public class FzmmUtils {
 
     /**
      * Process the hand item to be able to edit it
+     *
      * @return Hand item copy and ready to be modified
      */
     public static ItemStack getHandStack(Hand hand) {
@@ -84,14 +88,34 @@ public class FzmmUtils {
     }
 
     public static void giveItem(ItemStack stack) {
+        SnackBarManager snackBarManager = SnackBarManager.getInstance();
+        snackBarManager.remove(SnackBarManager.GIVE_ID);
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
         long sizeLength = getLengthInBytes(stack) + getInventorySizeInBytes();
         if (sizeLength > 1950000) {
-            client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.giveItem.exceedLimit").setStyle(Style.EMPTY.withColor(Formatting.RED)));
+            snackBarManager.add(BaseSnackBarComponent.builder(SnackBarManager.GIVE_ID)
+                    .title(Text.translatable("fzmm.giveItem.error"))
+                    .details(Text.translatable("fzmm.giveItem.exceedLimit",
+                            getLengthInKB(sizeLength),
+                            getLengthInKB(2000000L)
+                    ))
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .keepOnLimit()
+                    .button(snackBar -> Components.button(Text.translatable("fzmm.gui.title.configs.icon"),
+                            buttonComponent -> {
+                                client.setScreen(ConfigScreen.create(FzmmClient.CONFIG, client.currentScreen));
+                                snackBar.close();
+                            }))
+                    .highTimer()
+                    .startTimer()
+                    .closeButton()
+                    .expandDetails()
+                    .build()
+            );
+
             FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes", sizeLength);
-            return;
         }
 
         if (Items.PLAYER_HEAD == stack.getItem())
@@ -100,7 +124,22 @@ public class FzmmUtils {
             FzmmHistory.addGeneratedItems(stack);
 
         if (!isAllowedToGive()) {
-            client.player.sendMessage(Text.translatable("fzmm.item.error.notAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
+            snackBarManager.add(BaseSnackBarComponent.builder(SnackBarManager.GIVE_ID)
+                    .title(Text.translatable("fzmm.giveItem.error"))
+                    .details(Text.translatable("fzmm.giveItem.notAllowed"))
+                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                    .keepOnLimit()
+                    .button(snackBar -> Components.button(Text.translatable("fzmm.gui.title.history"),
+                            buttonComponent -> {
+                                setScreen(new HistoryScreen(client.currentScreen));
+                                snackBar.close();
+                            }))
+                    .highTimer()
+                    .startTimer()
+                    .closeButton()
+                    .expandDetails()
+                    .build()
+            );
         } else if (FzmmClient.CONFIG.general.giveClientSide()) {
             client.player.equipStack(EquipmentSlot.MAINHAND, stack);
         } else {
@@ -114,6 +153,7 @@ public class FzmmUtils {
 
     /**
      * Process the item to be able to edit it
+     *
      * @return The item ready to be modified
      */
     public static ItemStack processStack(ItemStack stack) {
@@ -234,8 +274,9 @@ public class FzmmUtils {
 
             HttpResponse response = httpClient.execute(httpGet);
             HttpEntity resEntity = response.getEntity();
-            if (((response.getStatusLine().getStatusCode() / 100) != 2) || resEntity == null)
+            if (((response.getStatusLine().getStatusCode() / 100) != 2) || resEntity == null) {
                 return "";
+            }
 
             InputStream inputStream = resEntity.getContent();
             JsonObject obj = (JsonObject) JsonParser.parseReader(new InputStreamReader(inputStream));
@@ -362,22 +403,18 @@ public class FzmmUtils {
         return sortedArray;
     }
 
-    public static void addSnackBar(ISnackBarComponent toast) {
-        if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarManager manager) {
-            manager.addSnackBar(toast);
-        }
+    public static DynamicRegistryManager getRegistryManager() {
+        assert MinecraftClient.getInstance().world != null;
+        return MinecraftClient.getInstance().world.getRegistryManager();
     }
 
-    public static void copyToClipboard(String text) {
-        MinecraftClient.getInstance().keyboard.setClipboard(text);
-
-        addSnackBar(BaseSnackBarComponent.builder()
-                .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
-                .title(Text.translatable("fzmm.snack_bar.clipboard.title"))
-                .timer(3, TimeUnit.SECONDS)
-                .startTimer()
-                .canClose(true)
-                .build()
-        );
+    public static void setScreen(BaseFzmmScreen screen) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.currentScreen instanceof ISnackBarScreen snackBarScreen) {
+            snackBarScreen.setScreen(screen);
+        } else {
+            client.setScreen(screen);
+            SnackBarManager.getInstance().moveToScreen(screen);
+        }
     }
 }

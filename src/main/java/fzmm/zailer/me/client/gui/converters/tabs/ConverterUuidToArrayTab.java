@@ -1,11 +1,11 @@
 package fzmm.zailer.me.client.gui.converters.tabs;
 
-import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.components.row.ButtonRow;
 import fzmm.zailer.me.client.gui.components.row.ConfigTextBoxRow;
+import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.container.FlowLayout;
-import net.minecraft.client.MinecraftClient;
 
 import java.util.UUID;
 
@@ -39,7 +39,7 @@ public class ConverterUuidToArrayTab implements IScreenTab {
                 return;
 
             String stringOfUuidArray = this.stringOfUUIDtoArray(uuidField.getText());
-            MinecraftClient.getInstance().keyboard.setClipboard(stringOfUuidArray);
+            SnackBarManager.copyToClipboard(stringOfUuidArray);
         });
     }
 

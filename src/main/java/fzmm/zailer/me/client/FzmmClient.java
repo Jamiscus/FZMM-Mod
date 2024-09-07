@@ -9,6 +9,7 @@ import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntity;
 import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntityModel;
 import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntityRenderer;
 import fzmm.zailer.me.config.FzmmConfig;
+import fzmm.zailer.me.utils.FzmmUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -60,7 +61,7 @@ public class FzmmClient implements ClientModInitializer {
             } else if (AutoPlacerHud.isHudActive) {
                 AutoPlacerHud.removeHud();
             } else {
-                client.setScreen(new MainScreen(client.currentScreen));
+                FzmmUtils.setScreen(new MainScreen(client.currentScreen));
             }
         });
 
