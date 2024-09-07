@@ -27,8 +27,10 @@ public class SnackBarBuilder {
     private Sizing verticalSizing = Sizing.content();
     private boolean closeButton = false;
     private boolean timerEnabled = false;
-    private Boolean canClose = null;
+    private boolean detailsExpanded = false;
+    private boolean keepOnLimit = false;
     private long timerMillis = -1;
+    private String id = "generic";
 
     private SnackBarBuilder(ISnackBarComponent snackBar, LabelComponent title, LabelComponent details) {
         this.snackBar = snackBar;
@@ -36,12 +38,12 @@ public class SnackBarBuilder {
         this.details = details;
     }
 
-    public static SnackBarBuilder builder(ISnackBarComponent snackBar) {
-        return builder(snackBar, StyledComponents.label(Text.empty()), null);
+    public static SnackBarBuilder builder(ISnackBarComponent snackBar, String id) {
+        return builder(snackBar, StyledComponents.label(Text.empty()), null, id);
     }
 
-    public static SnackBarBuilder builder(ISnackBarComponent snackBar, LabelComponent title, LabelComponent details) {
-        return new SnackBarBuilder(snackBar, title, details);
+    public static SnackBarBuilder builder(ISnackBarComponent snackBar, LabelComponent title, LabelComponent details, String id) {
+        return new SnackBarBuilder(snackBar, title, details).id(id);
     }
 
     public SnackBarBuilder title(Text text) {
@@ -62,15 +64,45 @@ public class SnackBarBuilder {
         this.details.text(details);
         return this;
     }
+    
+    public SnackBarBuilder expandDetails() {
+        this.detailsExpanded = true;
+        return this;
+    }
 
     public SnackBarBuilder button(Function<ISnackBarComponent, ButtonComponent> function) {
         ButtonComponent button = function.apply(this.snackBar);
         button.verticalSizing(Sizing.fixed(16));
+        button.margins(Insets.bottom(2));
         this.buttons.add(button);
         return this;
     }
 
-    public SnackBarBuilder timer(long amount, TimeUnit unit) {
+    /**
+     * This timer is typically used for displaying messages indicating a successful operation.
+     * The duration for this timer is set to 5 seconds.
+     */
+    public SnackBarBuilder lowTimer() {
+        return this.customTimer(5, TimeUnit.SECONDS);
+    }
+
+    /**
+     * This timer is generally used for showing error messages.
+     * The duration for this timer is set to 10 seconds.
+     */
+    public SnackBarBuilder mediumTimer() {
+        return this.customTimer(10, TimeUnit.SECONDS);
+    }
+
+    /**
+     * This timer is usually employed when a SnackBar contains clickable components, such as a button.
+     * The duration for this timer is set to 20 seconds.
+     */
+    public SnackBarBuilder highTimer() {
+        return this.customTimer(20, TimeUnit.SECONDS);
+    }
+
+    public SnackBarBuilder customTimer(long amount, TimeUnit unit) {
         this.timerMillis = TimeUnit.MILLISECONDS.convert(amount, unit);
         return this;
     }
@@ -81,6 +113,11 @@ public class SnackBarBuilder {
         return this;
     }
 
+    /**
+     * By default, the timer is not started automatically. You can either start the timer manually
+     * from the SnackBar after it has been built or use this method to enable it during the configuration.
+     * When this option is enabled, the timer will begin as soon as the SnackBar is displayed.
+     */
     public SnackBarBuilder startTimer() {
         this.timerEnabled = true;
         return this;
@@ -91,88 +128,116 @@ public class SnackBarBuilder {
         return this;
     }
 
-    public SnackBarBuilder canClose(boolean canClose) {
-        this.canClose = canClose;
+    /**
+     * Configures the behavior of SnackBars when the display limit is reached.
+     * With this option, will be kept on screen if the limit of visible SnackBars is reached.
+     */
+    public SnackBarBuilder keepOnLimit() {
+        this.keepOnLimit = true;
+        return this;
+    }
+
+    public SnackBarBuilder id(String id) {
+        this.id = id;
         return this;
     }
 
     public ISnackBarComponent build() {
         ISnackBarComponent result = this.snackBar;
+        List<ButtonComponent> buttons = new ArrayList<>(this.buttons);
 
-        if (this.horizontalSizing.isContent()) {
-            int width = MinecraftClient.getInstance().textRenderer.getWidth(this.title.text()) + 30;
-            this.horizontalSizing = Sizing.fixed(width);
-        }
-
-        this.snackBar.sizing(this.horizontalSizing, this.verticalSizing);
-        this.snackBar.setTimer(this.timerMillis);
         result.surface(Surface.flat(this.backgroundColor.argb()));
 
-        FlowLayout layout = (FlowLayout) StyledContainers.verticalFlow(this.horizontalSizing, this.verticalSizing)
+        FlowLayout layout = (FlowLayout) StyledContainers.verticalFlow(Sizing.content(), Sizing.content())
                 .gap(1)
                 .padding(Insets.of(3))
                 .horizontalAlignment(HorizontalAlignment.LEFT);
 
-        FlowLayout firstRow = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
-        firstRow.child(this.title);
-        if (this.closeButton) {
-            firstRow.child(Components.spacer());
-            ButtonComponent button = Components.button(Text.translatable("fzmm.snack_bar.close"), buttonComponent -> result.close());
-            button.positioning(Positioning.relative(100, 0))
-                    .sizing(Sizing.fixed(14));
-            button.renderer(ButtonComponent.Renderer.flat(0, 0x60000000, 0));
-
-            firstRow.child(button)
-                    .verticalAlignment(VerticalAlignment.CENTER)
-                    .verticalSizing(Sizing.fixed(14));
-        }
+        // first row (expand?, title, close?)
+        FlowLayout firstRow = StyledContainers.ltrTextFlow(Sizing.expand(100), Sizing.content());
+        firstRow.gap(2);
+        firstRow.verticalAlignment(VerticalAlignment.CENTER);
         layout.child(firstRow);
-
-        boolean hasDetails = this.details != null && !this.details.text().toString().isEmpty();
-        if (hasDetails || !this.buttons.isEmpty()) {
-            FlowLayout secondRow = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
+        // second row (buttons?)
+        if (!this.buttons.isEmpty()) {
+            FlowLayout secondRow = StyledContainers.ltrTextFlow(Sizing.expand(100), Sizing.content());
+            secondRow.children(this.buttons);
             secondRow.gap(4);
             layout.child(secondRow);
-            if (hasDetails) {
-                FlowLayout detailsLayout = StyledContainers.verticalFlow(Sizing.content(), Sizing.content());
-                layout.child(detailsLayout);
-
-                BooleanButton detailsButton = this.getDetailsButton(detailsLayout);
-                secondRow.child(detailsButton);
-            }
-
-            secondRow.children(this.buttons);
         }
 
+        // first row expand button and third row with details
+        if (this.details != null && !this.details.text().toString().isEmpty()) {
+            FlowLayout detailsLayout = StyledContainers.verticalFlow(Sizing.content(), Sizing.content());
+            layout.child(detailsLayout);
+
+            BooleanButton detailsButton = this.getDetailsButton(detailsLayout);
+            buttons.add(detailsButton);
+            firstRow.child(detailsButton);
+        }
+        // first row content
+        firstRow.child(this.title.margins(Insets.top(3)));
+        if (this.closeButton) {
+            ButtonComponent button = Components.button(Text.translatable("fzmm.snack_bar.close"), buttonComponent -> result.close());
+            button.sizing(Sizing.fixed(14));
+            button.positioning(Positioning.relative(100, 0));
+            button.renderer(ButtonComponent.Renderer.flat(0x00000000, FzmmStyles.UNSELECTED_COLOR, 0x00000000));
+            buttons.add(button);
+
+            firstRow.horizontalSizing(Sizing.expand(100));
+            firstRow.child(button);
+        }
+
+        if (this.horizontalSizing.isContent()) {
+            int width = MinecraftClient.getInstance().textRenderer.getWidth(this.title.text());
+            int firstRowChildrenSize = firstRow.children().size() - 1;
+            width += 14 * firstRowChildrenSize;
+            width += firstRow.gap() * firstRowChildrenSize;
+            width += layout.padding().get().horizontal();
+
+            this.horizontalSizing = Sizing.fixed(width);
+        }
+
+        layout.sizing(this.horizontalSizing, this.verticalSizing);
+        result.sizing(this.horizontalSizing, this.verticalSizing);
+        result.setTimer(this.timerMillis);
+        result.id(this.id);
         result.add(layout);
 
         if (this.timerEnabled) {
             result.startTimer();
         }
 
-        if (this.canClose != null) {
-            this.snackBar.canClose(this.canClose);
+        if (this.keepOnLimit) {
+            this.snackBar.removeOnLimit(false);
         }
+
+        result.setButtons(buttons);
 
         return result;
     }
 
     private BooleanButton getDetailsButton(FlowLayout detailsLayout) {
         //TODO: animate collapsing button
-        BooleanButton detailsButton = new BooleanButton(
+        BooleanButton button = new BooleanButton(
                 Text.translatable("fzmm.snack_bar.expand.expanded"),
                 Text.translatable("fzmm.snack_bar.expand.collapsed")
         );
-        detailsButton.renderer(ButtonComponent.Renderer.flat(0, 0x60000000, 0));
-        detailsButton.sizing(Sizing.fixed(16));
+        button.renderer(ButtonComponent.Renderer.flat(0x00000000, FzmmStyles.UNSELECTED_COLOR, 0x00000000));
+        button.sizing(Sizing.fixed(14));
         this.details.horizontalSizing(Sizing.expand(100));
-        detailsButton.onPress(buttonComponent -> {
-            if (detailsButton.enabled()) {
+        button.onPress(buttonComponent -> {
+            if (button.enabled()) {
                 detailsLayout.child(this.details);
             } else {
                 detailsLayout.removeChild(this.details);
             }
         });
-        return detailsButton;
+
+        if (this.detailsExpanded) {
+            button.enabled(true);
+        }
+
+        return button;
     }
 }

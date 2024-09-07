@@ -33,7 +33,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -386,12 +385,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
     private void minecraftHeadsExecute() {
         assert this.client != null;
 
-        this.client.setScreen(new ConfirmLinkScreen(bool -> {
-            if (bool)
-                Util.getOperatingSystem().open(HeadGalleryResources.MINECRAFT_HEADS_URL);
-
-            this.client.setScreen(this);
-        }, HeadGalleryResources.MINECRAFT_HEADS_URL, true));
+        ConfirmLinkScreen.open(this.client.currentScreen, HeadGalleryResources.MINECRAFT_HEADS_URL);
     }
 
     private Text getTagButtonText() {

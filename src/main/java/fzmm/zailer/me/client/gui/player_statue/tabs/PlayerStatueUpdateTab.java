@@ -3,12 +3,14 @@ package fzmm.zailer.me.client.gui.player_statue.tabs;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.utils.InvisibleEntityWarning;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
 import fzmm.zailer.me.client.logic.player_statue.PlayerStatue;
+import fzmm.zailer.me.client.logic.player_statue.StatuePart;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
@@ -16,7 +18,6 @@ import net.minecraft.text.Text;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 public class PlayerStatueUpdateTab implements IPlayerStatueTab {
     @Override
@@ -40,14 +41,14 @@ public class PlayerStatueUpdateTab implements IPlayerStatueTab {
                         ItemStack statue = PlayerStatue.updateStatue(stack, new Vector3f(x, y, z), direction, name);
                         FzmmUtils.giveItem(statue);
 
-                        //TODO: Needs to switch from one screen to another
-                        ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+                        SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.PLAYER_STATUE_ID)
                                 .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
                                 .title(Text.translatable("fzmm.snack_bar.playerStatue.updated.title"))
-                                .timer(3, TimeUnit.SECONDS)
+                                .lowTimer()
                                 .startTimer()
-                                .build();
-                        FzmmUtils.addSnackBar(snackBar);
+                                .build()
+                        );
+                        InvisibleEntityWarning.add(true, true, Text.translatable("fzmm.snack_bar.entityDifficultToRemove.entity.playerStatue"), StatuePart.PLAYER_STATUE_TAG);
                     }
                 },
                 new ArrayList<>(),
@@ -55,7 +56,7 @@ public class PlayerStatueUpdateTab implements IPlayerStatueTab {
                 true
         );
 
-        client.setScreen(new SelectItemScreen(client.currentScreen, requestedItem));
+        FzmmUtils.setScreen(new SelectItemScreen(client.currentScreen, requestedItem));
     }
 
     @Override

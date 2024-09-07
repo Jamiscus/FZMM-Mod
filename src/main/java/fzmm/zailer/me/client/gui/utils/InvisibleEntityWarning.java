@@ -7,7 +7,7 @@ import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -17,13 +17,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
-import java.util.concurrent.TimeUnit;
-
 public class InvisibleEntityWarning {
 
     public static void add(boolean isArmorStand, boolean isInvisible, Text customEntity, String tag) {
         MinecraftClient.getInstance().execute(() ->
-                FzmmUtils.addSnackBar(BaseSnackBarComponent.builder()
+                SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.INVISIBLE_ENTITY_ID)
                         .backgroundColor(FzmmStyles.ALERT_WARNING_COLOR)
                         .title(Text.translatable("fzmm.snack_bar.entityDifficultToRemove.title"))
                         .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.snack_bar.entityDifficultToRemove.button"), buttonComponent -> {
@@ -31,7 +29,7 @@ public class InvisibleEntityWarning {
                             iSnackBarComponent.close();
                         }))
                         .closeButton()
-                        .timer(15, TimeUnit.SECONDS)
+                        .mediumTimer()
                         .startTimer()
                         .build()
                 ));
@@ -94,7 +92,8 @@ public class InvisibleEntityWarning {
 
     private static Component getCopyButton(String text, Text translation) {
         return StyledContainers.horizontalFlow(Sizing.content(), Sizing.content())
-                .child(Components.button(Text.translatable("commands.fzmm.nbt.click"), buttonComponent -> FzmmUtils.copyToClipboard(text))
+                .child(Components.button(Text.translatable("commands.fzmm.nbt.click"), buttonComponent ->
+                                SnackBarManager.copyToClipboard(text))
                         .margins(Insets.vertical(3))
                         .tooltip(Text.literal(text))
                 ).child(StyledComponents.label(translation)

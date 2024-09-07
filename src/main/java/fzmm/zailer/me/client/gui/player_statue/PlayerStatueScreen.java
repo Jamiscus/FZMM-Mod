@@ -19,7 +19,6 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -78,13 +77,7 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
 
     private void faqExecute(ButtonWidget buttonWidget) {
         assert this.client != null;
-
-        this.client.setScreen(new ConfirmLinkScreen(bool -> {
-            if (bool)
-                Util.getOperatingSystem().open(FzmmWikiConstants.PLAYER_STATUE_WIKI_LINK);
-
-            this.client.setScreen(this);
-        }, FzmmWikiConstants.PLAYER_STATUE_WIKI_LINK, true));
+        ConfirmLinkScreen.open(client.currentScreen, FzmmWikiConstants.PLAYER_STATUE_WIKI_LINK);
     }
 
     private void execute(ButtonWidget buttonWidget) {

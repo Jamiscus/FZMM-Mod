@@ -10,7 +10,7 @@ import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.SnackBarBuilder;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
@@ -27,6 +27,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.parameters.OffsetParamet
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.itemgroup.Icon;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
@@ -48,7 +49,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class HeadComponentOverlay extends StyledFlowLayout {
@@ -133,40 +133,37 @@ public class HeadComponentOverlay extends StyledFlowLayout {
     }
 
     public static void saveSkinExecute(@Nullable BufferedImage skin, File file) {
+        SnackBarBuilder builder = BaseSnackBarComponent.builder(SnackBarManager.HEAD_GENERATOR_SAVE_ID)
+                .highTimer()
+                .closeButton()
+                .startTimer();
         if (skin == null) {
-            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
+            SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.HEAD_GENERATOR_SAVE_ID)
                     .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
                     .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.thereIsNoSkin"))
-                    .closeButton()
-                    .build();
-            FzmmUtils.addSnackBar(snackBar);
+                    .keepOnLimit()
+                    .build());
             return;
         }
+
 
         try {
             ImageIO.write(skin, "png", file);
             FzmmClient.LOGGER.info("[HeadComponentOverlay] Saved skin to file: {}", file.toPath());
-            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
-                    .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
+            builder.backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
                     .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.saved"))
                     .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.button.openFolder"), buttonComponent ->
                             Util.getOperatingSystem().open(HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile())))
                     .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.button.openSkin"), buttonComponent ->
                             Util.getOperatingSystem().open(file)))
-                    .sizing(Sizing.fixed(180), Sizing.content())
-                    .timer(15, TimeUnit.SECONDS)
-                    .startTimer().canClose(true)
-                    .build();
-            FzmmUtils.addSnackBar(snackBar);
+                    .sizing(Sizing.fixed(180), Sizing.content());
         } catch (IOException e) {
             FzmmClient.LOGGER.error("[HeadComponentOverlay] Unexpected error saving the skin", e);
-            ISnackBarComponent snackBar = BaseSnackBarComponent.builder()
-                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+            builder.backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
                     .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.saveError"))
-                    .closeButton()
-                    .build();
-            FzmmUtils.addSnackBar(snackBar);
+                    .keepOnLimit();
         }
+        SnackBarManager.getInstance().add(builder.build());
     }
 
     private void addParameters(FlowLayout panel, BaseFzmmScreen parent, INestedParameters parametersEntry, AbstractHeadComponentEntry headComponentEntry) {

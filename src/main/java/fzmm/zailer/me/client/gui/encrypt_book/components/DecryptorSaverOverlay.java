@@ -11,7 +11,7 @@ import fzmm.zailer.me.client.gui.encrypt_book.translation_file_saver.Translation
 import fzmm.zailer.me.client.gui.encrypt_book.translation_file_saver.TranslationUpdateResourcePack;
 import fzmm.zailer.me.client.gui.encrypt_book.translation_file_saver.TranslationWriteLang;
 import fzmm.zailer.me.client.logic.enycrpt_book.TranslationEncryptProfile;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.LabelComponent;
@@ -22,7 +22,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class DecryptorSaverOverlay extends OverlayContainer<StyledFlowLayout> {
     private static final int WIDTH = 350;
@@ -95,10 +94,10 @@ public class DecryptorSaverOverlay extends OverlayContainer<StyledFlowLayout> {
                     MinecraftClient.getInstance().execute(() -> {
                         FzmmClient.LOGGER.error("[GetDecryptorOverlay] Failed to get decryptor", throwable);
 
-                        FzmmUtils.addSnackBar(BaseSnackBarComponent.builder()
-                                .canClose(true)
+                        SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.ENCRYPTOR_SAVE_ID)
+                                .keepOnLimit()
                                 .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
-                                .timer(15, TimeUnit.SECONDS)
+                                .mediumTimer()
                                 .title(Text.translatable("fzmm.gui.encryptbook.getDecryptor.snack_bar.error"))
                                 .startTimer()
                                 .build()
@@ -110,10 +109,9 @@ public class DecryptorSaverOverlay extends OverlayContainer<StyledFlowLayout> {
                     if (cancelled) {
                         return;
                     }
-                    FzmmUtils.addSnackBar(BaseSnackBarComponent.builder()
-                            .canClose(true)
+                    SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.ENCRYPTOR_SAVE_ID)
                             .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)
-                            .timer(10, TimeUnit.SECONDS)
+                            .mediumTimer()
                             .title(Text.translatable("fzmm.gui.encryptbook.getDecryptor.snack_bar.success"))
                             .startTimer()
                             .build()

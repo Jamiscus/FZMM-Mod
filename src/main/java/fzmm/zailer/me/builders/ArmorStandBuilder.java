@@ -4,6 +4,7 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
@@ -19,7 +20,7 @@ public class ArmorStandBuilder {
 
     private ArmorStandBuilder() {
         this.entityTag = new NbtCompound();
-        this.entityTag.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getDefaultId().toString());
+        this.entityTag.putString(TagsConstant.ENTITY_TAG_ID, Registries.ENTITY_TYPE.getId(EntityType.ARMOR_STAND).getPath());
     }
 
     public static ArmorStandBuilder builder() {

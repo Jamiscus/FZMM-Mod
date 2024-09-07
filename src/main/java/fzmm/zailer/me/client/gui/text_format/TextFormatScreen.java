@@ -141,7 +141,7 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
                 button -> this.getTab(selectedTab, ITextFormatTab.class).setRandomValues());
 
         ButtonWidget copyButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(COPY_ID), executeButtonsActive,
-                button -> this.client.setScreen(new CopyTextScreen(this, this.messagePreviewLabel.text())));
+                button -> this.setScreen(new CopyTextScreen(this, this.messagePreviewLabel.text())));
         this.executeButtons = List.of(addLoreButton, setNameButton, randomButton, copyButton);
 
     }

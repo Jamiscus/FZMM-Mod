@@ -1,10 +1,11 @@
 package fzmm.zailer.me.client.gui.components.image.source;
 
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
+import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.HeadUtils;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
@@ -17,7 +18,7 @@ import java.util.function.Consumer;
 public class PlayerHeadSource implements IInteractiveImageLoader {
     private BufferedImage image;
     private Consumer<BufferedImage> consumer;
-    private Screen previousScreen;
+    private BaseFzmmScreen previousScreen;
 
     public PlayerHeadSource() {
         this.image = null;
@@ -32,7 +33,7 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
         this.consumer = consumer;
         MinecraftClient client = MinecraftClient.getInstance();
 
-        this.previousScreen = client.currentScreen;
+        this.previousScreen = client.currentScreen instanceof BaseFzmmScreen baseScreen ? baseScreen : null;
         RequestedItem requestedItem = new RequestedItem(
                 itemStack -> itemStack.getItem() == Items.PLAYER_HEAD,
                 this::setImage,
@@ -40,7 +41,7 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
                 Items.PLAYER_HEAD.getName(),
                 true
         );
-        client.setScreen(new SelectItemScreen(this.previousScreen, requestedItem));
+        FzmmUtils.setScreen(new SelectItemScreen(this.previousScreen, requestedItem));
     }
 
     @Override
@@ -72,7 +73,7 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
         this.image = image;
         this.consumer.accept(this.image);
 
-        MinecraftClient.getInstance().setScreen(this.previousScreen);
+        FzmmUtils.setScreen(this.previousScreen);
         this.previousScreen = null;
     }
 
