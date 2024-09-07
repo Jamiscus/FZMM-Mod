@@ -9,6 +9,8 @@ public record ImageStatus(String titleId, @Nullable String detailsId, boolean is
     private static final String BASE_TRANSLATION_KEY = "fzmm.snack_bar.image.";
     public static final ImageStatus IMAGE_LOADED = new ImageStatus("successfully.title", null, false);
     public static final ImageStatus INVALID_USERNAME = new ImageStatus("error.title", "error.details.invalidUsername", true);
+    public static final ImageStatus PLAYER_NOT_FOUND = new ImageStatus("error.title", "error.details.playerNotFound", true);
+    public static final ImageStatus PLAYER_HAS_NO_SKIN = new ImageStatus("error.title", "error.details.playerHasNoSkin", true);
     public static final ImageStatus MALFORMED_URL = new ImageStatus("error.title", "error.details.malformedUrl", true);
     public static final ImageStatus NO_IMAGE_LOADED = new ImageStatus("error.title", "error.details.noImageLoaded", true);
     public static final ImageStatus UNEXPECTED_ERROR = new ImageStatus("error.title", "error.details.unexpectedError", true);
