@@ -42,7 +42,11 @@ public class ImagePlayerNameSource implements IImageLoaderFromText, IImageSugges
 
             Optional<BufferedImage> optionalImage = ImageUtils.getPlayerSkin(value, getSkinDecorator);
             optionalImage.ifPresent(image -> this.image = image);
-            return optionalImage.isEmpty() ? ImageStatus.INVALID_USERNAME : ImageStatus.IMAGE_LOADED;
+            if (optionalImage.isEmpty()) {
+                return this.predicateOnlinePlayer(value) ? ImageStatus.PLAYER_HAS_NO_SKIN : ImageStatus.PLAYER_NOT_FOUND;
+            }
+
+            return ImageStatus.IMAGE_LOADED;
         } catch (Exception e) {
             FzmmClient.LOGGER.error("Unexpected error loading an image", e);
             return ImageStatus.UNEXPECTED_ERROR;
