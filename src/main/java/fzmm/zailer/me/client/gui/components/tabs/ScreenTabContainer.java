@@ -21,7 +21,7 @@ public class ScreenTabContainer extends StyledFlowLayout {
     public ScreenTabContainer(String baseTranslationKey, Sizing horizontalSizing, Sizing verticalSizing, String id) {
         super(horizontalSizing, verticalSizing, Algorithm.VERTICAL);
         this.selected = false;
-        this.componentList = new ArrayList<>();
+        this.componentList = null;
         this.id(getScreenTabId(id));
 
         String translationKey = "fzmm.gui." + baseTranslationKey + ".tab." + id;
@@ -30,26 +30,26 @@ public class ScreenTabContainer extends StyledFlowLayout {
                 .child(
                         StyledComponents.label(Text.translatable(translationKey))
                                 .tooltip(Text.translatable(translationKey + ".tooltip"))
-                ).alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER)
-                .margins(Insets.vertical(4));
+                                .margins(Insets.vertical(4))
+                ).alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
     }
 
-    public void setSelected(boolean selected, boolean addLabel) {
-        if (this.selected && selected) {
+    public void setSelected(boolean select, boolean addLabel) {
+        if (this.selected && select) {
             return;
         }
-        this.selected = selected;
+        this.selected = select;
 
-        if (this.selected) {
+        if (this.componentList == null) {
+            this.componentList = new ArrayList<>(this.children());
+        }
+        this.clearChildren();
+
+        if (select) {
             if (addLabel) {
                 this.child(this.labelLayout);
             }
             this.children(this.componentList);
-            this.componentList.clear();
-        } else {
-            this.removeChild(this.labelLayout);
-            this.componentList.addAll(this.children());
-            this.clearChildren();
         }
     }
 

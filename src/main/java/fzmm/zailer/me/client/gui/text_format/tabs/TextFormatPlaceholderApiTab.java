@@ -9,6 +9,7 @@ import fzmm.zailer.me.compat.placeholder_api.PlaceholderApiCompat;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.Insets;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.item.Items;
@@ -68,8 +69,11 @@ public class TextFormatPlaceholderApiTab implements ITextFormatTab {
 
         componentList.add(StyledComponents.label(Text.translatable("fzmm.gui.textFormat.label.placeholderApi.examples")));
 
-        for (var example : examples)
+        for (var example : examples) {
             componentList.add(StyledComponents.label(PlaceholderApiCompat.parse(example)).tooltip(Text.literal(example)));
+        }
+
+        componentList.get(componentList.size() - 1).margins(Insets.bottom(6));
 
         this.infoLayout.children(componentList);
     }
