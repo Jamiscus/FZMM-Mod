@@ -234,7 +234,7 @@ public class PlayerStatue {
 
         ItemStack container = containerList.get(0);
         container = DisplayBuilder.of(container)
-                .setName(Text.translatable("fzmm.item.playerStatue.container.name").setStyle(colorStyle.withBold(true)))
+                .setName(Text.literal(Text.translatable("fzmm.item.playerStatue.container.name").getString()).setStyle(colorStyle.withBold(true)))
                 .addLore(Text.translatable("fzmm.item.playerStatue.container.lore.1", x, y, z), color)
                 .get();
 
