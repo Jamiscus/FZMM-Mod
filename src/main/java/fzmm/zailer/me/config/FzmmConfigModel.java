@@ -16,34 +16,34 @@ import java.util.*;
 public class FzmmConfigModel {
 
     @Nest
+    @Expanded
     public GeneralNest general = new GeneralNest();
-
-    @Nest
-    public GuiStyleNest guiStyle = new GuiStyleNest();
-
-
-    @Nest
-    public ItemEditorBannerNest itemEditorBanner = new ItemEditorBannerNest();
-
-
     @Nest
     public ColorsNest colors = new ColorsNest();
     @Nest
-    public EncryptbookNest encryptbook = new EncryptbookNest();
+    public GuiStyleNest guiStyle = new GuiStyleNest();
+
+    @Nest
+    @SectionHeader("externalAPIs")
+    public MineskinNest mineskin = new MineskinNest();
     @Nest
     public HeadGalleryNest headGallery = new HeadGalleryNest();
+
+    @SectionHeader("gui")
+    @Nest
+    public ImagetextNest imagetext = new ImagetextNest();
+    @Nest
+    public TextFormatNest textFormat = new TextFormatNest();
+    @Nest
+    public PlayerStatueNest playerStatue = new PlayerStatueNest();
+    @Nest
+    public EncryptbookNest encryptbook = new EncryptbookNest();
     @Nest
     public HeadGeneratorNest headGenerator = new HeadGeneratorNest();
     @Nest
     public HistoryNest history = new HistoryNest();
     @Nest
-    public ImagetextNest imagetext = new ImagetextNest();
-    @Nest
-    public MineskinNest mineskin = new MineskinNest();
-    @Nest
-    public PlayerStatueNest playerStatue = new PlayerStatueNest();
-    @Nest
-    public TextFormatNest textFormat = new TextFormatNest();
+    public ItemEditorBannerNest itemEditorBanner = new ItemEditorBannerNest();
 
     public static class GeneralNest {
         public boolean disableItalic = true;
@@ -141,6 +141,7 @@ public class FzmmConfigModel {
     }
 
     public static class HeadGalleryNest {
+        @RestartRequired
         public boolean cacheCategories = true;
         public boolean stylingHeads = true;
         @RangeConstraint(min = 1, max = 2500)
