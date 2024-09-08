@@ -235,6 +235,11 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         return this.symbolChatCompat.charTyped(chr, modifiers);
     }
 
+    @Override
+    public boolean shouldPause() {
+        return false;
+    }
+
     public SymbolChatCompat getSymbolChatCompat() {
         return this.symbolChatCompat;
     }
