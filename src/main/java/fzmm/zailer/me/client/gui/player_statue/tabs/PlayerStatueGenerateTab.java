@@ -47,8 +47,9 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
         skinButton.setImageLoadedEvent(this::skinCallback);
         skinButton.setButtonCallback(skin -> {
             this.executeButton.active = this.canExecute();
-            if (skin.getWidth() == 64 && skin.getHeight() == 32)
-                skinButton.setImage(InternalModels.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skin));
+            if (skin.getWidth() == 64 && skin.getHeight() == 32) {
+                skinButton.setImage(InternalModels.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skin, ImageUtils.hasUnusedPixel(skin)));
+            }
         });
     }
 

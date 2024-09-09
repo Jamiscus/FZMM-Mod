@@ -4,12 +4,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParamete
 
 public class FillColorInverse implements IFillColorAlgorithm {
     @Override
-    public int getColor(ColorParameter colorParameter, int pixelColor) {
-        int alpha = (pixelColor >> 24);
-        int red = (pixelColor >> 16) & 0xFF;
-        int green = (pixelColor >> 8) & 0xFF;
-        int blue = pixelColor & 0xFF;
-
+    public int getColor(ColorParameter colorParameter, int red, int green, int blue, int alpha) {
         red = 255 - red;
         green = 255 - green;
         blue = 255 - blue;

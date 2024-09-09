@@ -18,7 +18,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.random.Random;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Set;
 
@@ -129,11 +128,6 @@ public class HeadComponentEntry extends AbstractHeadComponentEntry {
         addCompoundButton.horizontalSizing(Sizing.fixed(Math.max(20, addLayerButtonWidth)));
 
         layout.children(List.of(overlayFavoriteButton, addCompoundButton));
-    }
-
-    @Override
-    public BufferedImage getBaseSkin() {
-        return this.parentScreen.getGridBaseSkin(this.getValue().isEditingSkinBody());
     }
 
     private void addCompoundButtonExecute(ButtonComponent button) {

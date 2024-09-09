@@ -8,16 +8,22 @@ import java.util.List;
 
 public interface ISkinPreEdit {
 
-    default BufferedImage execute(BufferedImage result, BufferedImage skin, List<SkinPart> skinParts) {
-        Graphics2D graphics = result.createGraphics();
-
-        for (SkinPart skinPart : skinParts)
-            this.execute(graphics, skin, skinPart);
-
-        graphics.dispose();
-
-        return result;
+    default void apply(Graphics2D graphics, BufferedImage skin, List<SkinPart> skinParts) {
+        for (SkinPart skinPart : skinParts) {
+            this.apply(graphics, skin, skinPart);
+        }
     }
 
-    void execute(Graphics2D graphics, BufferedImage skin, SkinPart skinPart);
+    default void apply(Graphics2D graphics, BufferedImage skin) {
+        this.apply(graphics, skin, true);
+    }
+
+    default void apply(Graphics2D graphics, BufferedImage skin, boolean editBody) {
+        this.apply(graphics, skin, SkinPart.HEAD);
+        if (editBody) {
+            this.apply(graphics, skin, SkinPart.BODY_PARTS);
+        }
+    }
+
+    void apply(Graphics2D graphics, BufferedImage skin, SkinPart skinPart);
 }

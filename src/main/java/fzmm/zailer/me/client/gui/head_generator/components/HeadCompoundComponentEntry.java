@@ -21,12 +21,10 @@ import java.awt.image.BufferedImage;
 public class HeadCompoundComponentEntry extends AbstractHeadComponentEntry {
     private static final Text REMOVE_LAYER_BUTTON_TEXT = Text.translatable("fzmm.gui.button.remove");
     private boolean modifiedPreview;
-    private BufferedImage previousCompoundSkin;
 
     public HeadCompoundComponentEntry(AbstractHeadEntry entry, FlowLayout parentLayout, HeadGeneratorScreen parentScreen, BufferedImage initialPreview) {
         super(entry, Sizing.fixed(50), Sizing.fixed(45), parentScreen);
         this.alignment(HorizontalAlignment.CENTER, VerticalAlignment.CENTER);
-        this.previousCompoundSkin = parentScreen.getGridBaseSkin(entry.isEditingSkinBody());
 
         FlowLayout moveButtons = StyledContainers.horizontalFlow(Sizing.content(), Sizing.content());
         moveButtons.positioning(Positioning.relative(50, 100));
@@ -56,13 +54,7 @@ public class HeadCompoundComponentEntry extends AbstractHeadComponentEntry {
     }
 
     @Override
-    public BufferedImage getBaseSkin() {
-        return this.previousCompoundSkin;
-    }
-
-    @Override
     public void update(BufferedImage previousCompoundSkin, boolean isSlim) {
-        this.previousCompoundSkin = previousCompoundSkin;
         if (!this.modifiedPreview) {
             super.update(previousCompoundSkin, isSlim);
         }

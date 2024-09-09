@@ -7,7 +7,6 @@ import fzmm.zailer.me.client.logic.head_generator.model.ModelData;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 
 public class ModelCopyStep implements IModelStep {
 
@@ -34,18 +33,16 @@ public class ModelCopyStep implements IModelStep {
         if (data.isInvertedLeftAndRight()) {
             this.swapLeftAndRight();
         }
-        Graphics2D graphics = data.destinationGraphics();
-        BufferedImage selectedTexture = data.selectedTexture();
 
         ModelArea destination = this.destination.copyWithOffset(data.offsets().parameterList());
         if (this.addHatLayer) {
-            this.apply(graphics, destination, selectedTexture, false, false);
-            this.apply(graphics, destination, selectedTexture, true, true);
+            this.apply(data, destination, false, false);
+            this.apply(data, destination, true, true);
         } else if (this.overlapSourceHat) {
-            this.apply(graphics, destination, selectedTexture, false, this.destination.hatLayer());
-            this.apply(graphics, destination, selectedTexture, true, this.destination.hatLayer());
+            this.apply(data, destination, false, this.destination.hatLayer());
+            this.apply(data, destination, true, this.destination.hatLayer());
         } else {
-            this.apply(graphics, destination, selectedTexture, this.source.hatLayer(), this.destination.hatLayer());
+            this.apply(data, destination, this.source.hatLayer(), this.destination.hatLayer());
         }
 
         if (data.isInvertedLeftAndRight()) {
@@ -54,46 +51,48 @@ public class ModelCopyStep implements IModelStep {
     }
 
 
-    private void apply(Graphics2D graphics, ModelArea destination, BufferedImage selectedTexture, boolean sourceHatLayer, boolean destinationHatLayer) {
-        int destinationX = destination.getXWithOffset(destinationHatLayer);
-        int destinationY = destination.getYWithOffset(destinationHatLayer);
-        int sourceX = this.source.getXWithOffset(sourceHatLayer);
-        int sourceY = this.source.getYWithOffset(sourceHatLayer);
+    private void apply(ModelData data, ModelArea destination, boolean sourceHatLayer, boolean destinationHatLayer) {
+        byte[][] sourceRect = this.source.optimize(sourceHatLayer);
+        byte[][] destinationRect = destination.optimize(destinationHatLayer);
 
-        AffineTransform transform = graphics.getTransform();
+        if (sourceRect.length > destinationRect.length) {
+            sourceRect = this.source.asArray(sourceHatLayer);
+        } else if (destinationRect.length > sourceRect.length) {
+            destinationRect = destination.asArray(destinationHatLayer);
+        }
+
+        Graphics2D graphics = data.destinationGraphics();
+
+        AffineTransform transform = new AffineTransform();
         transform.setToRotation(
                 Math.toRadians(this.degrees),
-                (this.source.width() / 2f) + destinationX,
-                (this.source.height() / 2f) + destinationY
+                (this.source.width() / 2f) + destinationRect[0][0],
+                (this.source.height() / 2f) + destinationRect[0][1]
         );
         graphics.setTransform(transform);
 
-        int destinationX2 = destinationX + destination.width();
-        if (this.mirrorHorizontal) {
-            int aux = destinationX;
-            destinationX = destinationX2;
-            destinationX2 = aux;
+        for (int i = 0; i !=  destinationRect.length; i++) {
+
+            if (this.mirrorHorizontal) {
+                byte aux = destinationRect[i][0];
+                destinationRect[i][0] = destinationRect[i][2];
+                destinationRect[i][2] = aux;
+            }
+
+            if (this.mirrorVertical) {
+                byte aux = destinationRect[i][1];
+                destinationRect[i][1] = destinationRect[i][3];
+                destinationRect[i][3] = aux;
+            }
+
+            graphics.drawImage(data.selectedTexture(),
+                    destinationRect[i][0], destinationRect[i][1], destinationRect[i][2], destinationRect[i][3],
+                    sourceRect[i][0], sourceRect[i][1], sourceRect[i][2], sourceRect[i][3],
+                    null
+            );
         }
 
-        int destinationY2 = destinationY + destination.height();
-        if (this.mirrorVertical) {
-            int aux = destinationY;
-            destinationY = destinationY2;
-            destinationY2 = aux;
-        }
-
-
-        graphics.drawImage(selectedTexture,
-                destinationX,
-                destinationY,
-                destinationX2,
-                destinationY2,
-                sourceX,
-                sourceY,
-                sourceX + this.source.width(),
-                sourceY + this.source.height(),
-                null
-        );
+        graphics.setTransform(data.originalTransform());
     }
 
     /**
@@ -116,7 +115,6 @@ public class ModelCopyStep implements IModelStep {
         // as they can be the same instance, it is necessary to avoid swapping them both at the same time
         if (this.source != this.destination) {
             this.source.swapLeftAndRight();
-
         }
     }
 
@@ -127,9 +125,9 @@ public class ModelCopyStep implements IModelStep {
         if (jsonObject.has("destination"))
             destination = ModelArea.parse(jsonObject.get("destination").getAsJsonObject());
 
-        if (destination == null || source.equals(destination))
+        if (destination == null || source.equals(destination)) {
             destination = source;
-
+        }
 
         boolean addHatLayer = jsonObject.has("add_hat_layer") && jsonObject.get("add_hat_layer").getAsBoolean();
         boolean overlapSourceHat = jsonObject.has("overlap_source_hat") && jsonObject.get("overlap_source_hat").getAsBoolean();

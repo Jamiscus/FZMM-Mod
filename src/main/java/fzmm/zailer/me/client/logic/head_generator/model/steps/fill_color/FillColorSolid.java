@@ -4,7 +4,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParamete
 
 public class FillColorSolid implements IFillColorAlgorithm {
     @Override
-    public int getColor(ColorParameter colorParameter, int pixelColor) {
+    public int getColor(ColorParameter colorParameter, int red, int green, int blue, int alpha) {
         return colorParameter.color().argb();
     }
 

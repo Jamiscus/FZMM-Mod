@@ -4,12 +4,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParamete
 
 public class FillColorGrayscale implements IFillColorAlgorithm {
     @Override
-    public int getColor(ColorParameter colorParameter, int pixelColor) {
-        int alpha = (pixelColor >> 24) & 0xFF;
-        int red = (pixelColor >> 16) & 0xFF;
-        int green = (pixelColor >> 8) & 0xFF;
-        int blue = pixelColor & 0xFF;
-
+    public int getColor(ColorParameter colorParameter, int red, int green, int blue, int alpha) {
         // The weighted average is applied to calculate the grayscale.
         int gray = (int) (0.2989 * red + 0.5870 * green + 0.1140 * blue);
 

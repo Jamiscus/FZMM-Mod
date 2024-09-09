@@ -10,6 +10,7 @@ import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRows;
 import fzmm.zailer.me.client.gui.components.row.image.ImageRowsElements;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
+import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.SnackBarBuilder;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.components.style.StyledComponents;
@@ -104,7 +105,8 @@ public class HeadComponentOverlay extends StyledFlowLayout {
 
             ButtonComponent saveButton = panel.childById(ButtonComponent.class, "save-button");
             BaseFzmmScreen.checkNull(saveButton, "button", "save-button");
-            saveButton.onPress(buttonComponent -> this.saveSkinExecute(headComponentEntry.getPreview()));
+            saveButton.onPress(buttonComponent -> SnackBarManager.getInstance()
+                    .add(this.saveSkinExecute(headComponentEntry.getPreview())));
 
             this.addDefaultOptions(panel, headComponentEntry);
             if (entry instanceof INestedParameters parametersEntry) {
@@ -123,29 +125,26 @@ public class HeadComponentOverlay extends StyledFlowLayout {
         this.parentScreen.giveHead(headComponentEntry.getPreview(), headComponentEntry.getValue().getDisplayName().getString());
     }
 
-    public void saveSkinExecute(@Nullable BufferedImage skin) {
+    public ISnackBarComponent saveSkinExecute(@Nullable BufferedImage skin) {
         File skinFolder = HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile();
         if (skinFolder.mkdirs()) {
             FzmmClient.LOGGER.info("[HeadComponentOverlay] Skin save folder created");
         }
 
-        saveSkinExecute(skin, ScreenshotRecorder.getScreenshotFilename(skinFolder));
+        return saveSkin(skin, ScreenshotRecorder.getScreenshotFilename(skinFolder));
     }
 
-    public static void saveSkinExecute(@Nullable BufferedImage skin, File file) {
+    public static ISnackBarComponent saveSkin(@Nullable BufferedImage skin, File file) {
         SnackBarBuilder builder = BaseSnackBarComponent.builder(SnackBarManager.HEAD_GENERATOR_SAVE_ID)
                 .highTimer()
-                .closeButton()
-                .startTimer();
+                .closeButton();
         if (skin == null) {
-            SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.HEAD_GENERATOR_SAVE_ID)
+            return builder
                     .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
                     .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.thereIsNoSkin"))
                     .keepOnLimit()
-                    .build());
-            return;
+                    .build();
         }
-
 
         try {
             ImageIO.write(skin, "png", file);
@@ -156,14 +155,15 @@ public class HeadComponentOverlay extends StyledFlowLayout {
                             Util.getOperatingSystem().open(HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH.toFile())))
                     .button(iSnackBarComponent -> Components.button(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.button.openSkin"), buttonComponent ->
                             Util.getOperatingSystem().open(file)))
-                    .sizing(Sizing.fixed(180), Sizing.content());
+                    .sizing(Sizing.fixed(180), Sizing.content())
+                    .mediumTimer();
         } catch (IOException e) {
             FzmmClient.LOGGER.error("[HeadComponentOverlay] Unexpected error saving the skin", e);
             builder.backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
                     .title(Text.translatable("fzmm.gui.headGenerator.snack_bar.saveSkin.saveError"))
                     .keepOnLimit();
         }
-        SnackBarManager.getInstance().add(builder.build());
+        return builder.startTimer().build();
     }
 
     private void addParameters(FlowLayout panel, BaseFzmmScreen parent, INestedParameters parametersEntry, AbstractHeadComponentEntry headComponentEntry) {
@@ -259,7 +259,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
         ButtonComponent result = Components.button(Text.empty(), button -> {
             BufferedImage preview = headComponentEntry.getPreview();
             for (int i = 0; i < amount; i++) {
-                BufferedImage updatedSkin = modelEntry.getHeadSkin(preview);
+                BufferedImage updatedSkin = modelEntry.getHeadSkin(preview, this.parentScreen.hasUnusedPixels());
                 preview.flush();
                 preview = updatedSkin;
             }
@@ -406,7 +406,7 @@ public class HeadComponentOverlay extends StyledFlowLayout {
 
     private BufferedImage updatePreview(AbstractHeadComponentEntry headComponentEntry) {
         BufferedImage baseSkin = this.getBaseSkin(this.selectedSkinPreEdit, headComponentEntry.isBodyPreview());
-        headComponentEntry.update(baseSkin);
+        headComponentEntry.update(baseSkin, this.parentScreen.hasUnusedPixels());
         return baseSkin;
     }
 }

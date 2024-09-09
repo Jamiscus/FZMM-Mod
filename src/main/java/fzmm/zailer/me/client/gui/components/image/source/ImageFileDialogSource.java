@@ -48,9 +48,7 @@ public class ImageFileDialogSource implements IInteractiveImageLoader {
                 }
             }
         }, Util.getMainWorkerExecutor()).whenComplete((unused, throwable) -> {
-            if (this.image != null) {
-                consumer.accept(this.image);
-            }
+            consumer.accept(this.image);
         });
     }
 
