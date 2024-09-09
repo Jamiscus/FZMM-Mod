@@ -189,7 +189,7 @@ public class FzmmUtils {
         }
         stackCopy.apply(DataComponentTypes.CUSTOM_DATA, null, nbtComponent -> {
             if (nbtComponent == null) {
-                return NbtComponent.DEFAULT;
+                return null;
             }
 
             NbtCompound customTag = nbtComponent.copyNbt();
@@ -202,7 +202,7 @@ public class FzmmUtils {
             // modify an item with these tags, it will later revert to the cached version, losing the changes.
             recursiveRemoveTags(customTag, s -> s.startsWith("VV|Protocol"));
 
-            return customTag.getKeys().isEmpty() ? NbtComponent.DEFAULT : NbtComponent.of(customTag);
+            return customTag.getKeys().isEmpty() ? null : NbtComponent.of(customTag);
         });
 
         return stackCopy;
