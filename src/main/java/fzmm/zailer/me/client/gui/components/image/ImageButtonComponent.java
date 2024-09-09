@@ -59,7 +59,7 @@ public class ImageButtonComponent extends ButtonComponent {
     }
 
     public void loadImageFromText(IImageLoaderFromText imageLoaderFromText, String value) {
-        MinecraftClient.getInstance().execute(() -> this.active = false);
+        this.active = false;
         ISnackBarComponent loadingSnackBar = BaseSnackBarComponent.builder(SnackBarManager.IMAGE_ID)
                 .title(Text.translatable("fzmm.snack_bar.image.loading.title"))
                 .backgroundColor(FzmmStyles.ALERT_LOADING_COLOR)
@@ -117,6 +117,7 @@ public class ImageButtonComponent extends ButtonComponent {
     }
 
     public void interactiveImageLoad(IInteractiveImageLoader interactiveImageLoader) {
+        this.active = false;
         interactiveImageLoader.execute(bufferedImage -> {
             if (this.image != null) {
                 this.image.flush();
@@ -128,6 +129,11 @@ public class ImageButtonComponent extends ButtonComponent {
             if (this.callback != null) {
                 this.callback.accept(this.image);
             }
+
+            MinecraftClient.getInstance().execute(() -> {
+                this.active = true;
+                SnackBarManager.getInstance().remove(SnackBarManager.IMAGE_ID);
+            });
         });
     }
 
