@@ -21,10 +21,18 @@ public class StyledContainers {
     }
 
     public static <C extends Component> StyledScrollContainer<C> verticalScroll(Sizing horizontalSizing, Sizing verticalSizing, C child) {
-        return new StyledScrollContainer<>(ScrollContainer.ScrollDirection.VERTICAL, horizontalSizing, verticalSizing, child);
+        return verticalScroll(horizontalSizing, verticalSizing, child, false);
+    }
+
+    public static <C extends Component> StyledScrollContainer<C> verticalScroll(Sizing horizontalSizing, Sizing verticalSizing, C child, boolean flipScroll) {
+        return new StyledScrollContainer<>(ScrollContainer.ScrollDirection.VERTICAL, horizontalSizing, verticalSizing, child, flipScroll);
     }
 
     public static <C extends Component> StyledScrollContainer<C> horizontalScroll(Sizing horizontalSizing, Sizing verticalSizing, C child) {
-        return new StyledScrollContainer<>(ScrollContainer.ScrollDirection.HORIZONTAL, horizontalSizing, verticalSizing, child);
+        return horizontalScroll(horizontalSizing, verticalSizing, child, false);
+    }
+
+    public static <C extends Component> StyledScrollContainer<C> horizontalScroll(Sizing horizontalSizing, Sizing verticalSizing, C child, boolean flipScroll) {
+        return new StyledScrollContainer<>(ScrollContainer.ScrollDirection.HORIZONTAL, horizontalSizing, verticalSizing, child, flipScroll);
     }
 }
