@@ -375,7 +375,7 @@
                             <children>
 
                                 <fzmm.styled-scroll direction="horizontal">
-                                    <fzmm.styled-scroll direction="vertical">
+                                    <fzmm.styled-scroll direction="vertical" flip-scroll="true">
                                         <fzmm.styled-label id="preview-label">
                                         </fzmm.styled-label>
 

@@ -10,8 +10,8 @@ public class StyledLabelComponent extends LabelComponent {
         super(text);
 
         // improves text readability with translucent background
-        boolean useOptionsBackground = FzmmClient.CONFIG.guiStyle.oldBackground();
-        if (useOptionsBackground) {
+        boolean oldBackground = FzmmClient.CONFIG.guiStyle.oldBackground();
+        if (!oldBackground) {
             this.shadow(true);
         }
     }
