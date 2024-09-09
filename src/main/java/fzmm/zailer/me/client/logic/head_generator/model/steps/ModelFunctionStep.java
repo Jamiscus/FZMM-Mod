@@ -43,8 +43,9 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
     @Override
     public void apply(ModelData data) {
         Optional<HeadModelEntry> functionOptional = getFunction(this.functionPath);
-        if (functionOptional.isEmpty())
+        if (functionOptional.isEmpty()) {
             return;
+        }
         HeadModelEntry function = functionOptional.get();
 
         BufferedImage destinationTexture = data.destinationTexture();
@@ -73,7 +74,9 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
         }
 
         ModelData functionData = new ModelData(data.destinationGraphics(), data.destinationId(), textures,
-                colors, offsets, data.selectedTexture(), data.selectedColor(), this.isInvertedLeftAndRight);
+                colors, offsets, data.selectedTexture(), data.selectedColor(), this.isInvertedLeftAndRight,
+                data.originalTransform()
+        );
 
         function.apply(functionData, baseSkin, destinationTexture);
 
@@ -114,8 +117,8 @@ public class ModelFunctionStep implements IModelStep, INestedParameters {
     private Optional<ParameterList<OffsetParameter>> createFunctionOffsets(ModelPoint pos) {
         ParameterList<OffsetParameter> functionOffsets = new ParameterList<>();
 
-        int x = pos.getXWithOffset();
-        int y = pos.getYWithOffset();
+        int x = pos.xWithOffset();
+        int y = pos.yWithOffset();
 
         if (x != 0) {
             functionOffsets.put(this.createOffset(x, true));

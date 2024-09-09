@@ -1,13 +1,15 @@
 package fzmm.zailer.me.client.logic.head_generator.texture;
 
 import fzmm.zailer.me.client.gui.head_generator.category.HeadTextureCategory;
+import fzmm.zailer.me.client.gui.head_generator.options.ISkinPreEdit;
+import fzmm.zailer.me.client.gui.head_generator.options.SkinPreEditOption;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
-import fzmm.zailer.me.client.logic.head_generator.TextureOverlap;
 import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.utils.ImageUtils;
 import fzmm.zailer.me.utils.SkinPart;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class HeadTextureEntry extends AbstractHeadEntry {
@@ -26,23 +28,31 @@ public class HeadTextureEntry extends AbstractHeadEntry {
     }
 
     @Override
-    public BufferedImage getHeadSkin(BufferedImage baseSkin) {
-        TextureOverlap textureOverlap = new TextureOverlap(baseSkin);
+    public BufferedImage getHeadSkin(BufferedImage baseSkin, boolean hasUnusedPixels) {
+        ISkinPreEdit noneEdit = SkinPreEditOption.NONE.getPreEdit();
+        BufferedImage result = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = result.createGraphics();
+        noneEdit.apply(graphics, baseSkin);
 
         // fixes skin formatting inconsistencies
-        if (this.isEditingSkinBody() &&
-                (ImageUtils.isSlimSimpleCheck(baseSkin) != ImageUtils.isSlimFullCheck(this.headSkin))) {
+        if (this.isEditingSkinBody() && (ImageUtils.isSlimSimpleCheck(baseSkin) != ImageUtils.isSlimFullCheck(this.headSkin))) {
             HeadModelEntry formatUpdater = ImageUtils.isSlimSimpleCheck(baseSkin) ?
                     InternalModels.WIDE_TO_SLIM : InternalModels.SLIM_TO_WIDE;
 
-            BufferedImage adaptedHeadSkin = formatUpdater.getHeadSkin(this.headSkin);
-            textureOverlap.addTexture(adaptedHeadSkin);
+            BufferedImage adaptedHeadSkin = formatUpdater.getHeadSkin(this.headSkin, false);
+            noneEdit.apply(graphics, adaptedHeadSkin);
             adaptedHeadSkin.flush();
         } else {
-            textureOverlap.addTexture(this.headSkin);
+            noneEdit.apply(graphics, this.headSkin);
         }
 
-        return textureOverlap.getHeadTexture();
+        if (hasUnusedPixels) {
+            ImageUtils.copyUnusedPixels(baseSkin, graphics);
+        }
+
+        graphics.dispose();
+
+        return result;
     }
 
     @Override
@@ -61,24 +71,28 @@ public class HeadTextureEntry extends AbstractHeadEntry {
     }
 
     private boolean calculateIsEditingSkinBody() {
-        if (this.headSkin.getWidth() != SkinPart.MAX_WIDTH || this.headSkin.getHeight() != SkinPart.MAX_HEIGHT)
+        if (this.headSkin.getWidth() != SkinPart.MAX_WIDTH || this.headSkin.getHeight() != SkinPart.MAX_HEIGHT) {
             return false;
-
+        }
 
         for (SkinPart part : SkinPart.BODY_PARTS) {
-            if (this.calculateIsEditingSkinBody(part.width(), part.height(), part.x(), part.y())
-                    || this.calculateIsEditingSkinBody(part.width(), part.height(), part.hatX(), part.hatY()))
-                return true;
+            byte[][] usedAreas = part.usedAreas();
+            for (var rect : usedAreas) {
+                if (this.calculateIsEditingSkinBody(rect[0], rect[1], rect[2], rect[3])) {
+                    return true;
+                }
+            }
         }
 
         return false;
     }
 
-    private boolean calculateIsEditingSkinBody(int width, int height, int x, int y) {
-        for (int yOffset = 0; yOffset < height; yOffset++) {
-            for (int xOffset = 0; xOffset < width; xOffset++) {
-                if (ImageUtils.hasPixel(1, x + xOffset, y + yOffset, this.headSkin))
+    private boolean calculateIsEditingSkinBody(int x, int y, int x2, int y2) {
+        for (int i = x; i < y2; i++) {
+            for (int j = y; j < x2; j++) {
+                if (ImageUtils.hasPixel(j, i, this.headSkin)) {
                     return true;
+                }
             }
         }
         return false;

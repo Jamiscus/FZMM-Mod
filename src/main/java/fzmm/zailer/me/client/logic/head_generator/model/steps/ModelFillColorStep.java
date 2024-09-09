@@ -9,6 +9,8 @@ import fzmm.zailer.me.client.logic.head_generator.model.parameters.ColorParamete
 import fzmm.zailer.me.client.logic.head_generator.model.steps.fill_color.IFillColorAlgorithm;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.util.Optional;
 
 public class ModelFillColorStep implements IModelStep {
@@ -31,31 +33,42 @@ public class ModelFillColorStep implements IModelStep {
             this.area.swapLeftAndRight();
         }
 
-        ModelArea area = this.area.copyWithOffset(data.offsets().parameterList());
+        byte[][] area = this.area.copyWithOffset(data.offsets().parameterList()).optimize();
         BufferedImage texture = optionalTexture.get();
         ColorParameter selectedColor = data.selectedColor();
-
-        int posX = area.getXWithOffset();
-        int posY = area.getYWithOffset();
-        int posX2 = posX + area.width();
-        int posY2 = posY + area.height();
 
         if (data.isInvertedLeftAndRight()) {
             this.area.swapLeftAndRight();
         }
 
-        if (posX2 > texture.getWidth() && posY2 > texture.getHeight()) {
-            FzmmClient.LOGGER.error("[ModelFillColorStep] Pixel outside of texture: {} {}",  posX2,  posY2);
-            return;
+        for (var rect : area) {
+            if (rect[2] > texture.getWidth() || rect[3] > texture.getHeight()) {
+                FzmmClient.LOGGER.error("[ModelFillColorStep] Pixel outside of texture: {} {}",  rect[2],  rect[3]);
+                continue;
+            }
+
+            this.apply(rect, texture, selectedColor);
         }
+    }
 
-        for (int y = posY; y < posY2; y++) {
-            for (int x = posX; x < posX2; x++) {
-                int pixelColor = texture.getRGB(x, y);
-                if (!this.algorithm.acceptTransparentPixel() && (pixelColor >> 24) == 0)
+    private void apply(byte[] rect, BufferedImage texture, ColorParameter selectedColor) {
+        WritableRaster raster = texture.getRaster();
+        ColorModel colorModel = texture.getColorModel();
+        for (int y = rect[1]; y < rect[3]; y++) {
+            for (int x = rect[0]; x < rect[2]; x++) {
+                Object elements = raster.getDataElements(x, y, null);
+
+                int alpha = colorModel.getAlpha(elements);
+                if (!this.algorithm.acceptTransparentPixel() && alpha== 0) {
                     continue;
+                }
 
-                int colorArgb  = this.algorithm.getColor(selectedColor, pixelColor);
+                int colorArgb  = this.algorithm.getColor(selectedColor,
+                        colorModel.getRed(elements),
+                        colorModel.getGreen(elements),
+                        colorModel.getBlue(elements),
+                        colorModel.getAlpha(elements)
+                );
 
                 texture.setRGB(x, y, colorArgb);
             }

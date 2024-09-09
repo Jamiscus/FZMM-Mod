@@ -57,7 +57,7 @@ public abstract class AbstractHeadEntry {
         return split[split.length - 1];
     }
 
-    public abstract BufferedImage getHeadSkin(BufferedImage baseSkin);
+    public abstract BufferedImage getHeadSkin(BufferedImage baseSkin, boolean hasUnusedPixels);
 
     public abstract String getCategoryId();
 

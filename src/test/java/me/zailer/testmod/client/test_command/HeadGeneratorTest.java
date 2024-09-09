@@ -9,26 +9,77 @@ import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.utils.ImageUtils;
 import fzmm.zailer.me.utils.SkinPart;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+
 import java.util.function.Predicate;
 
 public class HeadGeneratorTest {
+
     public static void writeSkins() {
         new ImageFileDialogSource().execute(skin -> {
-            for (var model : HeadResourcesLoader.getAllLoaded()) {
-                var result = getHead(model, skin);
+            boolean hasUnusedPixels = ImageUtils.hasUnusedPixel(skin);
+            for (var model : HeadResourcesLoader.getLoaded()) {
+                var result = getHead(model, skin, hasUnusedPixels);
 
                 var file = new File(HeadGeneratorScreen.SKIN_SAVE_FOLDER_PATH + "/test/" + model.getKey() + ".png");
                 if (file.mkdirs()) {
                     FzmmClient.LOGGER.info("[HeadGeneratorTest] Test skin save folder created");
                 }
 
-                HeadComponentOverlay.saveSkinExecute(result, file);
+                HeadComponentOverlay.saveSkin(result, file);
             }
+        });
+    }
+
+    public static void time(int loops) {
+        new ImageFileDialogSource().execute(skin -> {
+            var start = System.currentTimeMillis();
+
+            var sum = 0L;
+            var modelList = HeadResourcesLoader.getLoaded();
+            var hashMap = new Object2LongOpenHashMap<String>(modelList.size());
+            boolean hasUnusedPixels = ImageUtils.hasUnusedPixel(skin);
+
+            for (int i = 0; i != loops; i++) {
+                var loopStart = System.currentTimeMillis();
+                for (var model : modelList) {
+                    long modelTime = System.nanoTime();
+                    var result = getHead(model, skin, hasUnusedPixels);
+                    result.flush();
+                    hashMap.addTo(model.getKey(), System.nanoTime() - modelTime);
+                }
+                sum += System.currentTimeMillis() - loopStart;
+            }
+
+            long totalTime = System.currentTimeMillis() - start;
+            String message = "Time: " + "total " + totalTime + "ms / avg " + (sum / (float) loops) + "ms";
+
+            var topEntries = hashMap.object2LongEntrySet()
+                    .stream()
+                    .sorted((e1, e2) -> Long.compare(e2.getLongValue(), e1.getLongValue()))
+                    .limit(10)
+                    .map(entry -> {
+                        float modelTotal = entry.getLongValue() / 1000000f;
+                        return entry.getKey() + ": " + String.format("%.2f", modelTotal / (float) totalTime * 100f)
+                                + "% (" + modelTotal + "ms)";
+                    })
+                    .toList();
+
+            String tooltip = String.join("\n", topEntries);
+            MinecraftClient.getInstance().inGameHud.getChatHud()
+                    .addMessage(Text.literal(message)
+                            .setStyle(Style.EMPTY.withHoverEvent(
+                                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(tooltip))
+                                    )
+                            )
+                    );
         });
     }
 
@@ -37,7 +88,7 @@ public class HeadGeneratorTest {
     }
 
     public static void checkPixel(int x, int y, boolean subtractEmptyBody) {
-        checkSkin(bufferedImage -> ImageUtils.hasPixel(1, x, y, bufferedImage), subtractEmptyBody);
+        checkSkin(bufferedImage -> ImageUtils.hasPixel(x, y, bufferedImage), subtractEmptyBody);
     }
 
     public static void checkSkin(Predicate<BufferedImage> predicate, boolean subtractEmptyBody) {
@@ -46,9 +97,10 @@ public class HeadGeneratorTest {
             var count = entries.size();
             var correctCount = 0;
             var missingBodyCount = 0;
+            boolean hasUnusedPixels = ImageUtils.hasUnusedPixel(skin);
             for (var model : entries) {
-                var headSkin = getHead(model, skin);
-                var isEmptyBody = !ImageUtils.hasPixel(1, SkinPart.BODY.x() + 4, SkinPart.BODY.y() + 4, headSkin);
+                var headSkin = getHead(model, skin, hasUnusedPixels);
+                var isEmptyBody = !ImageUtils.hasPixel(SkinPart.BODY.x() + 4, SkinPart.BODY.y() + 4, headSkin);
 
                 if (isEmptyBody) {
                     missingBodyCount++;
@@ -76,7 +128,7 @@ public class HeadGeneratorTest {
         });
     }
 
-    private static BufferedImage getHead(AbstractHeadEntry model, BufferedImage skin) {
+    private static BufferedImage getHead(AbstractHeadEntry model, BufferedImage skin, boolean hasUnusedPixels) {
         var skinCopy = new BufferedImage(skin.getWidth(), skin.getHeight(), BufferedImage.TYPE_INT_ARGB);
         skinCopy.getGraphics().drawImage(skin, 0, 0, null);
 
@@ -88,6 +140,6 @@ public class HeadGeneratorTest {
             }
         }
 
-        return model.getHeadSkin(skinCopy);
+        return model.getHeadSkin(skinCopy, hasUnusedPixels);
     }
 }

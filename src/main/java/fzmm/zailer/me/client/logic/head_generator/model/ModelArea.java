@@ -70,6 +70,43 @@ public class ModelArea extends ModelPoint {
         return copy;
     }
 
+    public byte[][] optimize() {
+        return this.optimize(this.hatLayer);
+    }
+
+    public byte[][] optimize(boolean hatLayer) {
+        // Avoid using any unused areas
+        if (this == ALL_AREA) {
+            return hatLayer ? new byte[][]{SkinPart.ALL_USED_AREAS[2], SkinPart.ALL_USED_AREAS[3]} : new byte[][]{SkinPart.ALL_USED_AREAS[0], SkinPart.ALL_USED_AREAS[1]};
+        }
+
+        // Nothing to optimize
+        if (this.x != 0 || this.y != 0 || this.width <= this.offset.emptyAreaSize() ||
+                this.height <= this.offset.emptyAreaSize() || this.width > this.offset.width() || this.height > this.offset.height()) {
+            return this.asArray(hatLayer);
+        }
+
+        // Avoid using unused areas
+        if (this.offset.width() == this.width && this.offset.height() == this.height) {
+            byte[][] usedAreas = this.offset.usedAreas();
+            return hatLayer ? new byte[][]{usedAreas[2], usedAreas[3]} : new byte[][]{usedAreas[0], usedAreas[1]};
+        }
+
+        byte xOffset = (byte) this.xWithOffset(hatLayer);
+        byte yOffset = (byte) this.yWithOffset(hatLayer);
+        // Avoid using left unused area
+        return SkinPart.getUsedAreas(xOffset, yOffset, this.width, this.height, this.offset.width(), this.offset.height(), this.offset.emptyAreaSize());
+    }
+
+    public byte[][] asArray(boolean hatLayer) {
+        byte xOffset = (byte) this.xWithOffset(hatLayer);
+        byte yOffset = (byte) this.yWithOffset(hatLayer);
+        return new byte[][]{{
+                xOffset, yOffset,
+                (byte) (xOffset + this.width), (byte) (yOffset + this.height)
+        }};
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

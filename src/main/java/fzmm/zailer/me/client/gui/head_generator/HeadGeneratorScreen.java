@@ -17,10 +17,8 @@ import fzmm.zailer.me.client.gui.head_generator.components.AbstractHeadComponent
 import fzmm.zailer.me.client.gui.head_generator.components.HeadComponentEntry;
 import fzmm.zailer.me.client.gui.head_generator.components.HeadComponentOverlay;
 import fzmm.zailer.me.client.gui.head_generator.components.HeadCompoundComponentEntry;
+import fzmm.zailer.me.client.gui.head_generator.options.ISkinPreEdit;
 import fzmm.zailer.me.client.gui.head_generator.options.SkinPreEditOption;
-import fzmm.zailer.me.client.gui.head_generator.preview_algorithm.DefaultPreviewUpdater;
-import fzmm.zailer.me.client.gui.head_generator.preview_algorithm.ForceNonePreEditPreviewUpdater;
-import fzmm.zailer.me.client.gui.head_generator.preview_algorithm.IPreviewUpdater;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.SnackBarBuilder;
@@ -28,6 +26,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
+import fzmm.zailer.me.client.logic.head_generator.model.HeadModelEntry;
 import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.utils.*;
 import fzmm.zailer.me.utils.list.IListEntry;
@@ -36,6 +35,8 @@ import io.wispforest.owo.config.ui.ConfigScreen;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.Insets;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -46,9 +47,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -85,8 +88,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     private ButtonWidget toggleFavoriteList;
     private boolean showFavorites;
     private BufferedImage baseSkin;
-    private BufferedImage gridBaseSkinOriginalBody;
-    private BufferedImage gridBaseSkinEditedBody;
+    private boolean hasUnusedPixels;
     private String previousSkinName;
     private IHeadCategory selectedCategory;
     private ButtonComponent giveButton;
@@ -105,8 +107,6 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         this.headComponentEntries = new ArrayList<>();
         this.headCompoundComponentEntries = new ArrayList<>();
         this.baseSkin = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        this.gridBaseSkinOriginalBody = this.baseSkin;
-        this.gridBaseSkinEditedBody = this.baseSkin;
         //general
         this.skinElements = ImageRows.setup(rootComponent, SKIN_ID, SKIN_SOURCE_TYPE_ID, ImageMode.NAME);
         this.skinElements.imageButton().setButtonCallback(this::imageCallback);
@@ -212,15 +212,14 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         if (ImageUtils.isEquals(skinBase, this.baseSkin)) {
             return;
         }
+        this.hasUnusedPixels = ImageUtils.hasUnusedPixel(skinBase);
 
         if (skinBase.getWidth() == 64 && skinBase.getHeight() == 32) {
-            skinBase = InternalModels.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skinBase);
+            skinBase = InternalModels.OLD_FORMAT_TO_NEW_FORMAT.getHeadSkin(skinBase, this.hasUnusedPixels);
             this.skinElements.imageButton().setImage(skinBase);
         }
 
         this.baseSkin = skinBase;
-        this.gridBaseSkinEditedBody = this.baseSkin;
-        this.gridBaseSkinOriginalBody = this.baseSkin;
 
         this.updatePreviews();
     }
@@ -261,28 +260,23 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         //noinspection resource
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        boolean compoundEntriesEditingSkinBody = this.headCompoundComponentEntries.stream()
+        boolean editingBody = this.headCompoundComponentEntries.stream()
                 .anyMatch(entry -> entry.getValue().isEditingSkinBody());
 
         SkinPreEditOption skinPreEditOption = this.skinPreEdit();
-        BufferedImage selectedPreEdit = this.skinPreEdit(this.baseSkin, skinPreEditOption, compoundEntriesEditingSkinBody);
+        boolean forcePreEditNone = FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels();
+        BufferedImage selectedPreEdit = this.skinPreEdit(this.baseSkin, skinPreEditOption, editingBody);
+        BufferedImage nonePreEdit = this.skinPreEdit(this.baseSkin, SkinPreEditOption.NONE, editingBody);
         boolean isSlim = ImageUtils.isSlimSimpleCheck(this.baseSkin);
-
-        IPreviewUpdater updateAlgorithm;
-        if (this.headCompoundComponentEntries.isEmpty() && FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels()) {
-            updateAlgorithm = new ForceNonePreEditPreviewUpdater();
-        } else {
-            updateAlgorithm = new DefaultPreviewUpdater();
-        }
-
-        BufferedImage algorithmPreEdit = updateAlgorithm.getPreEdit(this.baseSkin, selectedPreEdit, isSlim,
-                compoundEntriesEditingSkinBody, this);
+        this.addCompoundEntries(selectedPreEdit, isSlim, editingBody);
 
         scheduler.schedule(() -> {
             for (int i = 0; i != this.headComponentEntries.size(); i++) {
                 HeadComponentEntry entry = this.headComponentEntries.get(i);
+                boolean useForceConfig = forcePreEditNone && entry.getValue() instanceof HeadModelEntry;
                 // Update head BufferedImage, it does not need to use MinecraftClient#execute as it does not update the GUI
-                entry.updateHead(updateAlgorithm.getHead(entry, this, algorithmPreEdit, selectedPreEdit));
+                // FIXME: ConcurrentModificationException: in INestedParameters.getNestedParameters(INestedParameters.java:21)
+                entry.updateHead(useForceConfig ? nonePreEdit : selectedPreEdit, this.hasUnusedPixels);
             }
         }, 0, TimeUnit.MILLISECONDS);
 
@@ -296,12 +290,22 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             }, (long) HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS * index.getAndIncrement(), TimeUnit.MILLISECONDS);
         }
 
-        scheduler.schedule(() -> {
-            scheduler.shutdownNow();
-            selectedPreEdit.flush();
-            algorithmPreEdit.flush();
-        }, (this.headComponentEntries.size() + 2) * HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        scheduler.schedule(selectedPreEdit::flush, (this.headComponentEntries.size() + 2) * HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS);
         scheduler.shutdown();
+    }
+
+    private void addCompoundEntries(BufferedImage selectedPreEdit, boolean isSlim, boolean editBody) {
+        Graphics2D graphics = selectedPreEdit.createGraphics();
+        ISkinPreEdit none = SkinPreEditOption.NONE.getPreEdit();
+        ISkinPreEdit overlap = SkinPreEditOption.OVERLAP.getPreEdit();
+
+        for (var headEntry : this.getHeadComponentEntries()) {
+            headEntry.update(selectedPreEdit, isSlim);
+
+            none.apply(graphics, headEntry.getPreview());
+            overlap.apply(graphics, selectedPreEdit, editBody);
+        }
+        graphics.dispose();
     }
 
     public BufferedImage skinPreEdit(SkinPreEditOption skinPreEditOption, boolean editBody) {
@@ -310,10 +314,21 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
     public BufferedImage skinPreEdit(BufferedImage preview, SkinPreEditOption skinPreEditOption, boolean editBody) {
         BufferedImage result = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        result = skinPreEditOption.getPreEdit().execute(result, preview, List.of(SkinPart.HEAD));
-        result = (editBody ? skinPreEditOption : SkinPreEditOption.NONE).getPreEdit().execute(result, preview, SkinPart.BODY_PARTS);
+        Graphics2D graphics = result.createGraphics();
 
+        skinPreEditOption.getPreEdit().apply(graphics, preview, SkinPart.HEAD);
+        (editBody ? skinPreEditOption : SkinPreEditOption.NONE).getPreEdit().apply(graphics, preview, SkinPart.BODY_PARTS);
+
+        if (this.hasUnusedPixels) {
+            ImageUtils.copyUnusedPixels(preview, graphics);
+        }
+
+        graphics.dispose();
         return result;
+    }
+
+    public boolean hasUnusedPixels() {
+        return this.hasUnusedPixels;
     }
 
     public void setupPreEditButton(FlowLayout preEditLayout, SkinPreEditOption preEditOption,
@@ -340,21 +355,10 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         preEditLayout.child(preEditButton);
     }
 
-    public BufferedImage getGridBaseSkin(boolean editBody) {
-        return editBody ? this.gridBaseSkinEditedBody : this.gridBaseSkinOriginalBody;
-    }
-
     public List<HeadCompoundComponentEntry> getHeadComponentEntries() {
         return this.headCompoundComponentEntries;
     }
 
-    public void setGridBaseSkinOriginalBody(BufferedImage gridBaseSkinOriginalBody) {
-        this.gridBaseSkinOriginalBody = gridBaseSkinOriginalBody;
-    }
-
-    public void setGridBaseSkinEditedBody(BufferedImage gridBaseSkinEditedBody) {
-        this.gridBaseSkinEditedBody = gridBaseSkinEditedBody;
-    }
 
     private void closeTextures() {
         if (this.contentLayout == null)
@@ -403,8 +407,9 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
             new HeadUtils().uploadHead(image, headName + " + " + textureName).thenAccept(headUtils -> {
                 HeadBuilder builder = headUtils.getBuilder();
-                if (!headName.isBlank())
+                if (!headName.isBlank()) {
                     builder.headName(headName);
+                }
 
                 FzmmUtils.giveItem(builder.get());
 
@@ -567,8 +572,9 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         super.close();
         this.closeTextures();
 
-        if (!this.favoritesHeadsOnOpenScreen.equals(FzmmClient.CONFIG.headGenerator.favoriteSkins()))
+        if (!this.favoritesHeadsOnOpenScreen.equals(FzmmClient.CONFIG.headGenerator.favoriteSkins())) {
             FzmmClient.CONFIG.save();
+        }
     }
 
     private void onChangeSkinField(String value) {

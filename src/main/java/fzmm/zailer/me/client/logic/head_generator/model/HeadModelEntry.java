@@ -7,10 +7,12 @@ import fzmm.zailer.me.client.logic.head_generator.AbstractHeadEntry;
 import fzmm.zailer.me.client.logic.head_generator.HeadResourcesLoader;
 import fzmm.zailer.me.client.logic.head_generator.model.parameters.*;
 import fzmm.zailer.me.client.logic.head_generator.model.steps.IModelStep;
+import fzmm.zailer.me.utils.ImageUtils;
 import fzmm.zailer.me.utils.SkinPart;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,18 +63,31 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
     }
 
     @Override
-    public BufferedImage getHeadSkin(BufferedImage baseSkin) {
+    public BufferedImage getHeadSkin(BufferedImage baseSkin, boolean hasUnusedPixels) {
         BufferedImage result = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         this.loadDefaultTexture();
 
         Graphics2D destinationGraphics = result.createGraphics();
+        AffineTransform originalTransform = destinationGraphics.getTransform();
+
+        if (hasUnusedPixels) {
+            ImageUtils.removeUnusedPixels(baseSkin, destinationGraphics);
+        }
 
         ModelData data = new ModelData(destinationGraphics, DESTINATION_ID, this.textures,
-                this.colors, this.offsets, baseSkin, ColorParameter.getDefault(), this.isInvertedLeftAndRight());
+                this.colors, this.offsets, baseSkin, ColorParameter.getDefault(), this.isInvertedLeftAndRight(),
+                (AffineTransform) originalTransform.clone()
+        );
 
         this.apply(data, baseSkin, result);
-        this.resetOffset(data.offsets());
-        this.resetTexture(data.textures());
+
+        destinationGraphics.setTransform(originalTransform);
+        this.resetOffset();
+        this.resetTexture();
+
+        if (hasUnusedPixels) {
+            ImageUtils.copyUnusedPixels(baseSkin, destinationGraphics);
+        }
 
         destinationGraphics.dispose();
 
@@ -84,8 +99,9 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
         textures.put(new ResettableModelParameter<>(BASE_SKIN_ID, baseSkin, null, false));
         textures.put(new ResettableModelParameter<>(DESTINATION_ID, destinationSkin, null, false));
 
-        for (var step : this.steps)
+        for (var step : this.steps) {
             step.apply(data);
+        }
     }
 
     @Override
@@ -200,14 +216,14 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
         }
     }
 
-    public void resetOffset(ParameterList<OffsetParameter> offsetParameters) {
-        for (var offset : offsetParameters.parameterList()) {
+    public void resetOffset() {
+        for (var offset : this.getNestedOffsetParameters().parameterList()) {
             offset.value().ifPresent(OffsetParameter::reset);
         }
     }
 
-    public void resetTexture(ParameterList<BufferedImage> textureParameters) {
-        for (var parameter : textureParameters.parameterList()) {
+    public void resetTexture() {
+        for (var parameter : this.getNestedTextureParameters().parameterList()) {
 
             if (parameter instanceof ResettableModelParameter<BufferedImage> resettableParam &&
                     (!resettableParam.isRequested() && resettableParam.getDefaultValue() == null)

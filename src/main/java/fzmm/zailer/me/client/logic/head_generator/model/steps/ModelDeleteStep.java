@@ -21,10 +21,12 @@ public class ModelDeleteStep implements IModelStep {
             this.area.swapLeftAndRight();
         }
 
-        ModelArea area = this.area.copyWithOffset(data.offsets().parameterList());
+        byte[][] area = this.area.copyWithOffset(data.offsets().parameterList()).optimize();
         Graphics2D graphics = data.destinationGraphics();
         graphics.setBackground(new Color(0, 0, 0, 0));
-        graphics.clearRect(area.getXWithOffset(), area.getYWithOffset(), area.width(), area.height());
+        for (var rect : area) {
+            graphics.clearRect(rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1]);
+        }
 
         if (data.isInvertedLeftAndRight()) {
             this.area.swapLeftAndRight();

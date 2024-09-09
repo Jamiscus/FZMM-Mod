@@ -27,19 +27,19 @@ public class ModelPoint {
         return new ModelPoint(offset, hat_layer, x, y);
     }
 
-    public int getXWithOffset() {
-        return this.getXWithOffset(this.hatLayer);
+    public int xWithOffset() {
+        return this.xWithOffset(this.hatLayer);
     }
 
-    public int getXWithOffset(boolean hatLayer) {
+    public int xWithOffset(boolean hatLayer) {
         return (hatLayer ? this.offset.hatX() : this.offset.x()) + this.x;
     }
 
-    public int getYWithOffset() {
-        return this.getYWithOffset(this.hatLayer);
+    public int yWithOffset() {
+        return this.yWithOffset(this.hatLayer);
     }
 
-    public int getYWithOffset(boolean hatLayer) {
+    public int yWithOffset(boolean hatLayer) {
         return (hatLayer ? this.offset.hatY() : this.offset.y()) + this.y;
     }
 

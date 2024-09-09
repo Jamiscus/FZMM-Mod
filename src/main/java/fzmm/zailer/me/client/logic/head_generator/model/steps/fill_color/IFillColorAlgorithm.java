@@ -12,7 +12,7 @@ public interface IFillColorAlgorithm {
     /**
      * @return ARGB color
      */
-    int getColor(ColorParameter colorParameter, int pixelColor);
+    int getColor(ColorParameter colorParameter, int red, int green, int blue, int alpha);
 
     /**
      * @return true if the algorithm supports alpha 0

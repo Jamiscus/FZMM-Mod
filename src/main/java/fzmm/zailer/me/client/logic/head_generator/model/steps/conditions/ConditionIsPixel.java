@@ -15,10 +15,11 @@ public class ConditionIsPixel implements ICondition{
         String colorHex = HeadResourcesLoader.get(jsonObject, "expected_color").getAsString();
         this.expectedColor = HeadResourcesLoader.parseColor(colorHex);
     }
+
     @Override
     public boolean predicate(ModelData data) {
-        int x = this.pos.getXWithOffset();
-        int y = this.pos.getYWithOffset();
+        int x = this.pos.xWithOffset();
+        int y = this.pos.yWithOffset();
 
         return data.selectedTexture().getRGB(x, y) == this.expectedColor.argb();
     }

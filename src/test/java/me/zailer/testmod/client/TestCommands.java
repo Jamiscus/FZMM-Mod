@@ -52,6 +52,17 @@ public class TestCommands {
                 })))
         );
 
+        testCommand.then(ClientCommandManager.literal("head_generator:time")
+                .executes(context -> {
+                    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal("Missing arguments"));
+                    return 0;
+                }).then(ClientCommandManager.argument("loops", IntegerArgumentType.integer(1)).executes(ctx -> {
+
+                    HeadGeneratorTest.time(ctx.getArgument("loops", Integer.class));
+                    return 0;
+                }))
+        );
+
         testCommand.then(ClientCommandManager.literal("snack_bar:timer")
                 .executes(ctx -> {
                     SnackBarTest.showTimer();
