@@ -24,7 +24,7 @@ public class ParameterList<VALUE> {
         return this.parameters.stream().anyMatch(IParameterEntry::isRequested);
     }
 
-    public void put(ParameterList<VALUE> parameterList) {
+    public synchronized void put(ParameterList<VALUE> parameterList) {
         this.put(parameterList.parameterList());
     }
 

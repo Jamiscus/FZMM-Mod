@@ -19,10 +19,11 @@ public class ConditionIsAlpha implements ICondition{
             throw new IllegalArgumentException("[ConditionIsAlpha] 'min_alpha' must be smaller than 'max_alpha'");
         }
     }
+
     @Override
     public boolean predicate(ModelData data) {
-        int x = this.pos.getXWithOffset();
-        int y = this.pos.getYWithOffset();
+        int x = this.pos.xWithOffset();
+        int y = this.pos.yWithOffset();
 
         int alpha = data.selectedTexture().getRGB(x, y) >> 24;
         return alpha >= this.minValue && alpha <= this.maxValue;

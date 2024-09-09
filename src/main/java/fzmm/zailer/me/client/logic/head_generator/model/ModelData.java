@@ -7,6 +7,7 @@ import fzmm.zailer.me.client.logic.head_generator.model.parameters.ParameterList
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 
@@ -17,12 +18,14 @@ public final class ModelData {
     private final ParameterList<ColorParameter> colors;
     private final ParameterList<OffsetParameter> offsets;
     private final boolean isInvertedLeftAndRight;
+    private final AffineTransform originalTransformCopy;
     private BufferedImage selectedTexture;
     private ColorParameter selectedColor;
 
     public ModelData(Graphics2D destinationGraphics, String destinationId, @Nullable ParameterList<BufferedImage> textures,
                      @Nullable ParameterList<ColorParameter> colors, @Nullable ParameterList<OffsetParameter> offsets,
-                     BufferedImage selectedTexture, ColorParameter selectedColor, boolean isInvertedLeftAndRight) {
+                     BufferedImage selectedTexture, ColorParameter selectedColor, boolean isInvertedLeftAndRight,
+                     AffineTransform originalTransformCopy) {
         this.destinationGraphics = destinationGraphics;
         this.destinationId = destinationId;
         this.textures = textures == null ? new ParameterList<>() : textures;
@@ -31,6 +34,7 @@ public final class ModelData {
         this.selectedTexture = selectedTexture;
         this.selectedColor = selectedColor;
         this.isInvertedLeftAndRight = isInvertedLeftAndRight;
+        this.originalTransformCopy = originalTransformCopy;
     }
 
     public ColorParameter getColor(String key) {
@@ -96,5 +100,9 @@ public final class ModelData {
 
     public boolean isInvertedLeftAndRight() {
         return this.isInvertedLeftAndRight;
+    }
+
+    public AffineTransform originalTransform() {
+        return this.originalTransformCopy;
     }
 }

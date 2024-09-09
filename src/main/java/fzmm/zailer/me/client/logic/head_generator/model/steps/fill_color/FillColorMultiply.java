@@ -5,12 +5,9 @@ import io.wispforest.owo.ui.core.Color;
 
 public class FillColorMultiply implements IFillColorAlgorithm {
     @Override
-    public int getColor(ColorParameter colorParameter, int pixelColor) {
+    public int getColor(ColorParameter colorParameter, int origRed, int origGreen, int origBlue, int origAlpha) {
         Color color = colorParameter.color();
-        float alpha = colorParameter.hasAlpha() ? color.alpha() : ((pixelColor >> 24) & 0xFF) / 255f;
-        int origRed = (pixelColor >> 16) & 0xFF;
-        int origGreen = (pixelColor >> 8) & 0xFF;
-        int origBlue = pixelColor & 0xFF;
+        float alpha = colorParameter.hasAlpha() ? color.alpha() : origAlpha / 255f;
 
         int newRed = (int) (origRed * color.red());
         int newGreen = (int) (origGreen * color.green());

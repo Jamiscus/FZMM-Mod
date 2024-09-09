@@ -96,6 +96,53 @@ public class ImageUtils {
         return true;
     }
 
+    public static boolean hasUnusedPixel(BufferedImage skin) {
+        for (var rectangle : SkinPart.EMPTY_AREAS) {
+            if (hasAnyPixel(rectangle[0], rectangle[1], rectangle[2], rectangle[3], skin)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static void copyUnusedPixels(BufferedImage skin, Graphics2D target) {
+        for (var rect : SkinPart.EMPTY_AREAS) {
+            target.drawImage(skin, rect[0], rect[1], rect[2], rect[3],
+                    rect[0], rect[1], rect[2], rect[3],
+                    null
+            );
+        }
+    }
+
+    public static void removeUnusedPixels(BufferedImage skin, Graphics2D target) {
+        target.setBackground(new Color(0, 0, 0, 0));
+        for (var rect : SkinPart.EMPTY_AREAS) {
+            target.clearRect(rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1]);
+        }
+    }
+
+    public static void drawUsedPixels(BufferedImage skin, boolean skinHatLayer, Graphics2D target, boolean targetHatLayer, SkinPart skinPart) {
+        int targetIndex = targetHatLayer ? 2 : 0;
+        int skinIndex = skinHatLayer ? 2 : 0;
+        byte[][] usedAreas = skinPart.usedAreas();
+        for (int i = targetIndex; i != targetIndex + 2; i++) {
+            byte[] targetArea = usedAreas[i];
+            byte[] skinArea = usedAreas[skinIndex++];
+            target.drawImage(skin,
+                    targetArea[0], targetArea[1], targetArea[2], targetArea[3],
+                    skinArea[0], skinArea[1], skinArea[2], skinArea[3],
+                    null
+            );
+        }
+    }
+
+    public static void clearRect(Graphics2D target, byte[][] rectangle) {
+        for (var rect : rectangle) {
+            target.clearRect(rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1]);
+        }
+    }
+
     public static boolean isSlimSimpleCheck(BufferedImage skin) {
         return isSlimSimpleCheck(skin, 1);
     }
@@ -129,24 +176,34 @@ public class ImageUtils {
         };
 
         for (int i = 0; i != formatRectangles.length; i += 4) {
-            for (int j = formatRectangles[i]; j != formatRectangles[i + 2]; j++) {
-                for (int k = formatRectangles[i + 1]; k != formatRectangles[i + 3]; k++) {
-                    if (hasPixel(j, k, skin)) {
-                        return false;
-                    }
-                }
+            if (hasAnyPixel(formatRectangles[i], formatRectangles[i + 1], formatRectangles[i + 2], formatRectangles[i + 3], skin)) {
+                return false;
             }
         }
         return true;
     }
 
-    public static boolean hasPixel(int x, int y, BufferedImage skin) {
-        return hasPixel(1, x, y, skin);
+    public static boolean hasAnyPixel(int x, int y, int x2, int y2, BufferedImage skin) {
+        for (int i = x; i != x2; i++) {
+            for (int j = y; j != y2; j++) {
+                if (hasPixel(i, j, skin)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static boolean hasPixel(int scale, int x, int y, BufferedImage skin) {
-        int color = skin.getRGB(x * scale, y * scale);
-        int alpha = new Color(color, true).getAlpha();
+        return hasPixel(x * scale, y * scale, skin);
+    }
+
+    public static boolean hasPixel(int x, int y, BufferedImage skin) {
+        if (x >= skin.getWidth() || y >= skin.getHeight()) {
+            return false;
+        }
+
+        int alpha = skin.getColorModel().getAlpha(skin.getRaster().getDataElements(x, y, null));
         return alpha != 0;
     }
 
@@ -238,17 +295,16 @@ public class ImageUtils {
      * Convenience method that returns a scaled instance of the
      * provided BufferedImage.
      *
-     *
-     * @param image the original image to be scaled
-     * @param targetWidth the desired width of the scaled instance,
-     *    in pixels
-     * @param targetHeight the desired height of the scaled instance,
-     *    in pixels
+     * @param image               the original image to be scaled
+     * @param targetWidth         the desired width of the scaled instance,
+     *                            in pixels
+     * @param targetHeight        the desired height of the scaled instance,
+     *                            in pixels
      * @param progressiveBilinear if true, this method will use a multi-step
-     *    scaling technique that provides higher quality than the usual
-     *    one-step technique (only useful in down-scaling cases, where
-     *    targetWidth or targetHeight is
-     *    smaller than the original dimensions)
+     *                            scaling technique that provides higher quality than the usual
+     *                            one-step technique (only useful in down-scaling cases, where
+     *                            targetWidth or targetHeight is
+     *                            smaller than the original dimensions)
      * @return a scaled version of the original BufferedImage
      * @author Chet
      */

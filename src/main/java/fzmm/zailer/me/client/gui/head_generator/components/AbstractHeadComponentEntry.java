@@ -98,30 +98,24 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
         return this.entry.getCategoryId();
     }
 
-    public abstract BufferedImage getBaseSkin();
-
-    public void update() {
-        this.update(this.getBaseSkin());
+    public void update(BufferedImage baseSkin, boolean hasUnusedPixels) {
+        this.update(baseSkin, hasUnusedPixels, ImageUtils.isSlimSimpleCheck(baseSkin));
     }
 
-    public void update(BufferedImage baseSkin) {
-        this.update(baseSkin, ImageUtils.isSlimSimpleCheck(baseSkin));
-    }
-
-    public void update(BufferedImage baseSkin, boolean isSlim) {
-        if (this.updateHead(baseSkin)) {
+    public void update(BufferedImage baseSkin, boolean hasUnusedPixels, boolean isSlim) {
+        if (this.updateHead(baseSkin, hasUnusedPixels)) {
             this.updatePreview(isSlim);
         } else {
             this.close();
         }
     }
 
-    public boolean updateHead(BufferedImage baseSkin) {
+    public boolean updateHead(BufferedImage baseSkin, boolean hasUnusedPixels) {
         try {
             if (this.previewHead != null) {
                 this.previewHead.flush();
             }
-            this.previewHead = this.entry.getHeadSkin(baseSkin);
+            this.previewHead = this.entry.getHeadSkin(baseSkin, hasUnusedPixels);
         } catch (Exception e) {
             FzmmClient.LOGGER.error("[AbstractHeadListEntry] Failed to update preview skin of '{}'", this.entry.getKey(), e);
             return false;

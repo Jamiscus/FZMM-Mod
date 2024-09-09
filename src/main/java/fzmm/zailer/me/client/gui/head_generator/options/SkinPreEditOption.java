@@ -2,54 +2,30 @@ package fzmm.zailer.me.client.gui.head_generator.options;
 
 import fzmm.zailer.me.client.FzmmIcons;
 import fzmm.zailer.me.client.gui.components.IMode;
+import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.itemgroup.Icon;
 
 import java.awt.*;
 
 public enum SkinPreEditOption implements IMode {
     NONE("none", Icon.of(FzmmIcons.TEXTURE, 48, 0, 256, 256), (graphics, skin, skinPart) ->  {
-        graphics.drawImage(skin,
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                null);
-
-        graphics.drawImage(skin,
-                skinPart.hatX(), skinPart.hatY(),
-                skinPart.width() + skinPart.hatX(), skinPart.height() + skinPart.hatY(),
-                skinPart.hatX(), skinPart.hatY(),
-                skinPart.width() + skinPart.hatX(), skinPart.height() + skinPart.hatY(),
-                null);
+        ImageUtils.drawUsedPixels(skin, false, graphics, false, skinPart);
+        ImageUtils.drawUsedPixels(skin, true, graphics, true, skinPart);
     }),
     OVERLAP("overlap", Icon.of(FzmmIcons.TEXTURE, 48, 16, 256, 256), (graphics, skin, skinPart) -> {
-        graphics.drawImage(skin,
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                null);
+        ImageUtils.drawUsedPixels(skin, false, graphics, false, skinPart);
+        ImageUtils.drawUsedPixels(skin, true, graphics, false, skinPart);
 
-        graphics.drawImage(skin,
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                skinPart.hatX(), skinPart.hatY(),
-                skinPart.width() + skinPart.hatX(), skinPart.height() + skinPart.hatY(),
-                null);
-
+        byte[][] usedAreas = skinPart.usedAreas();
         graphics.setBackground(new Color(0, 0, 0, 0));
-        graphics.clearRect(skinPart.hatX(), skinPart.hatY(), skinPart.width(), skinPart.height());
+        ImageUtils.clearRect(graphics, new byte[][]{usedAreas[2], usedAreas[3]});
     }),
     REMOVE("remove", Icon.of(FzmmIcons.TEXTURE, 48, 32, 256, 256), (graphics, skin, skinPart) -> {
-        graphics.drawImage(skin,
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                skinPart.x(), skinPart.y(),
-                skinPart.width() + skinPart.x(), skinPart.height() + skinPart.y(),
-                null);
+        ImageUtils.drawUsedPixels(skin, false, graphics, false, skinPart);
 
+        byte[][] usedAreas = skinPart.usedAreas();
         graphics.setBackground(new Color(0, 0, 0, 0));
-        graphics.clearRect(skinPart.hatX(), skinPart.hatY(), skinPart.width(), skinPart.height());
+        ImageUtils.clearRect(graphics, new byte[][]{usedAreas[2], usedAreas[3]});
     });
 
     private final String id;
