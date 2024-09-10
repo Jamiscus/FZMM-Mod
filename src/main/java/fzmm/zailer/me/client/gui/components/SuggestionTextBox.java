@@ -94,6 +94,7 @@ public class SuggestionTextBox extends FontTextBoxComponent {
 
     private boolean contextMenuIsOpen() {
         return this.suggestionsContextMenu != null &&
+                this.suggestionsContextMenu.hasParent() &&
                 this.suggestionsContainer != null &&
                 this.suggestionsLayout != null;
     }
@@ -136,6 +137,7 @@ public class SuggestionTextBox extends FontTextBoxComponent {
             this.openContextMenu();
             return;
         }
+        assert this.suggestionsLayout != null;
         this.suggestionsLayout.clearChildren();
 
         String newMessageToLowerCase = newMessage.toLowerCase();
@@ -294,6 +296,7 @@ public class SuggestionTextBox extends FontTextBoxComponent {
                     this.openContextMenu();
                     yield true;
                 }
+                assert this.suggestionsLayout != null;
                 if (this.suggestionsLayout.children().isEmpty()) {
                     this.updateSuggestions(this.getText());
                     yield !this.suggestionsLayout.children().isEmpty();
