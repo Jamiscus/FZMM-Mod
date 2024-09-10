@@ -5,7 +5,10 @@ import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.DropdownComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.core.CursorStyle;
+import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.util.UISounds;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -18,7 +21,8 @@ public class ContextMenuButton extends ButtonComponent {
     @Nullable
     private DropdownComponent contextMenu = null;
     protected int additionalZIndex = 200;
-    private Consumer<DropdownComponent> contextMenuOptionsConsumer = dropdownComponent -> {};
+    private Consumer<DropdownComponent> contextMenuOptionsConsumer = dropdownComponent -> {
+    };
 
     public ContextMenuButton(Text text) {
         super(text, button -> {
@@ -33,21 +37,37 @@ public class ContextMenuButton extends ButtonComponent {
             return;
         }
 
-        //TODO: close contextMenu if it's already open
-        if (this.contextMenu == null) {
+        if (this.contextMenu == null || !this.contextMenu.hasParent()) {
             DropdownComponent.openContextMenu(baseScreen, baseScreen.getRoot(), FlowLayout::child,
-                    this.x(), this.y() + this.height(), contextMenu -> {
+                    this.x(), this.y(), contextMenu -> {
                         this.contextMenu = contextMenu;
-                        this.contextMenuOptionsConsumer.accept(contextMenu) ;
+                        this.contextMenuOptionsConsumer.accept(contextMenu);
 
                         List<Component> dropdownChildren = contextMenu.children();
+
+
+                        // workaround, since there is no dismount event in owo-lib,
+                        // so when the button is clicked, it dismounts because the
+                        // click happens outside, and then it opens again
+                        int contextMenuY = this.height();
+                        contextMenu.padding(Insets.top(contextMenuY));
+                        contextMenu.cursorStyle(CursorStyle.HAND);
                         if (!dropdownChildren.isEmpty()) {
-                            dropdownChildren.get(0).horizontalSizing(Sizing.fixed(this.width()));
+                            dropdownChildren.get(0)
+                                    .horizontalSizing(Sizing.fixed(this.width()))
+                                    .cursorStyle(CursorStyle.NONE);
                         }
 
                         contextMenu.zIndex(this.zIndex() + this.additionalZIndex);
-                        // fixes that if you click on the margins zone it clicks on the component behind the dropdown
-                        contextMenu.mouseDown().subscribe((mouseX1, mouseY1, button1) -> true);
+                        contextMenu.mouseDown().subscribe((mouseX1, mouseY1, button1) -> {
+                            if (mouseY1 < contextMenuY) {
+                                baseScreen.getRoot().removeChild(contextMenu);
+                                UISounds.playButtonSound();
+                            }
+
+                            // fixes that if you click on the margins zone it clicks on the component behind the dropdown
+                            return true;
+                        });
                     });
         } else {
             this.removeContextMenu();
