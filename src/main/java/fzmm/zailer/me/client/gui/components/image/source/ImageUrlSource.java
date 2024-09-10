@@ -23,17 +23,18 @@ public class ImageUrlSource implements IImageLoaderFromText {
         }
         this.image = null;
         try {
-            if (value.isEmpty())
+            if (value.isEmpty()) {
                 return ImageStatus.NO_IMAGE_LOADED;
+            }
 
             Optional<BufferedImage> optionalImage = ImageUtils.getImageFromUrl(value);
             this.image = optionalImage.orElse(null);
 
             return optionalImage.isEmpty() ? ImageStatus.URL_HAS_NO_IMAGE : ImageStatus.IMAGE_LOADED;
-        } catch (MalformedURLException ignored) {
+        } catch (MalformedURLException | IllegalArgumentException ignored) {
             return ImageStatus.MALFORMED_URL;
         } catch (IOException e) {
-            FzmmClient.LOGGER.error("Unexpected error loading an image", e);
+            FzmmClient.LOGGER.error("[ImageUrlSource] Unexpected error loading an image", e);
             return ImageStatus.UNEXPECTED_ERROR;
         }
     }
