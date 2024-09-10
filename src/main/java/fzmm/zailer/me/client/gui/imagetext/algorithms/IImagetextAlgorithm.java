@@ -22,6 +22,16 @@ public interface IImagetextAlgorithm extends IMemento, IScreenTab {
      */
     String getCharacters();
 
+    /**
+     * @return Factor of the width aspect ratio with respect to the height
+     */
+    float widthRatio();
+
+    /**
+     * @return Factor of the height aspect ratio with respect to the width
+     */
+    float heightRatio();
+
     void setUpdatePreviewCallback(Runnable callback);
 
     void cacheResizedImage(ImagetextData data);

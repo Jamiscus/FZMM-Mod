@@ -57,6 +57,16 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
     }
 
     @Override
+    public float widthRatio() {
+        return 1f;
+    }
+
+    @Override
+    public float heightRatio() {
+        return 1f;
+    }
+
+    @Override
     public void setUpdatePreviewCallback(Runnable callback) {
         this.charactersTextField.onChanged().subscribe(value -> callback.run());
     }
