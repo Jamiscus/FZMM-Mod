@@ -36,7 +36,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Pair;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
@@ -113,10 +113,10 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         this.smoothImageCheckbox.checked(true);
 
         this.widthSlider = SliderRow.setup(rootComponent, "width", DEFAULT_SIZE_VALUE, 2, config.maxResolution(), Integer.class, 0, 3,
-                aDouble -> this.onResolutionChanged(imageButton, this.preserveImageAspectRatioToggle, widthSlider, heightSlider, true)
+                aDouble -> this.onResolutionChanged(this.widthSlider, this.heightSlider, true)
         );
         this.heightSlider = SliderRow.setup(rootComponent, "height", DEFAULT_SIZE_VALUE, 2, config.maxResolution(), Integer.class, 0, 3,
-                aDouble -> this.onResolutionChanged(imageButton, this.preserveImageAspectRatioToggle, heightSlider, widthSlider, false)
+                aDouble -> this.onResolutionChanged(this.heightSlider, this.widthSlider, false)
         );
         this.percentageOfSimilarityToCompress = SliderRow.setup(rootComponent, "percentageOfSimilarityToCompress",
                 config.defaultPercentageOfSimilarityToCompress(), 0d, MAX_PERCENTAGE_OF_SIMILARITY_TO_COMPRESS, Double.class,
@@ -138,6 +138,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
                             algorithmButton.setMessage(this.getAlgorithmText());
                             this.selectTab(rootComponent, algorithm, this.algorithmsTabs);
                             this.scheduleUpdatePreview();
+                            this.onResolutionChanged(this.widthSlider, this.heightSlider, true);
                         }
                 );
             }
@@ -258,28 +259,42 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         return Text.translatable("fzmm.gui.imagetext.tab.mode", selectedMode.getText(this.getBaseScreenTranslationKey()));
     }
 
-    private void onResolutionChanged(ImageButtonComponent imageWidget, BooleanButton preserveImageAspectRatioButton,
-                                     SliderWidget config, SliderWidget configToChange, boolean isWidth) {
-        if (!imageWidget.hasImage() || !preserveImageAspectRatioButton.enabled()) {
+    private void onResolutionChanged(SliderWidget config, SliderWidget configToChange, boolean isWidth) {
+        if (!this.imageElements.imageButton().hasImage() || !this.preserveImageAspectRatioToggle.enabled()) {
             return;
         }
 
-        Optional<BufferedImage> imageOptional = imageWidget.getImage();
+        Optional<BufferedImage> imageOptional = this.imageElements.imageButton().getImage();
         if (imageOptional.isEmpty()) {
             return;
         }
         BufferedImage image = imageOptional.get();
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int value;
+        int valueToChange;
+        float algorithmAspectRatio;
+        IImagetextAlgorithm algorithm = (IImagetextAlgorithm) this.algorithmsTabs.get(selectedAlgorithm.getId());
+        if (isWidth) {
+            value = width;
+            valueToChange = height;
+            algorithmAspectRatio = algorithm.widthRatio();
+        } else {
+            value = height;
+            valueToChange = width;
+            algorithmAspectRatio = algorithm.heightRatio();
+        }
+
+        this.preserveAspectRatio(config, configToChange, value, valueToChange, algorithmAspectRatio);
+    }
+
+    private void preserveAspectRatio(SliderWidget config, SliderWidget configToChange, int value, int valueToChange, float algorithmAspectRatio) {
+        valueToChange = (int) (valueToChange * algorithmAspectRatio);
 
         int configValue = (int) config.parsedValue();
-        Pair<Integer, Integer> rescaledSize = ImagetextLogic.changeResolutionKeepingAspectRatio(image.getWidth(), image.getHeight(), configValue, isWidth);
-
-        int newValue = isWidth ? rescaledSize.getLeft() : rescaledSize.getRight();
-
-        if (newValue > configToChange.max()) {
-            newValue = (int) configToChange.max();
-        } else if (newValue < configToChange.min()) {
-            newValue = (int) configToChange.min();
-        }
+        int newValue = ImagetextLogic.getResizedAspectRatio(value, valueToChange, configValue);
+        newValue = (int) MathHelper.clamp(newValue, configToChange.min(), configToChange.max());
 
         configToChange.setDiscreteValueWithoutCallback(newValue);
     }
@@ -372,9 +387,9 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         int height = image.getHeight();
 
         if (height > width) {
-            this.onResolutionChanged(this.imageElements.imageButton(), this.preserveImageAspectRatioToggle, this.heightSlider, this.widthSlider, false);
+            this.onResolutionChanged(this.heightSlider, this.widthSlider, false);
         } else {
-            this.onResolutionChanged(this.imageElements.imageButton(), this.preserveImageAspectRatioToggle, this.widthSlider, this.heightSlider, true);
+            this.onResolutionChanged(this.widthSlider, this.heightSlider, true);
         }
     }
 

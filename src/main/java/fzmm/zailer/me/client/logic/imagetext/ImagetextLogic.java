@@ -7,7 +7,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,19 +42,16 @@ public class ImagetextLogic {
         this.imagetext = new ArrayList<>(linesList);
     }
 
-
     /**
-     * @param width                Width of which you want to preserve the aspect ratio.
-     * @param height               Height of which you want to preserve the aspect ratio.
-     * @param referenceSide        The side that is used as a reference for the new resolution.
-     * @param referenceSideIsWidth If the variable referenceSide is width (true) otherwise it is height (false).
-     * @return Pair left = width, Pair right = height
-     * <p>
+     * Adjusts the size of an image to preserve the aspect ratio when changing either width or height.
+     *
+     * @param value          The original dimension value (width or height).
+     * @param changeValue    The new dimension value (width or height) to maintain the aspect ratio.
+     * @param referenceValue The dimension value that corresponds to the original reference (width or height).
+     * @return int           The new dimension value that maintains the aspect ratio.
      */
-    public static Pair<Integer, Integer> changeResolutionKeepingAspectRatio(int width, int height, int referenceSide, boolean referenceSideIsWidth) {
-        int modifiedSide = (int) ((double) referenceSide / (referenceSideIsWidth ? width : height) * (referenceSideIsWidth ? height : width));
-
-        return referenceSideIsWidth ? new Pair<>(referenceSide, modifiedSide) : new Pair<>(modifiedSide, referenceSide);
+    public static int getResizedAspectRatio(int value, int changeValue, int referenceValue) {
+        return (int) ((double) changeValue / value * referenceValue);
     }
 
     public void addResolution() {

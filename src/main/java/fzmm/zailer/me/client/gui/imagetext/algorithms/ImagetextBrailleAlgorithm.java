@@ -10,6 +10,8 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
@@ -30,6 +32,20 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     private SmallCheckboxComponent invertBooleanButton;
     private BufferedImage colorsImage = null;
     private byte[][] grayScaleUpscaledImage = null;
+    private final float widthRatio;
+
+    public ImagetextBrailleAlgorithm() {
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        int defaultWidth = textRenderer.getWidth(ImagetextLine.DEFAULT_TEXT);
+        int brailleWidth = textRenderer.getWidth(BRAILLE_CHARACTERS[BRAILLE_CHARACTERS.length - 1]);
+
+        // Maybe they could become 0 with some resource pack?
+        if (brailleWidth == 0 || defaultWidth == 0) {
+            defaultWidth = 1;
+            brailleWidth = 1;
+        }
+        this.widthRatio = brailleWidth / (float) defaultWidth;
+    }
 
     @Override
     public String getId() {
@@ -71,6 +87,16 @@ public class ImagetextBrailleAlgorithm implements IImagetextAlgorithm {
     @Override
     public String getCharacters() {
         return BRAILLE_CHARACTERS[BRAILLE_CHARACTERS.length - 1];
+    }
+
+    @Override
+    public float widthRatio() {
+        return this.widthRatio;
+    }
+
+    @Override
+    public float heightRatio() {
+        return 1 / this.widthRatio;
     }
 
     @Override
