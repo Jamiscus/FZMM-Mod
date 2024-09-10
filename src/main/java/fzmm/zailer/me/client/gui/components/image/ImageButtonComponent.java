@@ -67,14 +67,16 @@ public class ImageButtonComponent extends ButtonComponent {
                 .build();
 
         CompletableFuture.supplyAsync(() -> {
-            MinecraftClient.getInstance().execute(() -> {
-                this.active = true;
-                SnackBarManager.getInstance().add(loadingSnackBar);
-            });
+            MinecraftClient.getInstance().execute(() -> SnackBarManager.getInstance().add(loadingSnackBar));
 
             return imageLoaderFromText.loadImage(value);
-        }).thenApply(status -> {
+        }).whenComplete((status, throwable) -> {
             Optional<BufferedImage> image = imageLoaderFromText.getImage();
+
+            if (throwable != null) {
+                FzmmClient.LOGGER.error("[ImageButtonComponent] Unexpected error loading an image", throwable);
+                status = ImageStatus.UNEXPECTED_ERROR;
+            }
 
             SnackBarBuilder snackBarStatus = BaseSnackBarComponent.builder(SnackBarManager.IMAGE_ID)
                     .title(status.getStatusTranslation())
@@ -90,7 +92,7 @@ public class ImageButtonComponent extends ButtonComponent {
             } else {
                 if (this.imageLoadEvent != null) {
                     assert image.isPresent();
-                    status = this.imageLoadEvent.apply(image.get());
+                    this.imageLoadEvent.apply(image.get());
                 }
                 snackBarStatus.lowTimer();
                 FzmmClient.LOGGER.info("[ImageButtonComponent] Image loaded successfully");
@@ -102,14 +104,12 @@ public class ImageButtonComponent extends ButtonComponent {
                 SnackBarManager.getInstance().add(snackBarStatus.startTimer().build());
             });
 
-
             if (this.image != null) {
                 this.image.flush();
             }
 
             this.image = image.orElse(null);
-            return status;
-        }).thenAccept(status -> {
+
             if (this.callback != null) {
                 this.callback.accept(this.image);
             }
