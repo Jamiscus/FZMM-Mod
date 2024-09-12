@@ -252,7 +252,7 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "button-row"), ButtonRow::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "color-row"), ColorRow::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "predicate-text-box-row"), ConfigTextBoxRow::parse);
-        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "enum-row"), EnumRow::parse);
+        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "context-menu-button-row"), ContextMenuButtonRow::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "image-rows"), ImageRows::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "number-row"), NumberRow::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screen-tab-row"), ScreenTabRow::parse);
@@ -272,7 +272,6 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "text-option"), element -> new ConfigTextBox());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "suggest-text-option"), element -> new SuggestionTextBox());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "image-option"), element -> new ImageButtonComponent());
-        UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "enum-option"), element -> new EnumWidget());
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screen-tab"), ScreenTabContainer::parse);
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "main-button"), element -> new MainButtonComponent(Text.empty(), buttonComponent -> {}));
         UIParsing.registerFactory(Identifier.of(FzmmClient.MOD_ID, "screenshot-zone"), element -> new ScreenshotZoneComponent());

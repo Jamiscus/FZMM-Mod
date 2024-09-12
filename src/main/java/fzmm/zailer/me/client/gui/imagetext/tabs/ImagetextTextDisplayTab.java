@@ -2,14 +2,11 @@ package fzmm.zailer.me.client.gui.imagetext.tabs;
 
 import fzmm.zailer.me.builders.SpawnEggBuilder;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import fzmm.zailer.me.client.gui.components.EnumWidget;
+import fzmm.zailer.me.client.gui.components.ContextMenuButton;
 import fzmm.zailer.me.client.gui.components.SliderWidget;
 import fzmm.zailer.me.client.gui.components.row.ColorRow;
-import fzmm.zailer.me.client.gui.components.row.EnumRow;
 import fzmm.zailer.me.client.gui.components.row.SliderRow;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
-import fzmm.zailer.me.client.gui.options.DisplayEntityBillboardOption;
-import fzmm.zailer.me.client.gui.options.TextDisplayAlignmentOption;
 import fzmm.zailer.me.client.gui.utils.InvisibleEntityWarning;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
@@ -46,8 +43,10 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
     private ConfigTextBox backgroundColor;
     private SmallCheckboxComponent textShadow;
     private SmallCheckboxComponent textSeeThrough;
-    private EnumWidget textAlignment;
-    private EnumWidget billboard;
+    private ContextMenuButton textAlignmentButton;
+    private DisplayEntity.TextDisplayEntity.TextAlignment textAlignment;
+    private ContextMenuButton billboardButton;
+    private DisplayEntity.BillboardMode billboard;
     private SliderWidget rotation;
 
     public ImagetextTextDisplayTab() {
@@ -69,8 +68,8 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
         textDisplayNbt.putInt(TagsConstant.TEXT_DISPLAY_BACKGROUND, ((Color) this.backgroundColor.parsedValue()).argb());
         textDisplayNbt.putBoolean(TagsConstant.TEXT_DISPLAY_SHADOW, this.textShadow.checked());
         textDisplayNbt.putBoolean(TagsConstant.TEXT_DISPLAY_SEE_THROUGH, this.textSeeThrough.checked());
-        textDisplayNbt.putString(TagsConstant.TEXT_DISPLAY_ALIGNMENT, ((TextDisplayAlignmentOption) this.textAlignment.parsedValue()).getType().asString());
-        textDisplayNbt.putString(DisplayEntity.BILLBOARD_NBT_KEY, ((DisplayEntityBillboardOption) this.billboard.parsedValue()).getType().asString());
+        textDisplayNbt.putString(TagsConstant.TEXT_DISPLAY_ALIGNMENT, this.textAlignment.asString());
+        textDisplayNbt.putString(DisplayEntity.BILLBOARD_NBT_KEY, this.billboard.asString());
 
         NbtList rotationList = new NbtList();
         rotationList.add(NbtFloat.of((float) this.rotation.discreteValue()));
@@ -103,16 +102,53 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
         this.textSeeThrough = rootComponent.childById(SmallCheckboxComponent.class, TEXT_SEE_THROUGH_ID + "-checkbox");
         BaseFzmmScreen.checkNull(this.textSeeThrough, "small-checkbox", TEXT_SEE_THROUGH_ID + "-checkbox");
         this.textSeeThrough.checked(false);
-        this.textAlignment = EnumRow.setup(rootComponent, TEXT_ALIGNMENT_ID, TextDisplayAlignmentOption.LEFT, null);
-        this.billboard = EnumRow.setup(rootComponent, BILLBOARD_ID, DisplayEntityBillboardOption.FIXED, null);
+        this.textAlignmentButton = rootComponent.childById(ContextMenuButton.class, TEXT_ALIGNMENT_ID);
+        BaseFzmmScreen.checkNull(this.textAlignmentButton, "context-menu-button", TEXT_ALIGNMENT_ID);
+        this.textAlignmentButton.setContextMenuOptions(dropdownComponent -> {
+            for (var option : DisplayEntity.TextDisplayEntity.TextAlignment.values()) {
+                dropdownComponent.button(this.getTextAlignmentMessage(option), dropdownButton -> {
+                    this.updateTextAlignment(option);
+                    dropdownButton.remove();
+                });
+            }
+        });
+        this.updateTextAlignment(DisplayEntity.TextDisplayEntity.TextAlignment.LEFT);
+        this.billboardButton = rootComponent.childById(ContextMenuButton.class, BILLBOARD_ID);
+        BaseFzmmScreen.checkNull(this.billboardButton, "context-menu-button", BILLBOARD_ID);
+        this.billboardButton.setContextMenuOptions(dropdownComponent -> {
+            for (var option : DisplayEntity.BillboardMode.values()) {
+                dropdownComponent.button(this.getBillboardMessage(option), dropdownButton -> {
+                    this.updateBillboard(option);
+                    dropdownButton.remove();
+                });
+            }
+        });
+        this.updateBillboard(DisplayEntity.BillboardMode.FIXED);
         this.rotation = SliderRow.setup(rootComponent, ROTATION_ID, MathHelper.wrapDegrees(MinecraftClient.getInstance().player.getYaw()), -180, 180, Float.class, 1, 30, null);
+    }
+
+    private void updateTextAlignment(DisplayEntity.TextDisplayEntity.TextAlignment value) {
+        this.textAlignment = value;
+        this.textAlignmentButton.setMessage(this.getTextAlignmentMessage(this.textAlignment));
+    }
+
+    public Text getTextAlignmentMessage(DisplayEntity.TextDisplayEntity.TextAlignment value) {
+        return Text.translatable("fzmm.gui.option.text_alignment." + value.asString());
+    }
+
+    public void updateBillboard(DisplayEntity.BillboardMode value) {
+        this.billboard = value;
+        this.billboardButton.setMessage(this.getBillboardMessage(this.billboard));
+    }
+
+    public Text getBillboardMessage(DisplayEntity.BillboardMode value) {
+        return Text.translatable("fzmm.gui.option.billboard." + value.asString());
     }
 
     @Override
     public String getId() {
         return "textDisplay";
     }
-
 
     @Override
     public IMementoObject createMemento() {
@@ -121,8 +157,8 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
                 this.backgroundColor.getText(),
                 this.textShadow.checked(),
                 this.textSeeThrough.checked(),
-                (TextDisplayAlignmentOption) this.textAlignment.parsedValue(),
-                (DisplayEntityBillboardOption) this.billboard.parsedValue()
+                this.textAlignment,
+                this.billboard
         );
     }
 
@@ -133,12 +169,12 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
         this.backgroundColor.text(memento.backgroundColor);
         this.textShadow.checked(memento.textShadow);
         this.textSeeThrough.checked(memento.textSeeThrough);
-        this.textAlignment.setValue(memento.textAlignment);
-        this.billboard.setValue(memento.billboard);
+        this.updateTextAlignment(memento.textAlignment);
+        this.updateBillboard(memento.billboard);
     }
 
     private record TextDisplayMementoTab(int textOpacity, String backgroundColor, boolean textShadow,
-                                         boolean textSeeThrough, TextDisplayAlignmentOption textAlignment,
-                                         DisplayEntityBillboardOption billboard) implements IMementoObject {
+                                         boolean textSeeThrough, DisplayEntity.TextDisplayEntity.TextAlignment textAlignment,
+                                         DisplayEntity.BillboardMode billboard) implements IMementoObject {
     }
 }

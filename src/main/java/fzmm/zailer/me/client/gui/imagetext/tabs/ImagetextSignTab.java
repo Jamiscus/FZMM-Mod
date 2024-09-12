@@ -5,10 +5,8 @@ import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.builders.SignBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import fzmm.zailer.me.client.gui.components.EnumWidget;
-import fzmm.zailer.me.client.gui.components.row.EnumRow;
+import fzmm.zailer.me.client.gui.components.ContextMenuButton;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
-import fzmm.zailer.me.client.gui.options.SignTypeOption;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
@@ -31,6 +29,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
@@ -38,18 +37,19 @@ public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
 
     private static final String SIGN_TYPE_ID = "signType";
     private static final String IS_HANGING_ID = "isHangingSign";
-    private EnumWidget signTypeEnum;
+    private ContextMenuButton signTypeButton;
     private SmallCheckboxComponent isHangingSignButton;
     private String characters;
-
+    private WoodType woodType;
 
     @Override
     public void generate(IImagetextAlgorithm algorithm, ImagetextLogic logic, ImagetextData data, boolean isExecute) {
         this.characters = algorithm.getCharacters();
-        if (isExecute)
+        if (isExecute) {
             logic.generateImagetext(algorithm, data, this.getLineSplitInterval(this.characters));
-        else
+        } else {
             logic.generateImagetext(algorithm, data);
+        }
     }
 
     @Override
@@ -88,16 +88,38 @@ public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
     }
 
     @Override
+    public void setupComponents(FlowLayout rootComponent) {
+        this.signTypeButton = rootComponent.childById(ContextMenuButton.class, SIGN_TYPE_ID);
+        BaseFzmmScreen.checkNull(this.signTypeButton, "context-menu-button", SIGN_TYPE_ID);
+        this.signTypeButton.setContextMenuOptions(dropdownComponent -> {
+            List<WoodType> optionList = WoodType.stream()
+                    .sorted(Comparator.comparing(woodType1 -> this.getSignText(woodType1).getString()))
+                    .toList();
+            for (var option : optionList) {
+                dropdownComponent.button(this.getSignText(option), dropdownButton -> {
+                    this.updateSignType(option);
+                    dropdownButton.remove();
+                });
+            }
+        });
+        this.updateSignType(WoodType.OAK);
+        this.isHangingSignButton = rootComponent.childById(SmallCheckboxComponent.class, IS_HANGING_ID + "-checkbox");
+        BaseFzmmScreen.checkNull(this.isHangingSignButton, "small-checkbox", IS_HANGING_ID + "-checkbox");
+        this.isHangingSignButton.checked(false);
+    }
+
+    private void updateSignType(WoodType option) {
+        this.woodType = option;
+        this.signTypeButton.setMessage(this.getSignText(this.woodType));
+    }
+
+    @Override
     public String getId() {
         return "sign";
     }
 
-    @Override
-    public void setupComponents(FlowLayout rootComponent) {
-        this.signTypeEnum = EnumRow.setup(rootComponent, SIGN_TYPE_ID, SignTypeOption.OAK, null);
-        this.isHangingSignButton = rootComponent.childById(SmallCheckboxComponent.class, IS_HANGING_ID + "-checkbox");
-        BaseFzmmScreen.checkNull(this.isHangingSignButton, "small-checkbox", IS_HANGING_ID + "-checkbox");
-        this.isHangingSignButton.checked(false);
+    private Text getSignText(WoodType type) {
+        return Text.translatable("block.minecraft." + type.name() + "_sign");
     }
 
     public List<ItemStack> getSignItems(ImagetextLogic logic) {
@@ -184,15 +206,14 @@ public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
     }
 
     public Item getItem() {
-        WoodType type = ((SignTypeOption) this.signTypeEnum.getValue()).getType();
         boolean isHangingSign = this.isHangingSignButton.checked();
 
         for (var block : Registries.BLOCK.stream().toList()) {
-            if (isHangingSign && block instanceof HangingSignBlock hangingSignBlock && hangingSignBlock.getWoodType() == type)
+            if (isHangingSign && block instanceof HangingSignBlock hangingSignBlock && hangingSignBlock.getWoodType() == this.woodType) {
                 return hangingSignBlock.asItem();
-            else if (!isHangingSign && block instanceof SignBlock signBlock && signBlock.getWoodType() == type)
+            } else if (!isHangingSign && block instanceof SignBlock signBlock && signBlock.getWoodType() == this.woodType) {
                 return signBlock.asItem();
-
+            }
         }
 
         return Items.OAK_SIGN;
@@ -200,13 +221,13 @@ public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
 
     @Override
     public IMementoObject createMemento() {
-        return new SignMementoTab((SignTypeOption) this.signTypeEnum.getValue(), this.isHangingSignButton.checked());
+        return new SignMementoTab(this.woodType, this.isHangingSignButton.checked());
     }
 
     @Override
     public void restoreMemento(IMementoObject mementoTab) {
         SignMementoTab memento = (SignMementoTab) mementoTab;
-        this.signTypeEnum.setValue(memento.signType);
+        this.updateSignType(memento.signType);
         this.isHangingSignButton.checked(memento.isHangingSign());
     }
 
@@ -218,6 +239,6 @@ public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
         return Text.translatable("fzmm.gui.imagetext.tab.sign.tooltip", horizontalSigns, verticalSigns);
     }
 
-    private record SignMementoTab(SignTypeOption signType, boolean isHangingSign) implements IMementoObject {
+    private record SignMementoTab(WoodType signType, boolean isHangingSign) implements IMementoObject {
     }
 }
