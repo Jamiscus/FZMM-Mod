@@ -28,7 +28,7 @@ public class TranslationUpdateResourcePack implements ITranslationFileSaver{
 
                 String resourcePackPath = TinyFileDialogs.tinyfd_openFileDialog(
                         Text.translatable("fzmm.gui.resourcePackBuilder.dialog.updateResourcePack.title").getString(),
-                        MinecraftClient.getInstance().getResourcePackDir().toString(),
+                        MinecraftClient.getInstance().getResourcePackDir().toString() + "/",
                         filterPatterns,
                         Text.translatable("fzmm.gui.resourcePackBuilder.dialog.updateResourcePack.filter").getString(),
                         false
