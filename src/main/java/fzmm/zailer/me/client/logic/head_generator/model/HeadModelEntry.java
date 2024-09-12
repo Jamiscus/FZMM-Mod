@@ -71,7 +71,7 @@ public class HeadModelEntry extends AbstractHeadEntry implements INestedParamete
         AffineTransform originalTransform = destinationGraphics.getTransform();
 
         if (hasUnusedPixels) {
-            ImageUtils.removeUnusedPixels(baseSkin, destinationGraphics);
+            ImageUtils.removeUnusedPixels(destinationGraphics);
         }
 
         ModelData data = new ModelData(destinationGraphics, DESTINATION_ID, this.textures,
