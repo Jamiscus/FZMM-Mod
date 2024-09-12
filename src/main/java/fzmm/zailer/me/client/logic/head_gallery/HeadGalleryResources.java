@@ -72,6 +72,8 @@ public class HeadGalleryResources {
         HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
         conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
         conn.setRequestMethod("GET");
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
         int responseCode = conn.getResponseCode();
 
         if ((responseCode / 100) == 2) {

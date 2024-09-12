@@ -9,7 +9,6 @@ import net.minecraft.item.ItemStack;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -30,16 +29,17 @@ public class GetSkinFromMojang extends GetSkinDecorator {
 
     @Override
     public Optional<BufferedImage> getSkin(String playerName) throws IOException {
-        String stringUuid = FzmmUtils.getPlayerUuid(playerName);
-        try (var httpClient = HttpClients.createDefault()) {
+        String stringUuid = FzmmUtils.fetchPlayerUuid(playerName);
+        try (var httpClient = FzmmUtils.getHttpClient()) {
             HttpGet httpGet = new HttpGet("https://sessionserver.mojang.com/session/minecraft/profile/" + stringUuid);
 
             httpGet.addHeader("content-statusType", "image/jpeg");
 
             HttpResponse response = httpClient.execute(httpGet);
             HttpEntity resEntity = response.getEntity();
-            if ((response.getStatusLine().getStatusCode() / 100) != 2)
+            if ((response.getStatusLine().getStatusCode() / 100) != 2) {
                 return super.getSkin(playerName);
+            }
 
             InputStream inputStream = resEntity.getContent();
             JsonObject obj = (JsonObject) JsonParser.parseReader(new InputStreamReader(inputStream));
