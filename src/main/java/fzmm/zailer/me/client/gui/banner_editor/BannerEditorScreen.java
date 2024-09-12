@@ -154,9 +154,14 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         RequestedItem requestedItem = new RequestedItem(
                 itemStack -> itemStack.getItem() instanceof ShieldItem || itemStack.getItem() instanceof BannerItem,
                 itemStack -> {
+                    if (itemStack.isEmpty()) {
+                        return;
+                    }
+
                     boolean isShield = itemStack.getItem() instanceof ShieldItem;
-                    if (this.isShieldButton.enabled() != isShield)
+                    if (this.isShieldButton.enabled() != isShield) {
                         this.isShieldButton.onPress();
+                    }
 
                     this.bannerBuilder = BannerBuilder.of(itemStack);
                     this.updatePreview(this.bannerBuilder);
