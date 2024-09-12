@@ -14,6 +14,7 @@ import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.util.FocusHandler;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.item.TooltipType;
@@ -64,7 +65,7 @@ public class SelectItemScreen extends BaseFzmmScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         assert this.client != null;
         assert this.client.player != null;
 
@@ -87,7 +88,11 @@ public class SelectItemScreen extends BaseFzmmScreen {
             this.execute(false);
             this.close();
         });
+    }
 
+    @Override
+    protected void initFocus(FocusHandler focusHandler) {
+        focusHandler.focus(this.searchField, Component.FocusSource.MOUSE_CLICK);
     }
 
     private void setupSourceButtons(FlowLayout rootComponent) {

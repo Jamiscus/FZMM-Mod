@@ -58,7 +58,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         //preview
         this.bannerPreview = rootComponent.childById(ItemComponent.class, BANNER_PREVIEW_ID);
         checkNull(this.bannerPreview, "flow-layout", BANNER_PREVIEW_ID);

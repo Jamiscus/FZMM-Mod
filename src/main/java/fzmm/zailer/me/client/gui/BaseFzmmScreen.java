@@ -28,6 +28,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.parsing.UIModel;
 import io.wispforest.owo.ui.parsing.UIParsing;
+import io.wispforest.owo.ui.util.FocusHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -70,16 +71,27 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
 
         this.symbolChatCompat.addSymbolChatComponents(this);
 
-        this.setupButtonsCallbacks(rootComponent);
+        this.setup(rootComponent);
         rootComponent.child(this.snackBarLayout);
+    }
 
-
+    @Override
+    protected void init() {
+        super.init();
         if (FzmmClient.CONFIG.history.automaticallyRecoverScreens() && this instanceof IMementoScreen mementoScreen) {
             mementoScreen.getMemento().ifPresent(mementoScreen::restoreMemento);
         }
+
+        if (this.getRoot().focusHandler() != null) {
+            this.initFocus(this.getRoot().focusHandler());
+        }
     }
 
-    protected abstract void setupButtonsCallbacks(FlowLayout rootComponent);
+    protected void initFocus(FocusHandler focusHandler) {
+
+    }
+
+    protected abstract void setup(FlowLayout rootComponent);
 
     @Override
     public void removed() {
