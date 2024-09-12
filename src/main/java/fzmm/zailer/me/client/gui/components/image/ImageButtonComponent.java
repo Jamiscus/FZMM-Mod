@@ -117,6 +117,10 @@ public class ImageButtonComponent extends ButtonComponent {
     }
 
     public void interactiveImageLoad(IInteractiveImageLoader interactiveImageLoader) {
+        MinecraftClient.getInstance().execute(() -> {
+            this.active = true;
+            SnackBarManager.getInstance().remove(SnackBarManager.IMAGE_ID);
+        });
         this.active = false;
         interactiveImageLoader.execute(bufferedImage -> {
             if (this.image != null) {
@@ -129,11 +133,6 @@ public class ImageButtonComponent extends ButtonComponent {
             if (this.callback != null) {
                 this.callback.accept(this.image);
             }
-
-            MinecraftClient.getInstance().execute(() -> {
-                this.active = true;
-                SnackBarManager.getInstance().remove(SnackBarManager.IMAGE_ID);
-            });
         });
     }
 
