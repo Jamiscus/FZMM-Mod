@@ -1,9 +1,9 @@
 package fzmm.zailer.me.client.gui.imagetext.tabs;
 
 import fzmm.zailer.me.builders.BookBuilder;
-import fzmm.zailer.me.client.gui.components.EnumWidget;
-import fzmm.zailer.me.client.gui.components.row.EnumRow;
-import fzmm.zailer.me.client.gui.imagetext.ImagetextBookOption;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.ContextMenuButton;
+import fzmm.zailer.me.client.gui.options.BookOption;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
@@ -14,11 +14,13 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 public class ImagetextBookPageTab implements IImagetextTab {
     private static final String BOOK_PAGE_MODE_ID = "bookPageMode";
-    private EnumWidget bookPageMode;
+    private ContextMenuButton bookPageButton;
+    private BookOption bookMode;
 
     @Override
     public void generate(IImagetextAlgorithm algorithm, ImagetextLogic logic, ImagetextData data, boolean isExecute) {
@@ -34,12 +36,7 @@ public class ImagetextBookPageTab implements IImagetextTab {
 
     @Override
     public void execute(ImagetextLogic logic) {
-        ImagetextBookOption bookOption = (ImagetextBookOption) this.bookPageMode.getValue();
-
-        MinecraftClient mc = MinecraftClient.getInstance();
-        assert mc.player != null;
-
-        BookBuilder bookBuilder = bookOption.getBookBuilder();
+        BookBuilder bookBuilder = this.bookMode.getBookBuilder();
         bookBuilder.addPage(logic.getText());
 
         FzmmUtils.giveItem(bookBuilder.get());
@@ -47,7 +44,22 @@ public class ImagetextBookPageTab implements IImagetextTab {
 
     @Override
     public void setupComponents(FlowLayout rootComponent) {
-        this.bookPageMode = EnumRow.setup(rootComponent, BOOK_PAGE_MODE_ID, ImagetextBookOption.ADD_PAGE, null);
+        this.bookPageButton = rootComponent.childById(ContextMenuButton.class, BOOK_PAGE_MODE_ID);
+        BaseFzmmScreen.checkNull(this.bookPageButton, "context-menu-button", BOOK_PAGE_MODE_ID);
+        this.bookPageButton.setContextMenuOptions(dropdownComponent -> {
+            for (var option : BookOption.values()) {
+                dropdownComponent.button(Text.translatable(option.getTranslationKey()), dropdownButton -> {
+                    this.updateBookPage(option);
+                    dropdownButton.remove();
+                });
+            }
+        });
+        this.updateBookPage(BookOption.ADD_PAGE);
+    }
+
+    private void updateBookPage(BookOption bookMode) {
+        this.bookMode = bookMode;
+        this.bookPageButton.setMessage(Text.translatable(this.bookMode.getTranslationKey()));
     }
 
     @Override
@@ -79,15 +91,15 @@ public class ImagetextBookPageTab implements IImagetextTab {
 
     @Override
     public IMementoObject createMemento() {
-        return new BookPageMementoTab((ImagetextBookOption) this.bookPageMode.getValue());
+        return new BookPageMementoTab(this.bookMode);
     }
 
     @Override
     public void restoreMemento(IMementoObject mementoTab) {
         BookPageMementoTab memento = (BookPageMementoTab) mementoTab;
-        this.bookPageMode.setValue(memento.mode);
+        this.updateBookPage(memento.mode);
     }
 
-    private record BookPageMementoTab(ImagetextBookOption mode) implements IMementoObject {
+    private record BookPageMementoTab(BookOption mode) implements IMementoObject {
     }
 }

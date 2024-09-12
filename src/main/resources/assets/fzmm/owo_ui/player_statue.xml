@@ -12,9 +12,9 @@
 
                     <fzmm.styled-flow-layout direction="vertical" id="options-list">
                         <children>
-                            <fzmm.enum-row>
+                            <fzmm.context-menu-button-row>
                                 <id>horizontal-direction</id>
-                            </fzmm.enum-row>
+                            </fzmm.context-menu-button-row>
                             <fzmm.number-row>
                                 <id>posX</id>
                                 <tooltipId>pos</tooltipId>

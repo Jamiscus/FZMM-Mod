@@ -232,8 +232,8 @@
                                                 <children>
                                                     <template name="small-option">
                                                         <translation-id>loreMode</translation-id>
-                                                        <option>enum</option>
-                                                        <id>loreMode-enum-option</id>
+                                                        <option>context-menu</option>
+                                                        <id>loreMode</id>
                                                     </template>
                                                 </children>
                                             </fzmm.screen-tab>
@@ -244,8 +244,8 @@
 
                                                     <template name="small-option">
                                                         <translation-id>bookPageMode</translation-id>
-                                                        <option>enum</option>
-                                                        <id>bookPageMode-enum-option</id>
+                                                        <option>context-menu</option>
+                                                        <id>bookPageMode</id>
                                                     </template>
                                                 </children>
                                             </fzmm.screen-tab>
@@ -255,8 +255,8 @@
                                                 <children>
                                                     <template name="small-option">
                                                         <translation-id>bookTooltipMode</translation-id>
-                                                        <option>enum</option>
-                                                        <id>bookTooltipMode-enum-option</id>
+                                                        <option>context-menu</option>
+                                                        <id>bookTooltipMode</id>
                                                     </template>
                                                     <template name="small-option">
                                                         <translation-id>bookTooltipAuthor</translation-id>
@@ -296,13 +296,13 @@
                                                     </template>
                                                     <template name="small-option">
                                                         <translation-id>textDisplayTextAlignment</translation-id>
-                                                        <option>enum</option>
-                                                        <id>textDisplayTextAlignment-enum-option</id>
+                                                        <option>context-menu</option>
+                                                        <id>textDisplayTextAlignment</id>
                                                     </template>
                                                     <template name="small-option">
                                                         <translation-id>textDisplayBillboard</translation-id>
-                                                        <option>enum</option>
-                                                        <id>textDisplayBillboard-enum-option</id>
+                                                        <option>context-menu</option>
+                                                        <id>textDisplayBillboard</id>
                                                     </template>
                                                     <template name="small-option">
                                                         <translation-id>textDisplayRotation</translation-id>
@@ -317,8 +317,8 @@
                                                 <children>
                                                     <template name="small-option">
                                                         <translation-id>signType</translation-id>
-                                                        <option>enum</option>
-                                                        <id>signType-enum-option</id>
+                                                        <option>context-menu</option>
+                                                        <id>signType</id>
                                                     </template>
                                                     <template name="small-option">
                                                         <translation-id>isHangingSign</translation-id>
@@ -567,14 +567,14 @@
             </text-area>
         </text-area-option-type>
 
-        <enum-option-type>
-            <fzmm.enum-option id="{{id}}">
+        <context-menu-option-type>
+            <fzmm.context-menu-button id="{{id}}">
                 <sizing>
                     <horizontal method="expand">100</horizontal>
                     <vertical method="fixed">16</vertical>
                 </sizing>
-            </fzmm.enum-option>
-        </enum-option-type>
+            </fzmm.context-menu-button>
+        </context-menu-option-type>
 
         <color-option-type>
             <fzmm.styled-flow-layout direction="horizontal">

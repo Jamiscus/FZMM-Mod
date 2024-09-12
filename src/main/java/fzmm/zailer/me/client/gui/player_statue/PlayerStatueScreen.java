@@ -2,7 +2,7 @@ package fzmm.zailer.me.client.gui.player_statue;
 
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import fzmm.zailer.me.client.gui.components.EnumWidget;
+import fzmm.zailer.me.client.gui.components.ContextMenuButton;
 import fzmm.zailer.me.client.gui.components.row.*;
 import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
@@ -19,6 +19,7 @@ import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -34,7 +35,7 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
     public static final String EXECUTE_ID = "execute";
     private static PlayerStatueTabs selectedTab = PlayerStatueTabs.CREATE;
     private static PlayerStatueMemento memento = null;
-    private EnumWidget directionEnum;
+    private HorizontalDirectionOption direction;
     private ConfigTextBox posX;
     private ConfigTextBox posY;
     private ConfigTextBox posZ;
@@ -52,7 +53,19 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
         PlayerEntity player = MinecraftClient.getInstance().player;
         assert player != null;
         //general
-        this.directionEnum = EnumRow.setup(rootComponent, HORIZONTAL_DIRECTION_ID, HorizontalDirectionOption.getPlayerHorizontalDirection(), null);
+        ContextMenuButton directionButton = rootComponent.childById(ContextMenuButton.class, ContextMenuButtonRow.getButtonId(HORIZONTAL_DIRECTION_ID));
+        BaseFzmmScreen.checkNull(directionButton, "context-menu-button", ContextMenuButtonRow.getButtonId(HORIZONTAL_DIRECTION_ID));
+        directionButton.setContextMenuOptions(dropdownComponent -> {
+            for (var option : HorizontalDirectionOption.values()) {
+                dropdownComponent.button(Text.translatable(option.getTranslationKey()), dropdownButton -> {
+                    this.direction = option;
+                    directionButton.setMessage(Text.translatable(option.getTranslationKey()));
+                    dropdownButton.remove();
+                });
+            }
+        });
+        this.direction = HorizontalDirectionOption.getPlayerHorizontalDirection();
+        directionButton.setMessage(Text.translatable(this.direction.getTranslationKey()));
         this.posX = NumberRow.setup(rootComponent, POS_X_ID, player.getBlockX(), Float.class);
         this.posY = NumberRow.setup(rootComponent, POS_Y_ID, player.getY(), Float.class);
         this.posZ = NumberRow.setup(rootComponent, POS_Z_ID, player.getBlockZ(), Float.class);
@@ -64,7 +77,7 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
             IScreenTab tab = this.getTab(playerStatueTab, IPlayerStatueTab.class);
             tab.setupComponents(rootComponent);
             ButtonRow.setup(rootComponent, ScreenTabRow.getScreenTabButtonId(tab), !tab.getId().equals(selectedTab.getId()), button -> {
-                    selectedTab = this.selectScreenTab(rootComponent, tab, selectedTab);
+                selectedTab = this.selectScreenTab(rootComponent, tab, selectedTab);
                 this.executeButton.active = this.getTab(selectedTab, IPlayerStatueTab.class).canExecute();
             });
         }
@@ -77,17 +90,16 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
 
     private void faqExecute(ButtonWidget buttonWidget) {
         assert this.client != null;
-        ConfirmLinkScreen.open(client.currentScreen, FzmmWikiConstants.PLAYER_STATUE_WIKI_LINK, true);
+        ConfirmLinkScreen.open(this.client.currentScreen, FzmmWikiConstants.PLAYER_STATUE_WIKI_LINK, true);
     }
 
     private void execute(ButtonWidget buttonWidget) {
-        HorizontalDirectionOption direction = (HorizontalDirectionOption) this.directionEnum.parsedValue();
         float x = (float) this.posX.parsedValue();
         float y = (float) this.posY.parsedValue();
         float z = (float) this.posZ.parsedValue();
         String name = this.nameField.getText();
 
-        this.getTab(selectedTab, IPlayerStatueTab.class).execute(direction, x, y, z, name);
+        this.getTab(selectedTab, IPlayerStatueTab.class).execute(this.direction, x, y, z, name);
     }
 
     @Override
@@ -115,7 +127,8 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
         this.restoreMementoTabs(memento.mementoTabHashMap);
     }
 
-    private record PlayerStatueMemento(String name, HashMap<String, IMementoObject> mementoTabHashMap) implements IMementoObject {
+    private record PlayerStatueMemento(String name,
+                                       HashMap<String, IMementoObject> mementoTabHashMap) implements IMementoObject {
 
     }
 }
