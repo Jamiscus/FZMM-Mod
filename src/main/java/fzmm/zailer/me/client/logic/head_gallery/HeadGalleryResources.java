@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fzmm.zailer.me.client.FzmmClient;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.util.Util;
 import org.apache.http.client.HttpResponseException;
 
 import java.io.BufferedReader;
@@ -51,11 +52,13 @@ public class HeadGalleryResources {
 
         String url = getUrl(category);
 
-        try {
-            future.complete(fetchUrl(url, category, cacheCategories));
-        } catch (Exception e) {
-            future.completeExceptionally(e);
-        }
+        future.completeAsync(() -> {
+            try {
+                return fetchUrl(url, category, cacheCategories);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, Util.getDownloadWorkerExecutor());
 
         return future;
     }
