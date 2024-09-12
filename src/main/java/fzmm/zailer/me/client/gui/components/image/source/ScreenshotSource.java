@@ -8,7 +8,6 @@ import fzmm.zailer.me.client.gui.components.style.StyledComponents;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
-import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarScreen;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.LabelComponent;
@@ -23,6 +22,7 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class ScreenshotSource implements IInteractiveImageLoader {
@@ -102,45 +103,70 @@ public class ScreenshotSource implements IInteractiveImageLoader {
     }
 
     public void takeScreenshot() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        try {
-            Framebuffer framebuffer = client.getFramebuffer();
-            byte[] byteArray;
-            try (var screenshot = ScreenshotRecorder.takeScreenshot(framebuffer)) {
-                byteArray = screenshot.getBytes();
-            }
-            BufferedImage screenshot = ImageIO.read(new ByteArrayInputStream(byteArray));
-            int width = screenshot.getWidth();
-            int height = screenshot.getHeight();
-            int smallerSide = Math.min(width, height);
-            int halfLongerSide = smallerSide / 2;
+        byte[] byteArray = null;
+        Exception exception = null;
 
-            BufferedImage scaled = screenshot.getSubimage(width / 2 - halfLongerSide, height / 2 - halfLongerSide, smallerSide, smallerSide);
-            BufferedImage finalImage = this.removePadding(scaled);
-
-            screenshot.flush();
-            scaled.flush();
-
-            this.setImage(finalImage);
-        } catch (IOException e) {
-            FzmmClient.LOGGER.error("Unexpected error loading an image", e);
-
-            ISnackBarComponent toast = BaseSnackBarComponent.builder(SnackBarManager.IMAGE_ID)
-                    .title(Text.translatable("fzmm.snack_bar.image.error.title"))
-                    .details(Text.translatable("fzmm.snack_bar.image.error.details.unexpectedError"))
-                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
-                    .closeButton()
-                    .build();
-
-            if (MinecraftClient.getInstance().currentScreen instanceof ISnackBarScreen manager) {
-                manager.addSnackBar(toast);
-            }
+        Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
+        try (var screenshot = ScreenshotRecorder.takeScreenshot(framebuffer)) {
+            byteArray = screenshot.getBytes();
+        } catch (Exception e) {
+            exception = e;
         }
 
-        Hud.remove(HUD_CAPTURE_SCREENSHOT);
-        FzmmUtils.setScreen(this.previousScreen);
-        this.previousScreen = null;
-        instance = null;
+        byte[] finalByteArray = byteArray;
+        Exception finalException = exception;
+        CompletableFuture.supplyAsync(() -> {
+            if (finalException != null) {
+                throw new RuntimeException(finalException);
+            }
+
+            try {
+                BufferedImage screenshot = ImageIO.read(new ByteArrayInputStream(finalByteArray));
+                int width = screenshot.getWidth();
+                int height = screenshot.getHeight();
+                int smallerSide = Math.min(width, height);
+                int halfLongerSide = smallerSide / 2;
+
+                BufferedImage scaled = screenshot.getSubimage(width / 2 - halfLongerSide, height / 2 - halfLongerSide, smallerSide, smallerSide);
+                BufferedImage finalImage = this.removePadding(scaled);
+
+                screenshot.flush();
+                scaled.flush();
+
+                return finalImage;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, Util.getMainWorkerExecutor()).whenComplete((image, throwable) -> {
+            instance = null;
+            ISnackBarComponent snackBar = null;
+
+            if (throwable != null || image == null) {
+                FzmmClient.LOGGER.error("[ScreenshotSource] Unexpected error while taking screenshot", throwable);
+                snackBar = BaseSnackBarComponent.builder(SnackBarManager.IMAGE_ID)
+                        .title(Text.translatable("fzmm.snack_bar.image.error.title"))
+                        .details(Text.translatable("fzmm.snack_bar.image.error.details.unexpectedError"))
+                        .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                        .closeButton()
+                        .build();
+
+            }
+
+            ISnackBarComponent finalSnackBar = snackBar;
+            MinecraftClient client = MinecraftClient.getInstance();
+            client.execute(() -> {
+                SnackBarManager manager = SnackBarManager.getInstance();
+                Hud.remove(HUD_CAPTURE_SCREENSHOT);
+                if (finalSnackBar != null) {
+                    manager.add(finalSnackBar);
+                }
+
+                FzmmUtils.setScreen(this.previousScreen);
+                this.previousScreen = null;
+            });
+
+            this.setImage(image);
+        });
     }
 
     private BufferedImage removePadding(BufferedImage image) {
