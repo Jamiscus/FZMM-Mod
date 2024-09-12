@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
+import fzmm.zailer.me.utils.skin.GetSkinFromCache;
 import io.wispforest.owo.Owo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.SkinTextures;
@@ -157,15 +158,18 @@ public class HeadUtils {
     }
 
     public static Optional<BufferedImage> getSkin(ItemStack stack) throws IOException {
-        Optional<SkinTextures> skinTextures = getSkinTextures(stack);
-        if (skinTextures.isEmpty()) {
+        NbtCompound skullOwnerTag = stack.getSubNbt(PlayerHeadItem.SKULL_OWNER_KEY);
+        if (skullOwnerTag == null) {
+            return Optional.empty();
+        }
+        GameProfile profile = NbtHelper.toGameProfile(skullOwnerTag);
+        if (profile == null) {
             return Optional.empty();
         }
 
-        String textureUrl = skinTextures.get().textureUrl();
-
-        return ImageUtils.getImageFromUrl(textureUrl);
+        return new GetSkinFromCache().getSkin(profile);
     }
+
 
     public static Optional<SkinTextures> getSkinTextures(ItemStack stack) {
         MinecraftClient client = MinecraftClient.getInstance();

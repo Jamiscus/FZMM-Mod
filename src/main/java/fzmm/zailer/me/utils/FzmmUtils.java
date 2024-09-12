@@ -6,7 +6,6 @@ import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.HistoryScreen;
 import fzmm.zailer.me.client.gui.components.snack_bar.BaseSnackBarComponent;
 import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarScreen;
@@ -18,6 +17,7 @@ import io.wispforest.owo.ui.component.Components;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.EquipmentSlot;
@@ -408,7 +408,7 @@ public class FzmmUtils {
         return MinecraftClient.getInstance().world.getRegistryManager();
     }
 
-    public static void setScreen(BaseFzmmScreen screen) {
+    public static <T extends Screen & ISnackBarScreen> void setScreen(T screen) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.currentScreen instanceof ISnackBarScreen snackBarScreen) {
             snackBarScreen.setScreen(screen);

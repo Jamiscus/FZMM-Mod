@@ -41,6 +41,7 @@ public class SelectItemScreen extends BaseFzmmScreen {
     private TextFieldWidget searchField;
     private List<ButtonComponent> sourceButtons;
     private ButtonComponent executeButton;
+    private boolean executed = false;
 
     public SelectItemScreen(@Nullable Screen parent, RequestedItem requestedItem) {
         this(parent, List.of(requestedItem));
@@ -79,10 +80,7 @@ public class SelectItemScreen extends BaseFzmmScreen {
 
         // bottom buttons
         this.executeButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(EXECUTE_BUTTON_ID), this.canExecute(), buttonComponent -> {
-            for (var requestedItem : this.requestedItems.keySet()) {
-                requestedItem.execute();
-            }
-
+            this.execute(false);
             this.close();
         });
 
@@ -252,5 +250,24 @@ public class SelectItemScreen extends BaseFzmmScreen {
         }
 
         return true;
+    }
+
+    private void execute(boolean replaceWithEmpty) {
+        this.executed = true;
+        for (var requestedItem : this.requestedItems.keySet()) {
+            if (!replaceWithEmpty && requestedItem.canExecute()) {
+                requestedItem.execute();
+            } else {
+                requestedItem.execute(ItemStack.EMPTY);
+            }
+        }
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        if (!this.executed) {
+            this.execute(true);
+        }
     }
 }

@@ -34,7 +34,7 @@ public class ImagetextLogic {
 
         List<MutableText> rawLinesList = algorithm.get(this, data, lineSplitInterval);
         List<Text> linesList = rawLinesList.stream()
-                .map(mutableText -> (Text) FzmmUtils.toNbtString(mutableText, false))
+                .map(mutableText -> (Text) FzmmUtils.disableItalicConfig(mutableText))
                 .toList();
 
         Text firstLine = linesList.isEmpty() ? Text.empty() : linesList.get(0);
