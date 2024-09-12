@@ -176,7 +176,7 @@ public class SnackBarBuilder {
             firstRow.child(detailsButton);
         }
         // first row content
-        firstRow.child(this.title.margins(Insets.top(3)));
+        firstRow.child(this.title.margins(Insets.vertical(2)));
         if (this.closeButton) {
             ButtonComponent button = Components.button(Text.translatable("fzmm.snack_bar.close"), buttonComponent -> result.close());
             button.sizing(Sizing.fixed(14));

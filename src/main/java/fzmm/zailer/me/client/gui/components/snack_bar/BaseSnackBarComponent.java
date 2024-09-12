@@ -56,6 +56,10 @@ public class BaseSnackBarComponent extends StyledFlowLayout implements ISnackBar
 
     @Override
     public void draw(OwoUIDrawContext context, int mouseX, int mouseY, float partialTicks, float delta) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.options.hudHidden && !(client.currentScreen instanceof ISnackBarScreen)) {
+            return;
+        }
         super.draw(context, mouseX, mouseY, partialTicks, delta);
         if (this.timerComponent != null) {
             this.updateTimer(System.currentTimeMillis() - this.startTimeMillis);
