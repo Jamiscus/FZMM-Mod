@@ -115,7 +115,6 @@ public class SnackBarManager {
     }
 
     public void move(ISnackBarScreen from, ISnackBarScreen to) {
-
         List<ISnackBarComponent> snackBarComponents = from.getSnackBars();
         from.clearSnackBars();
         for (var snackBar : snackBarComponents) {
