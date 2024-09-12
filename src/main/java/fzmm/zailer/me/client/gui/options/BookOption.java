@@ -1,4 +1,4 @@
-package fzmm.zailer.me.client.gui.imagetext;
+package fzmm.zailer.me.client.gui.options;
 
 import fzmm.zailer.me.builders.BookBuilder;
 import fzmm.zailer.me.client.gui.components.IMode;
@@ -9,7 +9,7 @@ import net.minecraft.util.Hand;
 
 import java.util.function.Supplier;
 
-public enum ImagetextBookOption implements IMode {
+public enum BookOption implements IMode {
     CREATE_BOOK("createBook", () -> BookBuilder.builder().title(Text.translatable("fzmm.item.imagetext.book.title").getString())),
     ADD_PAGE("addPage", () -> {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -22,7 +22,7 @@ public enum ImagetextBookOption implements IMode {
     private final String name;
     private final Supplier<BookBuilder> bookBuilderSupplier;
 
-    ImagetextBookOption(String name, Supplier<BookBuilder> getBookSupplier) {
+    BookOption(String name, Supplier<BookBuilder> getBookSupplier) {
         this.name = name;
         this.bookBuilderSupplier = getBookSupplier;
     }

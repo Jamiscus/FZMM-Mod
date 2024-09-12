@@ -2,8 +2,8 @@ package fzmm.zailer.me.client.gui.imagetext.tabs;
 
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.client.gui.components.EnumWidget;
-import fzmm.zailer.me.client.gui.components.row.EnumRow;
+import fzmm.zailer.me.client.gui.BaseFzmmScreen;
+import fzmm.zailer.me.client.gui.components.ContextMenuButton;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.options.LoreOption;
@@ -24,7 +24,8 @@ import java.util.List;
 
 public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
     private static final String LORE_MODE_ID = "loreMode";
-    private EnumWidget loreModeOption;
+    private ContextMenuButton loreModeButton;
+    private LoreOption loreMode;
 
     @Override
     public void generate(IImagetextAlgorithm algorithm, ImagetextLogic logic, ImagetextData data, boolean isExecute) {
@@ -33,7 +34,7 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
 
     @Override
     public void execute(ImagetextLogic logic) {
-        ItemStack stack = this.getStack((LoreOption) this.loreModeOption.getValue());
+        ItemStack stack = this.getStack(this.loreMode);
         List<Text> imagetext = logic.getWrappedText();
 
         DisplayBuilder display = DisplayBuilder.of(stack);
@@ -49,24 +50,28 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
 
     @Override
     public void setupComponents(FlowLayout rootComponent) {
-        this.loreModeOption = EnumRow.setup(rootComponent, LORE_MODE_ID, LoreOption.ADD, null);
+        this.loreModeButton = rootComponent.childById(ContextMenuButton.class, LORE_MODE_ID);
+        BaseFzmmScreen.checkNull(this.loreModeButton, "context-menu-button", LORE_MODE_ID);
+        this.loreModeButton.setContextMenuOptions(dropdownComponent -> {
+            for (var option : LoreOption.values()) {
+                dropdownComponent.button(Text.translatable(option.getTranslationKey()), dropdownButton -> {
+                    this.updateLoreMode(option);
+                    dropdownButton.remove();
+                });
+            }
+        });
+        this.updateLoreMode(LoreOption.ADD);
     }
 
-
-    @Override
-    public IMementoObject createMemento() {
-        return new LoreMementoTab((LoreOption) this.loreModeOption.getValue());
+    private void updateLoreMode(LoreOption mode) {
+        this.loreMode = mode;
+        this.loreModeButton.setMessage(Text.translatable(this.loreMode.getTranslationKey()));
     }
 
-    @Override
-    public void restoreMemento(IMementoObject mementoTab) {
-        LoreMementoTab memento = (LoreMementoTab) mementoTab;
-        this.loreModeOption.setValue(memento.mode);
-    }
 
     @Override
     public Text getTooltip(ImagetextLogic logic) {
-        ItemStack stack = this.getStack((LoreOption) this.loreModeOption.getValue());
+        ItemStack stack = this.getStack(this.loreMode);
         int loreSize = stack.getComponents()
                 .getOrDefault(DataComponentTypes.LORE, LoreComponent.DEFAULT).lines().size() + logic.getHeight();
 
@@ -93,6 +98,17 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
                 yield stack;
             }
         };
+    }
+
+    @Override
+    public IMementoObject createMemento() {
+        return new LoreMementoTab(this.loreMode);
+    }
+
+    @Override
+    public void restoreMemento(IMementoObject mementoTab) {
+        LoreMementoTab memento = (LoreMementoTab) mementoTab;
+        this.updateLoreMode(memento.mode);
     }
 
     private record LoreMementoTab(LoreOption mode) implements IMementoObject {
