@@ -24,6 +24,7 @@ import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Insets;
 import io.wispforest.owo.ui.core.Sizing;
+import io.wispforest.owo.ui.util.FocusHandler;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -84,7 +85,7 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         this.page = 1;
         this.selectedTags = new HashSet<>();
         this.availableTags = new HashSet<>();
@@ -158,6 +159,11 @@ public class HeadGalleryScreen extends BaseFzmmScreen implements IMementoScreen 
 
         this.applyFilters();
         this.setPage(1);
+    }
+
+    @Override
+    protected void initFocus(FocusHandler focusHandler) {
+        focusHandler.focus(this.contentSearchField, Component.FocusSource.MOUSE_CLICK);
     }
 
     private void categoryButtonExecute(ButtonComponent selectedButton, String category, @Nullable Runnable callback) {

@@ -32,7 +32,7 @@ public class HistoryScreen extends BaseFzmmScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         this.contentLayout = rootComponent.childById(FlowLayout.class, CONTENT_ID);
         checkNull(this.contentLayout, "flow-layout", CONTENT_ID);
 

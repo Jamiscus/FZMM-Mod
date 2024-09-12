@@ -37,6 +37,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Insets;
+import io.wispforest.owo.ui.util.FocusHandler;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -103,7 +104,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         this.headComponentEntries = new ArrayList<>();
         this.headCompoundComponentEntries = new ArrayList<>();
         this.baseSkin = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
@@ -174,6 +175,11 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
 
         this.tryLoadHeadEntries(rootComponent);
         this.updatePreviews();
+    }
+
+    @Override
+    protected void initFocus(FocusHandler focusHandler) {
+        focusHandler.focus(this.skinElements.valueField(), Component.FocusSource.MOUSE_CLICK);
     }
 
     private void updateCategory(IHeadCategory category) {
