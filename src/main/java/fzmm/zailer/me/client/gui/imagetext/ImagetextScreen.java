@@ -29,6 +29,7 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
+import io.wispforest.owo.ui.util.FocusHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.ItemStack;
@@ -73,7 +74,7 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         FzmmConfig.Imagetext config = FzmmClient.CONFIG.imagetext;
 
         // image options
@@ -213,6 +214,11 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         this.smallGuiAnimation = Animation.compose(imageLayoutAnimation, algorithmLayoutAnimationHorizontal, algorithmLayoutAnimationVertical, imageModeFixAnimation);
 
         this.setSmallGuiAnimation(this.width);
+    }
+
+    @Override
+    protected void initFocus(FocusHandler focusHandler) {
+        focusHandler.focus(this.imageElements.valueField(), Component.FocusSource.MOUSE_CLICK);
     }
 
     @SuppressWarnings("unchecked")

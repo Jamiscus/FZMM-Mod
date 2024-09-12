@@ -25,6 +25,7 @@ import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Surface;
+import io.wispforest.owo.ui.util.FocusHandler;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -56,7 +57,7 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         assert this.client != null;
         assert this.client.player != null;
 
@@ -100,6 +101,11 @@ public class EncryptBookScreen extends BaseFzmmScreen implements IMementoScreen 
 
         // other
         ButtonRow.setup(rootComponent, ButtonRow.getButtonId("faq"), true, this::faqExecute);
+    }
+
+    @Override
+    protected void initFocus(FocusHandler focusHandler) {
+        focusHandler.focus(this.messageTextArea, Component.FocusSource.MOUSE_CLICK);
     }
 
     private void updateDecryptorProfileList() {

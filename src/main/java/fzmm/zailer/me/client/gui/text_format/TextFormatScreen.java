@@ -20,6 +20,8 @@ import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.core.Component;
+import io.wispforest.owo.ui.util.FocusHandler;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.item.ItemStack;
@@ -65,7 +67,7 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         this.messagePreviewLabel = rootComponent.childById(LabelComponent.class, MESSAGE_PREVIEW_ID);
         BaseFzmmScreen.checkNull(this.messagePreviewLabel, "label", MESSAGE_PREVIEW_ID);
 
@@ -100,6 +102,11 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
         this.initialized = true;
         this.updateMessagePreview();
         this.tabCallback(this.getTab(selectedTab, ITextFormatTab.class));
+    }
+
+    @Override
+    protected void initFocus(FocusHandler focusHandler) {
+        focusHandler.focus(this.messageTextField, Component.FocusSource.MOUSE_CLICK);
     }
 
     private void tabCallback(ITextFormatTab tab) {

@@ -37,7 +37,7 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         assert this.client != null;
         assert this.client.player != null;
 

@@ -18,7 +18,7 @@ public class CopyTextScreen extends BaseFzmmScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         FlowLayout flowLayout = rootComponent.childById(FlowLayout.class, COPY_BUTTONS_LIST_ID);
         if (flowLayout == null)
             return;

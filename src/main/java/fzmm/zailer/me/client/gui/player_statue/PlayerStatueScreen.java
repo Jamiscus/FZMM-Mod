@@ -49,7 +49,7 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         PlayerEntity player = MinecraftClient.getInstance().player;
         assert player != null;
         //general

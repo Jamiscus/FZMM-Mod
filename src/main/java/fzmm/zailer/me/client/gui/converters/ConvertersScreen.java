@@ -17,7 +17,7 @@ public class ConvertersScreen extends BaseFzmmScreen {
     }
 
     @Override
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         this.setTabs(selectedTab);
         ScreenTabRow.setup(rootComponent, "tabs", selectedTab);
         for (var converterTab : ConvertersTabs.values()) {

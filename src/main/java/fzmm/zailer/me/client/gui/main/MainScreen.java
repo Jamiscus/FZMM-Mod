@@ -29,7 +29,7 @@ public class MainScreen extends BaseFzmmScreen {
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    protected void setupButtonsCallbacks(FlowLayout rootComponent) {
+    protected void setup(FlowLayout rootComponent) {
         rootComponent.childById(ButtonComponent.class, "config-button")
                 .onPress(button -> this.client.setScreen(ConfigScreen.create(FzmmClient.CONFIG, this)));
 
