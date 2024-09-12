@@ -4,14 +4,16 @@ import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
 import net.minecraft.client.texture.NativeImage;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.Optional;
 
 public class ImageUtils {
@@ -44,8 +46,19 @@ public class ImageUtils {
     }
 
     public static Optional<BufferedImage> getImageFromUrl(String urlLocation) throws IOException {
-        URL url = URI.create(urlLocation).toURL();
-        return Optional.ofNullable(ImageIO.read(url));
+        try (var httpClient = FzmmUtils.getHttpClient()) {
+            HttpGet httpGet = new HttpGet(urlLocation);
+
+            HttpResponse response = httpClient.execute(httpGet);
+            HttpEntity resEntity = response.getEntity();
+            if (resEntity != null) {
+                try (InputStream inputStream = resEntity.getContent()) {
+                    BufferedImage image = ImageIO.read(inputStream);
+                    return Optional.ofNullable(image);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     public static NativeImage toNativeImage(BufferedImage image) {
@@ -115,7 +128,7 @@ public class ImageUtils {
         }
     }
 
-    public static void removeUnusedPixels(BufferedImage skin, Graphics2D target) {
+    public static void removeUnusedPixels(Graphics2D target) {
         target.setBackground(new Color(0, 0, 0, 0));
         for (var rect : SkinPart.EMPTY_AREAS) {
             target.clearRect(rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1]);

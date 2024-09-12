@@ -82,10 +82,11 @@ public class HeadUtils {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(headSkin, "png", baos);
                 byte[] skin = baos.toByteArray();
-
                 URL url = URI.create(MINESKIN_API + "generate/upload").toURL();
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setDoOutput(true);
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
                 conn.setRequestProperty("User-Agent", FzmmClient.HTTP_USER_AGENT);
                 conn.setRequestMethod("POST");
                 if (!config.apiKey().isEmpty()) {

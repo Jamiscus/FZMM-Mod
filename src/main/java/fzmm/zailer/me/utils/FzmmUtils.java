@@ -42,7 +42,10 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.IOException;
@@ -314,8 +317,8 @@ public class FzmmUtils {
         return text;
     }
 
-    public static String getPlayerUuid(String name) throws IOException, JsonIOException {
-        try (var httpClient = HttpClients.createDefault()) {
+    public static String fetchPlayerUuid(String name) throws IOException, JsonIOException {
+        try (var httpClient = getHttpClient()) {
             HttpGet httpGet = new HttpGet("https://api.mojang.com/users/profiles/minecraft/" + name);
 
             HttpResponse response = httpClient.execute(httpGet);
@@ -462,5 +465,19 @@ public class FzmmUtils {
             client.setScreen(screen);
             SnackBarManager.getInstance().moveToScreen(screen);
         }
+    }
+
+    public static CloseableHttpClient getHttpClient() {
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(3000)
+                .setSocketTimeout(3000)
+                .build();
+
+        return HttpClients.custom()
+                .setRetryHandler(new DefaultHttpRequestRetryHandler(0, false))
+                .disableAutomaticRetries()
+                .setDefaultRequestConfig(requestConfig)
+                .setUserAgent(FzmmClient.HTTP_USER_AGENT)
+                .build();
     }
 }
