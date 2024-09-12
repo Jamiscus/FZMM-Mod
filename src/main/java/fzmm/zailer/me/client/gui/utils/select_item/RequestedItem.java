@@ -38,8 +38,13 @@ public final class RequestedItem {
     }
 
     public void execute() {
-        if (this.stack != null)
+        if (!this.required || this.stack != null) {
             this.consumer.accept(this.stack);
+        }
+    }
+
+    public void execute(@Nullable ItemStack stack) {
+        this.consumer.accept(stack);
     }
 
     public Optional<ItemStack> stack() {

@@ -8,6 +8,7 @@ import fzmm.zailer.me.utils.HeadUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class PlayerHeadSource implements IInteractiveImageLoader {
+    @Nullable
     private BufferedImage image;
     private Consumer<BufferedImage> consumer;
     private BaseFzmmScreen previousScreen;
@@ -39,7 +41,7 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
                 this::setImage,
                 List.of(Items.PLAYER_HEAD.getDefaultStack()),
                 Items.PLAYER_HEAD.getName(),
-                true
+                false
         );
         FzmmUtils.setScreen(new SelectItemScreen(this.previousScreen, requestedItem));
     }
@@ -55,26 +57,27 @@ public class PlayerHeadSource implements IInteractiveImageLoader {
     }
 
     private void setImage(ItemStack head) {
-        Optional<BufferedImage> skinOptional;
+        Optional<BufferedImage> skinOptional = Optional.empty();
 
         try {
-            skinOptional = HeadUtils.getSkin(head);
-        } catch (IOException e) {
-            skinOptional = Optional.empty();
+            if (head != null) {
+                skinOptional = HeadUtils.getSkin(head);
+            }
+        } catch (IOException ignored) {
         }
 
-        skinOptional.ifPresent(this::setImage);
+        this.setImage(skinOptional.orElse(null));
     }
 
     public void setImage(BufferedImage image) {
         if (this.image != null) {
             this.image.flush();
         }
-        this.image = image;
-        this.consumer.accept(this.image);
-
         FzmmUtils.setScreen(this.previousScreen);
         this.previousScreen = null;
+
+        this.image = image;
+        this.consumer.accept(this.image);
     }
 
 }

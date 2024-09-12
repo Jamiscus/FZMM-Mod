@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
+import fzmm.zailer.me.utils.skin.GetSkinFromCache;
 import io.wispforest.owo.Owo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.SkinTextures;
@@ -155,20 +156,15 @@ public class HeadUtils {
     }
 
     public static Optional<BufferedImage> getSkin(ItemStack stack) throws IOException {
-        Optional<SkinTextures> skinTextures = getSkinTextures(stack);
-        if (skinTextures.isEmpty()) {
+        ProfileComponent profileComponent = stack.get(DataComponentTypes.PROFILE);
+        if (profileComponent == null) {
             return Optional.empty();
         }
 
-        String textureUrl = skinTextures.get().textureUrl();
-
-        return ImageUtils.getImageFromUrl(textureUrl);
+        return new GetSkinFromCache().getSkin(profileComponent.gameProfile());
     }
 
     public static Optional<SkinTextures> getSkinTextures(ItemStack stack) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
-
         ProfileComponent profileComponent = stack.get(DataComponentTypes.PROFILE);
         if (profileComponent == null) {
             return Optional.empty();
