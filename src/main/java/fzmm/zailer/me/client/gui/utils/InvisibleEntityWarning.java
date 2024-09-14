@@ -35,7 +35,7 @@ public class InvisibleEntityWarning {
                 ));
     }
 
-    private static void addOverlay(boolean isArmorStand, boolean isInvisible, Text customEntity, String tag) {
+    public static void addOverlay(boolean isArmorStand, boolean isInvisible, Text customEntity, String tag) {
         if (!(MinecraftClient.getInstance().currentScreen instanceof BaseFzmmScreen baseFzmmScreen)) {
             FzmmClient.LOGGER.warn("[InvisibleEntityWarning] Failed to add overlay, root is not a FlowLayout");
             return;

@@ -99,23 +99,31 @@
 
                 <fzmm.styled-flow-layout direction="horizontal">
                     <children>
-
-                        <button id="faq-button">
-                            <text translate="true">fzmm.gui.button.faq</text>
-
-                            <margins>
-                                <right>3</right>
-                                <top>3</top>
-                            </margins>
+                        <button id="difficult-to-remove-entity-button">
+                            <text translate="true">fzmm.snack_bar.entityDifficultToRemove.title</text>
 
                             <sizing>
                                 <vertical method="fixed">16</vertical>
                             </sizing>
                         </button>
 
+                        <button id="faq-button">
+                            <text translate="true">fzmm.gui.button.faq</text>
+
+                            <sizing>
+                                <vertical method="fixed">16</vertical>
+                            </sizing>
+                        </button>
                     </children>
 
+                    <gap>4</gap>
+
                     <positioning type="relative">100,0</positioning>
+
+                    <padding>
+                        <right>3</right>
+                        <top>3</top>
+                    </padding>
                 </fzmm.styled-flow-layout>
             </children>
 
