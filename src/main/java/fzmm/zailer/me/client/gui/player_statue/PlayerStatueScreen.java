@@ -8,8 +8,10 @@ import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.options.HorizontalDirectionOption;
 import fzmm.zailer.me.client.gui.player_statue.tabs.IPlayerStatueTab;
 import fzmm.zailer.me.client.gui.player_statue.tabs.PlayerStatueTabs;
+import fzmm.zailer.me.client.gui.utils.InvisibleEntityWarning;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
+import fzmm.zailer.me.client.logic.player_statue.StatuePart;
 import fzmm.zailer.me.utils.FzmmWikiConstants;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.component.TextBoxComponent;
@@ -86,6 +88,10 @@ public class PlayerStatueScreen extends BaseFzmmScreen implements IMementoScreen
         ButtonRow.setup(rootComponent, ButtonRow.getButtonId("faq"), true, this::faqExecute);
         this.executeButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(EXECUTE_ID), true, this::execute);
         this.executeButton.active = this.getTab(selectedTab, IPlayerStatueTab.class).canExecute();
+
+        ButtonRow.setup(rootComponent, ButtonRow.getButtonId("difficult-to-remove-entity"), true, buttonComponent ->
+                InvisibleEntityWarning.addOverlay(true, true, Text.translatable("fzmm.snack_bar.entityDifficultToRemove.entity.playerStatue"), StatuePart.PLAYER_STATUE_TAG)
+        );
     }
 
     private void faqExecute(ButtonWidget buttonWidget) {
