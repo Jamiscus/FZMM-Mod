@@ -53,8 +53,9 @@ public abstract class ChatScreenMixin {
 
     @ModifyReturnValue(method = "normalize", at = @At(value = "RETURN"))
     private String fzmm$avoidNormalizeWithFzmmCommand(String str) {
-        if (this.fzmm$isFzmmCommand(str))
-            return this.chatField.getText();
+        if (this.fzmm$isFzmmCommand(str)) {
+            return this.chatField.getText().trim();
+        }
 
         return str;
     }
