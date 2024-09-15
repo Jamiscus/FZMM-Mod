@@ -1,0 +1,107 @@
+{
+  "paintable": true,
+  "colors": [
+    {
+      "color_hex": "#01FF70",
+      "has_alpha": true,
+      "id": "color",
+      "requested": true
+    }
+  ],
+  "steps": [
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "type": "select_color",
+      "color_id": "color"
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 0,
+        "y": 8,
+        "width": 1,
+        "height": 8
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 8,
+        "y": 0,
+        "width": 9,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 1,
+        "y": 15,
+        "width": 16,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 15,
+        "y": 1,
+        "width": 2,
+        "height": 14
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 17,
+        "y": 7,
+        "width": 7,
+        "height": 2
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 24,
+        "y": 8,
+        "width": 8,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 31,
+        "y": 9,
+        "width": 1,
+        "height": 7
+      }
+    }
+  ]
+}

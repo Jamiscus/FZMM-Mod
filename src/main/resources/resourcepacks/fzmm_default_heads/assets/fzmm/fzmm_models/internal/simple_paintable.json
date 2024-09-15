@@ -1,0 +1,67 @@
+{
+  "paintable": true,
+  "textures": [
+    {
+      "id": "paintable_texture",
+      "requested": false
+    },
+    {
+      "id":"painted_layer",
+      "requested": false
+    }
+  ],
+  "colors": [
+    {
+      "color_hex": "#FFFFFF",
+      "id": "color",
+      "requested": true
+    }
+  ],
+  "steps": [
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "type": "select_color",
+      "color_id": "color"
+    },
+    {
+      "type": "select_destination",
+      "texture_id": "painted_layer"
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "paintable_texture"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "multiply",
+      "area": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "painted_layer"
+    },
+    {
+      "type": "select_destination",
+      "texture_id": "destination_skin"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    }
+  ]
+}
