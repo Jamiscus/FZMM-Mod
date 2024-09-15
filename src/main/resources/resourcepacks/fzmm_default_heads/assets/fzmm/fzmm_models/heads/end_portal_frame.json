@@ -1,0 +1,42 @@
+{
+  "textures": [
+    {
+      "id": "end_portal_frame",
+      "path": "fzmm:textures/model_textures/end_portal_frame.png",
+      "requested": false
+    }
+  ],
+  "steps": [
+    {
+      "comment": "face",
+      "type": "copy",
+      "source": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 9,
+        "y": 9,
+        "width": 6,
+        "height": 6
+      },
+      "destination": {
+        "offset": "HEAD",
+        "hat_layer": false,
+        "x": 9,
+        "y": 1,
+        "width": 6,
+        "height": 6
+      },
+      "add_hat_layer": true
+    },
+    {
+      "type": "select_texture",
+      "texture_id": "end_portal_frame"
+    },
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    }
+  ]
+}

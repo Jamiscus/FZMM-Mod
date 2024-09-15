@@ -7,7 +7,7 @@
       "textures": [
         {
           "id": "paintable_texture",
-          "path": "fzmm:textures/model_textures/colored_hat.png",
+          "path": "fzmm:textures/model_textures/headband_2.png",
           "requested": false
         },
         {
@@ -17,7 +17,7 @@
       ],
       "colors": [
         {
-          "color_hex": "#8A4BB4",
+          "color_hex": "#D9ABEB",
           "id": "color",
           "requested": true
         }
