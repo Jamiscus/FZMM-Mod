@@ -1,16 +1,15 @@
 # FZMM-Mod
 
 
-<div align='center'>
+<div style="margin: 0 auto; width: 50%;">
 
-<img src="src/main/resources/assets/fzmm/icon.png" alt="Mod icon" width="256">
+<img src="src/main/resources/assets/fzmm/icon.png" alt="FZMM icon, a green book in the center, some green decorations, a green border, and a dark gray background" width="256">
 
 </div>
 
 [![Discord invite](https://img.shields.io/badge/Discord-5865F2?logo=discord&logoColor=white&style=for-the-badge&logo=appveyor)](https://discord.gg/mwBRwXmE63)
 [![Github Downloads](https://img.shields.io/github/downloads/Zailer43/FZMM-Mod/total?color=red&logo=github&style=for-the-badge)](https://github.com/Zailer43/FZMM-Mod/actions)
 [![Modrinth Downloads](https://img.shields.io/modrinth/dt/fzmm?label=Modrinth&logo=modrinth&style=for-the-badge)](https://modrinth.com/mod/fzmm/)
-[![CurseForge Downloads](https://cf.way2muchnoise.eu/full_787646_downloads.svg?badge_style=for_the_badge)](https://www.curseforge.com/minecraft/mc-mods/fzmm)
 
 A fabric mod that is mainly for editing or creating NBT of items in creative, but it also has a few utilities.
 
@@ -24,12 +23,15 @@ A fabric mod that is mainly for editing or creating NBT of items in creative, bu
 ## Features
 
 ### Head generator
-Easily customize your character's head in seconds and instantly apply the new skin. The head generator allows you to add accessories like glasses, hats, masks, beards, and more. You can also transform your skin into a plushie or mini version, or create a pixel art representation of your skin for a book cover.
+Easily customize your character's head in seconds and instantly apply the new skin.
+The head generator allows you to add accessories like glasses, hats, masks, beards, and more.
+**You can also transform your skin into a plushie** (aka: mini, figurine, etc.),
+create a pixel art representation of your skin for a book cover, etc.
 
 The default resource pack currently includes:
 
-- 222 texture heads
-- 44 model heads
+- 230 texture heads
+- 50 model heads
 
 For instructions on how to add your own custom heads to the head generator, please refer to the [Head Generator Wiki](docs/en/wiki/head_generator/README.md)
 
@@ -70,25 +72,9 @@ Algorithms:
 * Characters
 * Braille
 
-<details>
-<summary>Images</summary>
+<img src="docs/images/imagetext_preview.png" alt="Imagetext gui" width="800">
 
-| Lore             | Book page           | Book tooltip           |
-| ---------------- | ------------------- | ---------------------- |
-| <img src="docs/images/imagetext_lore.png" alt="Imagetext lore" width="200"> | <img src="docs/images/imagetext_book_page.png" alt="Imagetext book page" width="200"> | <img src="docs/images/imagetext_book_tooltip.png" alt="Imagetext book tooltip" width="200"> |
-| Hologram         | Sign                | Text display                       |
-| <img src="docs/images/imagetext_hologram.png" alt="Imagetext hologram" width="200"> | <img src="docs/images/imagetext_sign.png" alt="Imagetext sign" width="200"> | <img src="docs/images/imagetext_text_display.png" alt="Imagetext text display" width="200">                       |
-
-#### Braille
-
-<img src="docs/images/imagetext_braille.png" alt="Imagetext braille" width="200">
-
-
-#### GUI
-
-<img src="docs/images/imagetext_gui.png" alt="Imagetext gui" width="800">
-
-</details>
+<img src="docs/images/imagetext_preview_braille.png" alt="Imagetext braille" width="800">
 
 ### Text format
 Formatting of texts with colors, symbols, etc.
@@ -131,14 +117,10 @@ It also allows 128x128 skins.
 
 #### Armor stands
 
-<img src="docs/images/player_statue_armor_stands.png" alt="Player statue armor stands" width="200">
+<img src="docs/images/player_statue_armor_stands.png" alt="Player statue armor stands" width="800">
 
 <details>
 <summary>Images</summary>
-
-| Skin 64x64 | Skin 128x128 |
-|------------|--------------|
-| <img src="docs/images/player_statue_64.png" alt="Player statue skin 64x64" width="200"> | <img src="docs/images/player_statue_128.png" alt="Player statue skin 128x128" width="200"> |
 
 #### GUI
 
@@ -147,7 +129,7 @@ It also allows 128x128 skins.
 </details>
 
 ### Head gallery
-A gallery of 50,000+ heads provided by [Minecraft heads](https://minecraft-heads.com)
+A gallery of 50,000+ heads provided by [Minecraft-heads](https://minecraft-heads.com)
 
 <img src="docs/images/head_gallery.png" alt="Head gallery" width="800">
 
@@ -194,7 +176,7 @@ More info at: [Encryptbook wiki](docs/en/wiki/encrypt_book/README.md)
 
 #### Operator utilities
 
-An improved version of the one provided by Minecraft 1.19.3
+An improved version of the one provided by Minecraft 1.19.3+
 It includes:
 
 - Access only with creative, **op is not required**
@@ -205,12 +187,12 @@ It includes:
 - Invisible glow item frame
 - Special name tags with the description of use for each one
 - Unobtainable paints (1.19+)
-- Petrified oak slab (removed from creative inventory in 1.19.3)
+- Ender dragon and wither spawn eggs
 
 
 <img src="docs/images/operator_utilities.png" alt="Unobtainable items" width="300">
 
-Note: the items op tab must be enabled in the vanilla configuration in order to view it.
+**Note**: the items op tab must be enabled in the vanilla configuration in order to view it.
 
 #### Useful block states
 
