@@ -82,6 +82,7 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
                             .build();
                     SnackBarManager.getInstance().add(toast);
                 });
+                return;
             }
         }
 
