@@ -11,6 +11,6 @@ public class FzmmWikiConstants {
     public static final String PLAYER_STATUE_WIKI_LINK = BASE_LINK + "player_statue/" + PLAYER_STATUE_LAST_CHANGE_VERSION + "_player_statue.md";
 
 
-    private static final String ENCRYPT_BOOK_LAST_CHANGE_VERSION = "0.1.2";
+    private static final String ENCRYPT_BOOK_LAST_CHANGE_VERSION = "0.2.14";
     public static final String ENCRYPT_BOOK_WIKI_LINK = BASE_LINK + "encrypt_book/" + ENCRYPT_BOOK_LAST_CHANGE_VERSION + "_encrypt_book.md";
 }

@@ -5,6 +5,9 @@ Encryptbook is based on the concept of encrypting text with translations and bei
 # Versions
 Versions are only added when there was a change, if the version you are using does not appear it means that there were no changes, so you must go to the most recent one.
 
+## [0.2.14](./0.2.14_encrypt_book.md)
+Encryptbook gui redesign
+
 ## [0.1.2](./0.1.2_encrypt_book.md)
 Wiki added
 
