@@ -1,0 +1,122 @@
+{
+  "paintable": true,
+  "colors": [
+    {
+      "color_hex": "#AAFF002a",
+      "has_alpha": true,
+      "id": "right_color",
+      "requested": true
+    },
+    {
+      "color_hex": "#AA2A00FF",
+      "has_alpha": true,
+      "id": "left_color",
+      "requested": true
+    }
+  ],
+  "offsets": [
+    {
+      "id": "y_offset",
+      "value": 4,
+      "min_value": 0,
+      "max_value": 5,
+      "axis": "Y",
+      "requested": true,
+      "enabled": false
+    }
+  ],
+  "steps": [
+    {
+      "type": "copy",
+      "source": {
+        "offset": "ALL"
+      }
+    },
+    {
+      "type": "select_color",
+      "color_id": "right_color"
+    },
+    {
+      "type": "toggle_offset",
+      "offset_id": "y_offset",
+      "enabled": true
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 3,
+        "y": 9,
+        "width": 1,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 4,
+        "y": 8,
+        "width": 8,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 7,
+        "y": 9,
+        "width": 4,
+        "height": 1
+      }
+    },
+    {
+      "comment": "inverted copy of right_color",
+      "type": "select_color",
+      "color_id": "left_color"
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 20,
+        "y": 9,
+        "width": 1,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 12,
+        "y": 8,
+        "width": 8,
+        "height": 1
+      }
+    },
+    {
+      "type": "fill_color",
+      "algorithm": "solid",
+      "area": {
+        "offset": "HEAD",
+        "hat_layer": true,
+        "x": 13,
+        "y": 9,
+        "width": 4,
+        "height": 1
+      }
+    }
+  ]
+}
