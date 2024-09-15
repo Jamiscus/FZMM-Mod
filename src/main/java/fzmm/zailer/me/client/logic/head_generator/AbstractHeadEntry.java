@@ -26,13 +26,14 @@ public abstract class AbstractHeadEntry {
         String fileName = folders.length != 0 ? folders[folders.length - 1] : path;
 
         String displayName = fileName.substring(0, 1).toUpperCase() + fileName.substring(1);
+        displayName = displayName.replaceAll("_", " ");
 
-        // If the fileName ends with a number and not have space before it, add a space before it
-        if (fileName.matches(".*[0-9]+$") && !fileName.matches(".* [0-9]+$")){
+        // If the displayName ends with a number and not have space before it, add a space before it
+        if (displayName.matches(".*[0-9]+$") && !displayName.matches(".* [0-9]+$")){
             displayName = displayName.replaceFirst("([0-9]+$)", " $1");
         }
 
-        return displayName.replaceAll("_", " ");
+        return displayName;
     }
 
     public Text getDisplayName() {
