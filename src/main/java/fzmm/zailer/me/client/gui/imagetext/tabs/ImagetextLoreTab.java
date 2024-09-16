@@ -16,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
+import java.util.List;
+
 public class ImagetextLoreTab implements IImagetextTab {
     private static final String LORE_MODE_ID = "loreMode";
     private ContextMenuButton loreModeButton;
@@ -29,7 +31,7 @@ public class ImagetextLoreTab implements IImagetextTab {
     @Override
     public void execute(ImagetextLogic logic) {
         ItemStack stack = this.getStack(this.loreMode);
-        Text imagetext = logic.getText();
+        List<Text> imagetext = logic.getWrappedText();
 
         DisplayBuilder display = DisplayBuilder.of(stack);
         display.addLore(imagetext).get();

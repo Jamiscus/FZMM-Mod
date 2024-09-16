@@ -96,29 +96,34 @@ public class FzmmUtils {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        long sizeLength = getLengthInBytes(stack) + getInventorySizeInBytes();
-        if (sizeLength > 1950000) {
-            snackBarManager.add(BaseSnackBarComponent.builder(SnackBarManager.GIVE_ID)
-                    .title(Text.translatable("fzmm.giveItem.error"))
-                    .details(Text.translatable("fzmm.giveItem.exceedLimit",
-                            getLengthInKB(sizeLength),
-                            getLengthInKB(2000000L)
-                    ))
-                    .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
-                    .keepOnLimit()
-                    .button(snackBar -> Components.button(Text.translatable("fzmm.gui.title.configs.icon"),
-                            buttonComponent -> {
-                                client.setScreen(ConfigScreen.create(FzmmClient.CONFIG, client.currentScreen));
-                                snackBar.close();
-                            }))
-                    .highTimer()
-                    .startTimer()
-                    .closeButton()
-                    .expandDetails()
-                    .build()
-            );
+        if (FzmmClient.CONFIG.general.giveItemSizeLimit()) {
+            long stackSize = getLengthInBytes(stack);
+            long inventorySize = getInventorySizeInBytes();
+            if ((stackSize + inventorySize) > 8000000) {
+                snackBarManager.add(BaseSnackBarComponent.builder(SnackBarManager.GIVE_ID)
+                        .title(Text.translatable("fzmm.giveItem.error"))
+                        .details(Text.translatable("fzmm.giveItem.exceedLimit",
+                                getLengthInKB(stackSize + inventorySize),
+                                getLengthInKB(8000000L)
+                        ))
+                        .backgroundColor(FzmmStyles.ALERT_ERROR_COLOR)
+                        .keepOnLimit()
+                        .button(snackBar -> Components.button(Text.translatable("fzmm.gui.title.configs.icon"),
+                                buttonComponent -> {
+                                    client.setScreen(ConfigScreen.create(FzmmClient.CONFIG, client.currentScreen));
+                                    snackBar.close();
+                                }))
+                        .highTimer()
+                        .startTimer()
+                        .closeButton()
+                        .expandDetails()
+                        .build()
+                );
 
-            FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes", sizeLength);
+                FzmmClient.LOGGER.warn("[FzmmUtils] An attempt was made to give an item with size of {} bytes (with {} bytes already in inventory)",
+                        stackSize, inventorySize);
+                return;
+            }
         }
 
         if (Items.PLAYER_HEAD == stack.getItem())

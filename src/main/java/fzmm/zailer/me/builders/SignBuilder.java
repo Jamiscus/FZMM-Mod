@@ -56,8 +56,8 @@ public class SignBuilder {
         return this;
     }
 
-    public SignBuilder addFrontLine(Text nbtString, int expectedWidth) {
-        return this.addLine(this.frontTextList, nbtString, expectedWidth);
+    public SignBuilder addFrontLine(Text text, int expectedWidth) {
+        return this.addLine(this.frontTextList, text, expectedWidth);
     }
 
     public SignBuilder addBackLine(Text text, int expectedWidth) {

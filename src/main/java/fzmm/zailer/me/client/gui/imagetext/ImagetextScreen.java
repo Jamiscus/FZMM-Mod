@@ -339,8 +339,9 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
 
         this.generateImagetext(image.get(), isExecute);
         Text text = this.imagetextLogic.getText();
+        List<Text> wrappedText = this.imagetextLogic.getWrappedText();
 
-        ItemStack placeholderStack = DisplayBuilder.builder().addLore(text).get();
+        ItemStack placeholderStack = DisplayBuilder.builder().addLore(wrappedText).get();
         String nbtSize = FzmmUtils.getLengthInKB(FzmmUtils.getLengthInBytes(placeholderStack));
         String textSize = FzmmUtils.getLengthInKB(Text.Serialization.toJsonString(text).length());
 
@@ -373,15 +374,6 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         if (showResolution) {
             this.imagetextLogic.addResolution();
         }
-
-        Text text = this.imagetextLogic.getText();
-
-        ItemStack placeholderStack = DisplayBuilder.builder().addLore(this.imagetextLogic.getText()).get();
-        String nbtSize = FzmmUtils.getLengthInKB(FzmmUtils.getLengthInBytes(placeholderStack));
-        String textSize = FzmmUtils.getLengthInKB(Text.Serialization.toJsonString(text).length());
-
-        this.previewLabel.text(text);
-        this.previewLabel.tooltip(Text.translatable("fzmm.gui.imagetext.label.imagetextSize", nbtSize, textSize));
     }
 
     private void updateAspectRatio(BufferedImage image) {

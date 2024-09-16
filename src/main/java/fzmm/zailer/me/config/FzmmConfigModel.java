@@ -62,7 +62,7 @@ public class FzmmConfigModel {
         // no background, and it lacks application in some parts like in the dropdowns,
         // besides it looks inconsistent because the buttons have white text
 //        public boolean darkMode = true;
-        public boolean oldBackground = false;
+//        public boolean oldBackground = false;
         public boolean persistentScrollbar = true;
     }
 

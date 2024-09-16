@@ -164,6 +164,16 @@ public class DisplayBuilder {
         return this;
     }
 
+    public DisplayBuilder addLore(List<Text> loreList) {
+        NbtList oldLore = this.getLore();
+
+        for (var lore : loreList) {
+            oldLore.add(FzmmUtils.toNbtString(lore, true));
+        }
+        this.setLore(oldLore);
+        return this;
+    }
+
     public DisplayBuilder addLore(Text lore, int messageColor) {
         return this.addLore(lore.copy().setStyle(Style.EMPTY.withColor(messageColor)));
     }

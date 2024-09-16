@@ -1,6 +1,5 @@
 package fzmm.zailer.me.client.gui.components.style.component;
 
-import fzmm.zailer.me.client.FzmmClient;
 import io.wispforest.owo.ui.component.LabelComponent;
 import net.minecraft.text.Text;
 
@@ -10,10 +9,10 @@ public class StyledLabelComponent extends LabelComponent {
         super(text);
 
         // improves text readability with translucent background
-        boolean oldBackground = FzmmClient.CONFIG.guiStyle.oldBackground();
-        if (!oldBackground) {
-            this.shadow(true);
-        }
+//        boolean oldBackground = FzmmClient.CONFIG.guiStyle.oldBackground();
+//        if (!oldBackground) {
+//            this.shadow(true);
+//        }
     }
 
     private Text applyStyle(Text text) {

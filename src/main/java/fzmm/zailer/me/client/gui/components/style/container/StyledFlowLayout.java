@@ -1,6 +1,5 @@
 package fzmm.zailer.me.client.gui.components.style.container;
 
-import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.style.StyledContainers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.OwoUIDrawContext;
@@ -32,8 +31,9 @@ public class StyledFlowLayout extends FlowLayout {
     }
 
     public Surface styledBackground() {
-        boolean useOldVanillaBackground = FzmmClient.CONFIG.guiStyle.oldBackground();
-        return useOldVanillaBackground ? Surface.VANILLA_TRANSLUCENT : Surface.OPTIONS_BACKGROUND;
+//        boolean useOldVanillaBackground = FzmmClient.CONFIG.guiStyle.oldBackground();
+//        return useOldVanillaBackground ? Surface.VANILLA_TRANSLUCENT : Surface.OPTIONS_BACKGROUND;
+        return Surface.VANILLA_TRANSLUCENT;
     }
 
     /**
