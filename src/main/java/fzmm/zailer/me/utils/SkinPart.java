@@ -2,6 +2,7 @@ package fzmm.zailer.me.utils;
 
 import com.google.common.collect.ImmutableList;
 import fzmm.zailer.me.utils.position.PosI;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -205,7 +206,7 @@ public final class SkinPart {
             // [x][x][x][x]
             byte[][] result = new byte[2][4];
 
-            byte rightEmptyAreaSize = (byte) Math.clamp(width - maxWidth + emptyAreaSize, 0, emptyAreaSize);
+            byte rightEmptyAreaSize = (byte) MathHelper.clamp(width - maxWidth + emptyAreaSize, 0, emptyAreaSize);
 
             // [ ][x][x][ ]
             // [ ][ ][ ][ ]
