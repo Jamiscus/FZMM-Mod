@@ -397,7 +397,7 @@ public class HeadResourcesLoader implements SynchronousResourceReloader, Identif
                             .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(e.getMessage())))
                     );
 
-            MinecraftClient.getInstance().player.sendMessage(message);
+            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(message);
         }
     }
 }

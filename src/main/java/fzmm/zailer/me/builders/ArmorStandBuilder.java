@@ -73,7 +73,7 @@ public class ArmorStandBuilder {
         NbtList handItem = new NbtList();
 
         DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
-        NbtElement itemTag = stack.encode(registryManager);
+        NbtElement itemTag = stack.toNbt(registryManager);
 
         handItem.add(itemTag);
 

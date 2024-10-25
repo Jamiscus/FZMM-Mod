@@ -1,11 +1,14 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.8-SNAPSHOT'
     id 'maven-publish'
 }
 
-archivesBaseName = "${project.archives_base_name}-mc${project.minecraft_version}"
 version = project.mod_version
 group = project.maven_group
+
+base {
+    archivesName = "${project.archives_base_name}-mc${project.minecraft_version}"
+}
 
 repositories {
     maven {
@@ -19,11 +22,16 @@ repositories {
 
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/fzmm.accesswidener")
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
+    // Dependencies
     // Fabric API
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
@@ -50,12 +58,12 @@ dependencies {
     // Mod Menu
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-    // Symbol chat
-    modImplementation "maven.modrinth:symbol-chat:${project.symbol_chat_version}"
-
     // PlacerholderAPI
     modImplementation(include("maven.modrinth:placeholder-api:${project.placeholder_api_version}"))
 
+    // Optional dependencies
+    // Symbol chat
+    modImplementation "maven.modrinth:symbol-chat:${project.symbol_chat_version}"
 }
 
 processResources {
@@ -66,16 +74,20 @@ processResources {
     }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
+
 java {
+    withSourcesJar()
+
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
-
-    withSourcesJar()
 }
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archives_base_name}"}
+        rename { "${it}_${project.base.archivesName.get()}"}
     }
 }
 
@@ -89,8 +101,4 @@ publishing {
     repositories {
 
     }
-}
-
-loom {
-    accessWidenerPath = file("src/main/resources/fzmm.accesswidener")
 }

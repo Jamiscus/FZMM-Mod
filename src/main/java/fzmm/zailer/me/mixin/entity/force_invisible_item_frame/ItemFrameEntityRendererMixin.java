@@ -1,30 +1,25 @@
 package fzmm.zailer.me.mixin.entity.force_invisible_item_frame;
 
 import fzmm.zailer.me.client.FzmmClient;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.entity.state.ItemFrameEntityRenderState;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemFrameEntityRenderer.class)
 public class ItemFrameEntityRendererMixin<T extends ItemFrameEntity> {
 
-    @Unique
-    private boolean fzmm$hasStack;
-
-    @Inject(method = "render*", at = @At("HEAD"))
-    private void fzmm$render(T itemFrameEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        this.fzmm$hasStack = itemFrameEntity.getHeldItemStack().isEmpty();
+    @Inject(
+            method = "updateRenderState(Lnet/minecraft/entity/decoration/ItemFrameEntity;Lnet/minecraft/client/render/entity/state/ItemFrameEntityRenderState;F)V",
+            at = @At("RETURN")
+    )
+    private void fzmm$disableItemFrameFrameRendering(T itemFrameEntity, ItemFrameEntityRenderState state, float f, CallbackInfo ci) {
+        if ((FzmmClient.CONFIG.general.forceInvisibleItemFrame() && !state.contents.isEmpty())) {
+            state.invisible = true;
+        }
     }
 
-    @ModifyVariable(method = "render*", at = @At("STORE"))
-    private boolean fzmm$disableItemFrameFrameRendering(boolean bl) {
-        return (FzmmClient.CONFIG.general.forceInvisibleItemFrame() && !this.fzmm$hasStack) || bl;
-    }
 }

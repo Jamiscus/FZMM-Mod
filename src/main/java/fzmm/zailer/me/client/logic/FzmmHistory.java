@@ -50,7 +50,7 @@ public class FzmmHistory {
         NbtCompound stackCompound;
         try {
             // May throw an exception if the codec is invalid
-            stackCompound = (NbtCompound) stack.encodeAllowEmpty(FzmmUtils.getRegistryManager());
+            stackCompound = (NbtCompound) stack.toNbtAllowEmpty(FzmmUtils.getRegistryManager());
         } catch (Exception ignored) {
             return;
         }

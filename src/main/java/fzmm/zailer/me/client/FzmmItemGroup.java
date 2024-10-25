@@ -8,6 +8,7 @@ import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.DataComponentTypes;
@@ -30,6 +31,7 @@ import net.minecraft.village.raid.Raid;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -60,10 +62,11 @@ public class FzmmItemGroup {
             addItemFrames(newEntries);
             addNameTags(newEntries);
             addCrossbows(newEntries);
-            try {
-                newEntries.add(Raid.getOminousBanner(registryManager.getWrapperOrThrow(RegistryKeys.BANNER_PATTERN)));
-            } catch (Exception e) {
-                FzmmClient.LOGGER.warn("[FzmmItemGroup] Failed to add OminousBanner", e);
+            Optional<Registry<BannerPattern>> patternRegistry = registryManager.getOptional(RegistryKeys.BANNER_PATTERN);
+            if (patternRegistry.isPresent()) {
+                newEntries.add(Raid.createOminousBanner(patternRegistry.get()));
+            } else {
+                FzmmClient.LOGGER.warn("[FzmmItemGroup] Failed to add OminousBanner");
             }
 
             ItemStack elytra = new ItemStack(Items.ELYTRA);
@@ -355,7 +358,7 @@ public class FzmmItemGroup {
     }
 
     private static ItemPredicate itemPredicate(TagKey<Item> tag) {
-        return ItemPredicate.Builder.create().tag(tag).build();
+        return ItemPredicate.Builder.create().tag(Registries.ITEM, tag).build();
     }
 
     private static void addLootChest(ItemGroup.Entries entries, Item item, List<RegistryKey<LootTable>> lootTableList,

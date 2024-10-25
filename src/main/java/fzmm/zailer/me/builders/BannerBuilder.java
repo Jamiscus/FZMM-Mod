@@ -9,14 +9,12 @@ import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BannerPatternsComponent;
 import net.minecraft.item.*;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.*;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,13 +66,10 @@ public class BannerBuilder {
 
         stack.apply(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT, component -> {
             List<BannerPatternsComponent.Layer> layers = new ArrayList<>(this.layers);
-            DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
 
-            registryManager.get(RegistryKeys.BANNER_PATTERN).getEntry(BannerPatterns.BASE).ifPresent(entry -> {
-                if (!layers.isEmpty() && layers.get(0).pattern() == entry) {
-                    layers.remove(0);
-                }
-            });
+            if (!layers.isEmpty() && layers.get(0).pattern() == BannerPatterns.BASE) {
+                layers.remove(0);
+            }
 
             return new BannerPatternsComponent(layers);
         });
@@ -98,10 +93,18 @@ public class BannerBuilder {
 
     public BannerBuilder addLayer(DyeColor color, RegistryKey<BannerPattern> patternRegistry) {
         DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
-        Optional<RegistryEntry.Reference<BannerPattern>> pattern = registryManager.get(RegistryKeys.BANNER_PATTERN).getEntry(patternRegistry);
+        Optional<Registry<BannerPattern>> bannerPatternRegistry = registryManager.getOptional(RegistryKeys.BANNER_PATTERN);
+
+        if (bannerPatternRegistry.isEmpty()) {
+            FzmmClient.LOGGER.error("[Banner builder] No banner registry found");
+            return this;
+        }
+
+        Identifier patternId = patternRegistry.getValue();
+        Optional<RegistryEntry.Reference<BannerPattern>> pattern = bannerPatternRegistry.get().getEntry(patternId);
 
         if (pattern.isEmpty()) {
-            FzmmClient.LOGGER.error("[Banner builder] No banner pattern found '{}'", patternRegistry.getValue());
+            FzmmClient.LOGGER.error("[Banner builder] No banner pattern found '{}'", patternId);
             return this;
         }
 

@@ -1,20 +1,16 @@
 package fzmm.zailer.me.client.entity.custom_skin;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.render.entity.model.ModelWithHead;
-import net.minecraft.client.render.entity.model.SinglePartEntityModel;
-import net.minecraft.client.util.math.MatrixStack;
 
-public class CustomHeadEntityModel extends SinglePartEntityModel<CustomHeadEntity> implements ModelWithHead {
+public class CustomHeadEntityModel extends EntityModel<CustomHeadEntityRenderState> implements ModelWithHead {
 
     private final ModelPart head;
 
     public CustomHeadEntityModel(ModelPart root) {
-        super(RenderLayer::getEntityTranslucent);
+        super(root);
         this.head = root.getChild(EntityModelPartNames.HEAD);
         ModelPart hat = this.head.getChild(EntityModelPartNames.HAT);
         hat.visible = true;
@@ -36,19 +32,10 @@ public class CustomHeadEntityModel extends SinglePartEntityModel<CustomHeadEntit
     }
 
     @Override
-    public void setAngles(CustomHeadEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-        this.head.pitch = headPitch * 0.017453292F;
-        this.head.yaw = headYaw * 0.017453292F;
-    }
-
-    @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, int color) {
-        ImmutableList.of(this.head).forEach((modelRenderer) -> modelRenderer.render(matrices, vertices, light, overlay, color));
-    }
-
-    @Override
-    public ModelPart getPart() {
-        return this.head;
+    public void setAngles(CustomHeadEntityRenderState state) {
+        super.setAngles(state);
+        this.head.pitch = state.pitch * (float) (Math.PI / 180.0);
+        this.head.yaw = state.yawDegrees * (float) (Math.PI / 180.0);
     }
 
     @Override

@@ -38,6 +38,8 @@ import net.minecraft.inventory.ContainerLock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
+import net.minecraft.predicate.ComponentPredicate;
+import net.minecraft.predicate.item.ItemPredicate;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -277,9 +279,9 @@ public class FzmmCommand {
 
         fzmmCommand.then(ClientCommandManager.literal("lock")
                 .executes(ctx -> sendHelpMessage("commands.fzmm.lock.help", BASE_COMMAND + " lock <key>"))
-                .then(ClientCommandManager.argument("key", StringArgumentType.greedyString()).executes(ctx -> {
+                .then(ClientCommandManager.argument("key", TextArgumentType.text(registryAccess)).executes(ctx -> {
 
-                    String key = ctx.getArgument("key", String.class);
+                    Text key = ctx.getArgument("key", Text.class);
                     lockContainer(key);
                     return 1;
 
@@ -321,9 +323,7 @@ public class FzmmCommand {
         Text translation = Text.translatable("commands.fzmm.help.format", infoTranslation, syntaxText)
                 .setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR));
 
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        assert player != null;
-        player.sendMessage(translation);
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(translation);
         return 1;
     }
 
@@ -459,7 +459,7 @@ public class FzmmCommand {
         DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
 
         ComponentChanges components = stack.getComponentChanges();
-        if (components.isEmpty() || !(stack.encode(registryManager) instanceof NbtCompound nbt) ||
+        if (components.isEmpty() || !(stack.toNbt(registryManager) instanceof NbtCompound nbt) ||
                 !nbt.contains(TagsConstant.ENCODE_STACK_COMPONENTS)) {
 
             ctx.getSource().sendError(Text.translatable("commands.fzmm.item.withoutNbt"));
@@ -618,15 +618,23 @@ public class FzmmCommand {
     }
 
 
-    private static void lockContainer(String key) {
+    private static void lockContainer(Text key) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
         ItemStack lockStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
 
-        containerStack.apply(DataComponentTypes.LOCK, ContainerLock.EMPTY, component -> new ContainerLock(key));
+        containerStack.apply(DataComponentTypes.LOCK, ContainerLock.EMPTY, component -> {
+            ItemPredicate predicate = ItemPredicate.Builder.create()
+                    .component(ComponentPredicate.builder()
+                            .add(DataComponentTypes.CUSTOM_NAME, key)
+                            .build())
+                    .build();
 
-        lockStack.apply(DataComponentTypes.CUSTOM_NAME, Text.empty(), component -> Text.literal(key));
+            return new ContainerLock(predicate);
+        });
+
+        lockStack.apply(DataComponentTypes.CUSTOM_NAME, Text.empty(), component -> key.copy());
 
         FzmmUtils.giveItem(containerStack);
         assert client.interactionManager != null;

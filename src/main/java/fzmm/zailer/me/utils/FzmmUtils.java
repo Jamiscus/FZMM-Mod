@@ -296,7 +296,7 @@ public class FzmmUtils {
 
         try {
             DynamicRegistryManager registryManager = getRegistryManager();
-            NbtIo.write(stack.encode(registryManager), byteCountDataOutput);
+            NbtIo.write(stack.toNbt(registryManager), byteCountDataOutput);
         } catch (Exception ignored) {
             return 0;
         }
@@ -334,7 +334,7 @@ public class FzmmUtils {
     }
 
     public static Item getItem(String value) {
-        return Registries.ITEM.getOrEmpty(Identifier.of(value)).orElse(Items.STONE);
+        return Registries.ITEM.getOptionalValue(Identifier.of(value)).orElse(Items.STONE);
     }
 
     public static boolean isAllowedToGive() {

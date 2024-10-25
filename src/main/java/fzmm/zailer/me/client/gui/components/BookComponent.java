@@ -9,6 +9,7 @@ import net.minecraft.client.font.TextHandler;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.client.input.CursorMovement;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -40,7 +41,7 @@ public class BookComponent extends TextAreaComponent {
     @Override
     public void drawBox(DrawContext context, int x, int y, int width, int height) {
         Insets margins = this.margins().get();
-        context.drawTexture(BookScreen.BOOK_TEXTURE, this.x() - margins.left(), this.y() - margins.top(), 0, 0, BookScreen.WIDTH, BookScreen.HEIGHT);
+        context.drawTexture(RenderLayer::getGuiTextured, BookScreen.BOOK_TEXTURE, this.x() - margins.left(), this.y() - margins.top(), 0, 0, BookScreen.WIDTH, BookScreen.HEIGHT, 256, 256);
     }
 
     @Override

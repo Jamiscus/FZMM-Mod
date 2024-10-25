@@ -11,7 +11,6 @@ import org.apache.http.client.methods.HttpGet;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -22,14 +21,7 @@ public class ImageUtils {
         int width = nativeImage.getWidth();
         int height = nativeImage.getHeight();
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int color = nativeImage.getColor(x, y);//ABGR
-
-                bufferedImage.setRGB(x, y, ((color >> 16) & 0xFF) | ((color & 0xFF) << 16) | (color & 0xFF00FF00));//ARGB
-            }
-        }
+        bufferedImage.getRaster().setDataElements(0, 0, width, height, nativeImage.copyPixelsArgb());
 
         return bufferedImage;
     }
@@ -62,24 +54,10 @@ public class ImageUtils {
     }
 
     public static NativeImage toNativeImage(BufferedImage image) {
-
-        // """NativeImage.Format.RGBA""" = ABGR
         NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, image.getWidth(), image.getHeight(), false);
-        ColorModel colorModel = image.getColorModel();
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
-
-                // avoid using image.getRGB(x, y) because it will result in packing
-                // in ARGB format, and then it would have to unpack it to repack
-                // it in ABGR format. By avoiding this, it can directly pack in ABGR format
-                Object elements = image.getRaster().getDataElements(x, y, null);
-
-                int abgr = (colorModel.getAlpha(elements) << 24) |
-                        (colorModel.getBlue(elements) << 16) |
-                        (colorModel.getGreen(elements) << 8) |
-                        colorModel.getRed(elements);
-
-                nativeImage.setColor(x, y, abgr);
+                nativeImage.setColorArgb(x, y, image.getRGB(x, y));
             }
         }
         return nativeImage;

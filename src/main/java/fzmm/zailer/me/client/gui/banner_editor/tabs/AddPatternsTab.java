@@ -16,8 +16,8 @@ import net.minecraft.block.entity.BannerPatterns;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.DyeColor;
 
 import java.util.ArrayList;
@@ -45,37 +45,40 @@ public class AddPatternsTab implements IBannerEditorTab {
         List<Component> bannerList = new ArrayList<>();
 
         DynamicRegistryManager registryManager = FzmmUtils.getRegistryManager();
-        Registry<BannerPattern> bannerRegistry = registryManager.get(RegistryKeys.BANNER_PATTERN);
-        Optional<RegistryEntry.Reference<BannerPattern>> basePatternOptional = bannerRegistry.getEntry(BannerPatterns.BASE);
-        if (basePatternOptional.isEmpty()) {
-            FzmmClient.LOGGER.error("[AddPatternsTab] base pattern is null");
+        Optional<Registry<BannerPattern>> bannerRegistry = registryManager.getOptional(RegistryKeys.BANNER_PATTERN);
+        if (bannerRegistry.isEmpty()) {
+            FzmmClient.LOGGER.error("[AddPatternsTab] No banner registry found");
             return;
         }
-        RegistryEntry.Reference<BannerPattern> basePattern = basePatternOptional.get();
 
-        for (var pattern : bannerRegistry.streamEntries().toList()) {
-            if (basePattern == pattern)
-                continue;
+        RegistryKey<BannerPattern> basePattern = BannerPatterns.BASE;
 
-            ItemStack banner = currentBanner.copy()
-                    .addLayer(color, pattern)
-                    .get();
+        for (var registry : bannerRegistry.stream().toList()) {
+            for (var pattern : registry.streamEntries().toList()) {
+                if (basePattern == pattern.registryKey()) {
+                    continue;
+                }
 
-            Component itemComponent = Components.item(banner)
-                    .sizing(Sizing.fixed(32), Sizing.fixed(32));
+                ItemStack banner = currentBanner.copy()
+                        .addLayer(color, pattern)
+                        .get();
 
-            itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
-                UISounds.playButtonSound();
-                parent.addUndo(currentBanner);
+                Component itemComponent = Components.item(banner)
+                        .sizing(Sizing.fixed(32), Sizing.fixed(32));
 
-                currentBanner.addLayer(color, pattern);
+                itemComponent.mouseDown().subscribe((mouseX, mouseY, button) -> {
+                    UISounds.playButtonSound();
+                    parent.addUndo(currentBanner);
 
-                parent.updatePreview(currentBanner);
-                return true;
-            });
-            itemComponent.cursorStyle(CursorStyle.HAND);
+                    currentBanner.addLayer(color, pattern);
 
-            bannerList.add(itemComponent);
+                    parent.updatePreview(currentBanner);
+                    return true;
+                });
+                itemComponent.cursorStyle(CursorStyle.HAND);
+
+                bannerList.add(itemComponent);
+            }
         }
         this.patternsLayout.children(bannerList);
     }

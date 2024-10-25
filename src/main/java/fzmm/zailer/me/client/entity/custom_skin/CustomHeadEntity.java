@@ -7,6 +7,8 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
@@ -19,7 +21,7 @@ public class CustomHeadEntity extends MobEntity implements ISkinMutable {
                     .disableSummon()
                     .dimensions(0.8f, 0.8f)
                     .maxTrackingRange(32)
-                    .build()
+                    .build(RegistryKey.of(RegistryKeys.ENTITY_TYPE, FzmmClient.CUSTOM_HEAD_ENTITY))
     );
 
     private Identifier customHeadTexture = DefaultSkinHelper.getTexture();

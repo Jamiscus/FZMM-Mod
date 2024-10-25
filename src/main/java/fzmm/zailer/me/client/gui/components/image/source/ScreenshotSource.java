@@ -20,15 +20,13 @@ import io.wispforest.owo.ui.hud.Hud;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.util.ScreenshotRecorder;
+import net.minecraft.client.util.Window;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -103,40 +101,43 @@ public class ScreenshotSource implements IInteractiveImageLoader {
     }
 
     public void takeScreenshot() {
-        byte[] byteArray = null;
+        int[] pixelArray = null;
         Exception exception = null;
 
-        Framebuffer framebuffer = MinecraftClient.getInstance().getFramebuffer();
+        MinecraftClient client = MinecraftClient.getInstance();
+        Framebuffer framebuffer = client.getFramebuffer();
         try (var screenshot = ScreenshotRecorder.takeScreenshot(framebuffer)) {
-            byteArray = screenshot.getBytes();
+            pixelArray = screenshot.copyPixelsArgb();
         } catch (Exception e) {
             exception = e;
         }
 
-        byte[] finalByteArray = byteArray;
+        int[] finalByteArray = pixelArray;
         Exception finalException = exception;
         CompletableFuture.supplyAsync(() -> {
+            if (finalByteArray == null) {
+                return null;
+            }
+
             if (finalException != null) {
                 throw new RuntimeException(finalException);
             }
 
-            try {
-                BufferedImage screenshot = ImageIO.read(new ByteArrayInputStream(finalByteArray));
-                int width = screenshot.getWidth();
-                int height = screenshot.getHeight();
-                int smallerSide = Math.min(width, height);
-                int halfLongerSide = smallerSide / 2;
+            Window window = MinecraftClient.getInstance().getWindow();
+            int width = window.getWidth();
+            int height = window.getHeight();
+            BufferedImage screenshot = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            screenshot.getRaster().setDataElements(0, 0, width, height, finalByteArray);
+            int smallerSide = Math.min(width, height);
+            int halfLongerSide = smallerSide / 2;
 
-                BufferedImage scaled = screenshot.getSubimage(width / 2 - halfLongerSide, height / 2 - halfLongerSide, smallerSide, smallerSide);
-                BufferedImage finalImage = this.removePadding(scaled);
+            BufferedImage scaled = screenshot.getSubimage(width / 2 - halfLongerSide, height / 2 - halfLongerSide, smallerSide, smallerSide);
+            BufferedImage finalImage = this.removePadding(scaled);
 
-                screenshot.flush();
-                scaled.flush();
+            screenshot.flush();
+            scaled.flush();
 
-                return finalImage;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return finalImage;
         }, Util.getMainWorkerExecutor()).whenComplete((image, throwable) -> {
             instance = null;
             ISnackBarComponent snackBar = null;
@@ -153,7 +154,6 @@ public class ScreenshotSource implements IInteractiveImageLoader {
             }
 
             ISnackBarComponent finalSnackBar = snackBar;
-            MinecraftClient client = MinecraftClient.getInstance();
             client.execute(() -> {
                 SnackBarManager manager = SnackBarManager.getInstance();
                 Hud.remove(HUD_CAPTURE_SCREENSHOT);

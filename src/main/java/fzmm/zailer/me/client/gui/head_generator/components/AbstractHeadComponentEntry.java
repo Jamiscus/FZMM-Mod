@@ -56,6 +56,7 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
             } catch (Exception e) {
                 //noinspection UnstableApiUsage
                 UIErrorToast.report(e);
+                FzmmClient.LOGGER.error("[AbstractHeadComponentEntry] Failed to add overlay", e);
             }
             UISounds.playInteractionSound();
             return true;
@@ -144,8 +145,6 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
         nativeImage.untrack();
         this.previewTexture = new NativeImageBackedTexture(nativeImage);
         previewEntity.setSkin(textureManager.registerDynamicTexture("fzmm_head", this.previewTexture), isSlim);
-
-        textureManager.bindTexture(previewEntity.getTextures());
     }
 
     protected EntityComponent<Entity> copyCustomHeadEntity() {
