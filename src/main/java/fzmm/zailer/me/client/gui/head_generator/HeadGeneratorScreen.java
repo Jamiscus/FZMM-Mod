@@ -416,12 +416,14 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
                     builder.headName(headName);
                 }
 
-                FzmmUtils.giveItem(builder.get());
+                boolean generated = ItemUtils.give(builder.get());
 
                 this.client.execute(() -> {
                     this.setDelay(headUtils.getDelayForNext(TimeUnit.SECONDS));
                     snackBar.close();
-                    this.addStatusSnackBar(headUtils, image, textureName);
+                    if (generated) {
+                        this.addStatusSnackBar(headUtils, image, textureName);
+                    }
                 });
             });
         });
@@ -575,11 +577,17 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
     @Override
     public void close() {
         super.close();
-        this.closeTextures();
 
         if (!this.favoritesHeadsOnOpenScreen.equals(FzmmClient.CONFIG.headGenerator.favoriteSkins())) {
             FzmmClient.CONFIG.save();
         }
+    }
+
+    @Override
+    public void removed() {
+        this.closeTextures();
+
+        super.removed();
     }
 
     private void onChangeSkinField(String value) {

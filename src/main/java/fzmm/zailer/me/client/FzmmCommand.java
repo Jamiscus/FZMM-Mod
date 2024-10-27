@@ -10,6 +10,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import fzmm.zailer.me.builders.DisplayBuilder;
 import fzmm.zailer.me.client.argument_type.VersionArgumentType;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import fzmm.zailer.me.utils.InventoryUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import fzmm.zailer.me.utils.skin.GetSkinDecorator;
@@ -322,7 +323,7 @@ public class FzmmCommand {
 
     private static void giveItem(ItemStackArgument item, int amount) throws CommandSyntaxException {
         ItemStack itemStack = item.createStack(amount, false);
-        FzmmUtils.giveItem(FzmmUtils.processStack(itemStack));
+        ItemUtils.give(ItemUtils.process(itemStack));
     }
 
     private static void oldGiveItem(Identifier item, NbtCompound nbtCompound, Pair<String, Integer> oldVersion) {
@@ -352,7 +353,7 @@ public class FzmmCommand {
             if (error.get() || result.isEmpty() || result.get().isEmpty()) {
                 chatHud.addMessage(errorMessage);
             } else {
-                FzmmUtils.giveItem(FzmmUtils.processStack(result.get()));
+                ItemUtils.give(ItemUtils.process(result.get()));
                 chatHud.addMessage(Text.translatable("commands.fzmm.old_give.success", item.toString(), oldVersion.getLeft())
                         .withColor(FzmmClient.CHAT_BASE_COLOR)
                 );
@@ -400,7 +401,7 @@ public class FzmmCommand {
 
     private static void addEnchant(Enchantment enchant, short level) {
         //{Enchantments:[{message:"minecraft:aqua_affinity",lvl:1s}]}
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
         NbtCompound tag = stack.getOrCreateNbt();
         NbtList enchantments = new NbtList();
 
@@ -411,12 +412,11 @@ public class FzmmCommand {
 
         tag.put(ItemStack.ENCHANTMENTS_KEY, enchantments);
         stack.setNbt(tag);
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     private static void addFakeEnchant(Enchantment enchant, int level) {
-        assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = MinecraftClient.getInstance().player.getInventory().getMainHandStack();
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
         MutableText enchantMessage = (MutableText) enchant.getName(level);
 
         Style style = enchantMessage.getStyle().withItalic(false);
@@ -434,7 +434,7 @@ public class FzmmCommand {
             tag.put(ItemStack.ENCHANTMENTS_KEY, enchantments);
         }
 
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     private static void showNbt(CommandContext<FabricClientCommandSource> ctx) {
@@ -494,9 +494,9 @@ public class FzmmCommand {
     }
 
     private static void amount(int amount) {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
         stack.setCount(amount);
-        FzmmUtils.updateHand(stack);
+        ItemUtils.updateHand(stack);
     }
 
     private static void getHead(GetSkinDecorator skinDecorator, String playerName) {
@@ -504,7 +504,7 @@ public class FzmmCommand {
         assert client.player != null;
 
         Optional<ItemStack> optionalStack = skinDecorator.getHead(playerName);
-        FzmmUtils.giveItem(optionalStack.orElseGet(() -> {
+        ItemUtils.give(optionalStack.orElseGet(() -> {
             FzmmClient.LOGGER.warn("[FzmmCommand] Could not get head for {}", playerName);
             return Items.PLAYER_HEAD.getDefaultStack();
         }));
@@ -514,8 +514,8 @@ public class FzmmCommand {
      * @param firstSlot if -1, it will fill empty slots starting at 0
      */
     private static void fullContainer(int slotsToFill, int firstSlot) {
-        ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
-        ItemStack itemStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
+        ItemStack containerStack = ItemUtils.from(Hand.MAIN_HAND);
+        ItemStack itemStack = ItemUtils.from(Hand.OFF_HAND);
 
         NbtCompound nbt = containerStack.getOrCreateNbt();
         NbtCompound blockEntityTag = new NbtCompound();
@@ -538,12 +538,13 @@ public class FzmmCommand {
             }
         }
 
+        ItemUtils.give(containerStack);
         blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, containerItems);
         blockEntityTag.putString("id", containerStack.getItem().toString());
 
         nbt.put(TagsConstant.BLOCK_ENTITY, blockEntityTag);
         containerStack.setNbt(nbt);
-        FzmmUtils.giveItem(containerStack);
+        ItemUtils.give(containerStack);
     }
     private static void fullContainer(NbtList stackList, ItemStack stack, int slotsToFill, int firstSlot) {
         int finalSlot = firstSlot + slotsToFill;
@@ -582,8 +583,8 @@ public class FzmmCommand {
     private static void lockContainer(String key) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        ItemStack containerStack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
-        ItemStack lockStack = FzmmUtils.getHandStack(Hand.OFF_HAND);
+        ItemStack containerStack = ItemUtils.from(Hand.MAIN_HAND);
+        ItemStack lockStack = ItemUtils.from(Hand.OFF_HAND);
 
         NbtCompound tag = new NbtCompound();
         NbtCompound blockEntityTag = new NbtCompound();
@@ -603,14 +604,14 @@ public class FzmmCommand {
         containerStack.setNbt(tag);
         lockStack.setCustomName(Text.literal(key));
 
-        FzmmUtils.giveItem(containerStack);
+        ItemUtils.give(containerStack);
         assert client.interactionManager != null;
         // PlayerInventory.OFF_HAND_SLOT is 40, but OFF_HAND_SLOT is 45 (PlayerInventory.MAIN_SIZE + PlayerInventory.HOTBAR_SIZE)
         client.interactionManager.clickCreativeStack(lockStack, PlayerInventory.MAIN_SIZE + PlayerInventory.getHotbarSize());
     }
 
     private static void removeLore() {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         NbtCompound display = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
         if (display.contains(ItemStack.LORE_KEY, NbtElement.LIST_TYPE)) {
@@ -619,7 +620,7 @@ public class FzmmCommand {
     }
 
     private static void removeLore(int lineToRemove) {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         NbtCompound display = stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY);
 
@@ -634,7 +635,7 @@ public class FzmmCommand {
         display.put(ItemStack.LORE_KEY, lore);
 
         stack.setSubNbt(ItemStack.DISPLAY_KEY, display);
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     private static void swapItemWithHand(EquipmentSlot slot) {
@@ -643,7 +644,7 @@ public class FzmmCommand {
         assert client.interactionManager != null;
         ClientPlayerEntity player = client.player;
 
-        if (!FzmmUtils.isAllowedToGive()) {
+        if (ItemUtils.isNotAllowedToGive()) {
             FzmmClient.LOGGER.warn("[FzmmCommand] Creative mode is necessary to swap items");
             client.inGameHud.getChatHud().addMessage(Text.translatable("fzmm.item.error.actionNotAllowed").setStyle(Style.EMPTY.withColor(FzmmClient.CHAT_BASE_COLOR)));
             return;

@@ -14,7 +14,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.exceptions.BookNbtOverflow;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.TextAreaComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
@@ -57,7 +57,7 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
         ItemStack book = bookBuilder.get();
         assert book.getNbt() != null;
 
-        long bookLength = FzmmUtils.getLengthInBytes(book);
+        long bookLength = ItemUtils.getLengthInBytes(book);
         if (bookLength > BookNbtOverflow.MAX_BOOK_NBT_SIZE) {
             MinecraftClient.getInstance().execute(() -> {
                 ISnackBarComponent snackBar = BaseSnackBarComponent.builder(SnackBarManager.IMAGETEXT_ID)
@@ -72,7 +72,7 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
                 SnackBarManager.getInstance().add(snackBar);
             });
         } else {
-            FzmmUtils.giveItem(book);
+            ItemUtils.give(book);
         }
     }
 

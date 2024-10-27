@@ -1,23 +1,19 @@
 package fzmm.zailer.me.utils;
 
-import fzmm.zailer.me.mixin.focused_slot_getter.HandledScreenAccessor;
+import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.Registries;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class InventoryUtils {
 
@@ -47,6 +43,21 @@ public class InventoryUtils {
         blockEntityTag.put(ShulkerBoxBlockEntity.ITEMS_KEY, items);
         this.container.setSubNbt(TagsConstant.BLOCK_ENTITY, blockEntityTag);
         return this.container;
+    }
+
+    public static long getInventorySizeInBytes() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        assert client.player != null;
+        List<DefaultedList<ItemStack>> combinedInventory = ((PlayerInventoryAccessor) client.player.getInventory()).getCombinedInventory();
+        long size = 0;
+
+        for (DefaultedList<ItemStack> defaultedList : combinedInventory) {
+            for (ItemStack itemStack : defaultedList) {
+                size += ItemUtils.getLengthInBytes(itemStack);
+            }
+        }
+
+        return size;
     }
 
     public static void addSlot(NbtList slotList, ItemStack itemToAdd, int slot) {
@@ -102,29 +113,5 @@ public class InventoryUtils {
         }
 
         return items;
-    }
-
-    public static Optional<ItemStack> getFocusedItem() {
-        Optional<Slot> slot = getFocusedSlot();
-        return slot.map(Slot::getStack);
-    }
-
-    public static Optional<Slot> getFocusedSlot() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (!(mc.currentScreen instanceof HandledScreen<?> screen))
-            return Optional.empty();
-
-        return Optional.of(((HandledScreenAccessor) screen).getFocusedSlot());
-    }
-
-    public static ItemStack getInItemFrame(ItemStack stack, boolean glowing) {
-        ItemStack itemFrame = new ItemStack(glowing ? Items.GLOW_ITEM_FRAME : Items.ITEM_FRAME);
-        NbtCompound itemTag = stack.writeNbt(new NbtCompound());
-        NbtCompound entityTag = new NbtCompound();
-
-        entityTag.put(TagsConstant.ITEM_FRAME_ITEM, itemTag);
-        itemFrame.setSubNbt(EntityType.ENTITY_TAG_KEY, entityTag);
-
-        return itemFrame;
     }
 }

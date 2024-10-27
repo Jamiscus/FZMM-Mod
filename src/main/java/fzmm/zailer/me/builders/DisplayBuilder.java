@@ -1,6 +1,7 @@
 package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -40,20 +41,20 @@ public class DisplayBuilder {
     }
 
     public static void addLoreToHandItem(MutableText text) {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         stack = of(stack)
                 .addLore(FzmmUtils.disableItalicConfig(text))
                 .get();
 
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     public static void renameHandItem(MutableText text) {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         stack.setCustomName(FzmmUtils.disableItalicConfig(text));
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     public DisplayBuilder nbt(NbtCompound nbt) {

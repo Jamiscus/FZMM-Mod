@@ -224,7 +224,7 @@ public class PlayerStatue {
         Style colorStyle = Style.EMPTY.withColor(color);
 
         List<ItemStack> containerList = ContainerBuilder.builder()
-                .containerItem(FzmmUtils.getItem(FzmmClient.CONFIG.playerStatue.defaultContainer()))
+                .containerItem(ItemUtils.from(FzmmClient.CONFIG.playerStatue.defaultContainer()))
                 //.maxItemByContainer(FzmmClient.CONFIG.playerStatue.defaultContainer())//todo
                 .addAll(statueList)
                 .setNameStyleToItems(colorStyle)

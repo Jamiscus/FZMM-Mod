@@ -10,7 +10,7 @@ import fzmm.zailer.me.client.gui.imagetext.algorithms.IImagetextAlgorithm;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.SmallCheckboxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.block.Blocks;
@@ -84,7 +84,7 @@ public class ImagetextSignTab implements IImagetextTab, IImagetextTooltip {
                 .addLore(Text.translatable(BASE_ITEMS_TRANSLATION_KEY + "container.lore.1", logic.getWidth(), logic.getHeight()), color)
                 .get();
 
-        FzmmUtils.giveItem(signMainContainer);
+        ItemUtils.give(signMainContainer);
     }
 
     @Override
