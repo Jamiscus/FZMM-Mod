@@ -183,7 +183,11 @@ public class PlayerStatue {
             }
         }
 
-        ItemStack nameTagStack = ArmorStandBuilder.builder().setPos(x, y, z).setAsHologram(nameText).getItem("Name tag");
+        ItemStack nameTagStack = ArmorStandBuilder.builder()
+                .setPos(x, y, z)
+                .setAsHologram(nameText)
+                .setTags(StatuePart.PLAYER_STATUE_TAG)
+                .getItem("Name tag");
 
         nameTagStack.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(new NbtCompound()), component -> {
             NbtCompound result = component.copyNbt();
