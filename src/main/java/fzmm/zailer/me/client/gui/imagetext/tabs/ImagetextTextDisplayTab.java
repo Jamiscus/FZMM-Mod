@@ -12,6 +12,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import fzmm.zailer.me.utils.TagsConstant;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.component.SmallCheckboxComponent;
@@ -87,8 +88,7 @@ public class ImagetextTextDisplayTab implements IImagetextTab {
                 .entityTag(textDisplayNbt)
                 .get();
 
-        FzmmUtils.giveItem(spawnEgg);
-
+        ItemUtils.give(spawnEgg);
         InvisibleEntityWarning.add(false, false, Text.translatable("fzmm.snack_bar.entityDifficultToRemove.entity.textDisplay"), TEXT_DISPLAY_TAG);
     }
 

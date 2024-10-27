@@ -10,6 +10,7 @@ import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
 import fzmm.zailer.me.client.logic.player_statue.PlayerStatue;
 import fzmm.zailer.me.client.logic.player_statue.StatuePart;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
@@ -39,7 +40,7 @@ public class PlayerStatueUpdateTab implements IPlayerStatueTab {
                 stack -> {
                     if (PlayerStatue.isPlayerStatue(stack)) {
                         ItemStack statue = PlayerStatue.updateStatue(stack, new Vector3f(x, y, z), direction, name);
-                        FzmmUtils.giveItem(statue);
+                        ItemUtils.give(statue);
 
                         SnackBarManager.getInstance().add(BaseSnackBarComponent.builder(SnackBarManager.PLAYER_STATUE_ID)
                                 .backgroundColor(FzmmStyles.ALERT_SUCCESS_COLOR)

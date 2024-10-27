@@ -1,6 +1,6 @@
 package fzmm.zailer.me.client.gui.components;
 
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.ItemComponent;
 import io.wispforest.owo.ui.core.CursorStyle;
 import io.wispforest.owo.ui.util.UISounds;
@@ -15,7 +15,7 @@ public class GiveItemComponent extends ItemComponent {
 
         this.cursorStyle(CursorStyle.HAND);
         this.mouseDown().subscribe((mouseX, mouseY, button) -> {
-            FzmmUtils.giveItem(this.stack);
+            ItemUtils.give(this.stack);
             UISounds.playButtonSound();
             return true;
         });

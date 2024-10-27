@@ -15,7 +15,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
 import fzmm.zailer.me.client.logic.TextFormatLogic;
 import fzmm.zailer.me.config.FzmmConfig;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
@@ -125,24 +125,24 @@ public class TextFormatScreen extends BaseFzmmScreen implements IMementoScreen {
 
         boolean executeButtonsActive = this.messageTextField.getText().length() > 1;
         ButtonWidget addLoreButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(ADD_LORE_ID), executeButtonsActive, button -> {
-            ItemStack handItem = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+            ItemStack handItem = ItemUtils.from(Hand.MAIN_HAND);
             Text text = this.messagePreviewLabel.text();
 
             DisplayBuilder builder = DisplayBuilder.of(handItem.isEmpty() ?
-                    FzmmUtils.getItem(config.defaultItem()).getDefaultStack() : handItem
+                    ItemUtils.from(config.defaultItem()).getDefaultStack() : handItem
             ).addLore(text);
 
-            FzmmUtils.giveItem(builder.get());
+            ItemUtils.give(builder.get());
         });
         ButtonWidget setNameButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(SET_NAME_ID), executeButtonsActive, button -> {
-            ItemStack handItem = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+            ItemStack handItem = ItemUtils.from(Hand.MAIN_HAND);
             Text text = this.messagePreviewLabel.text();
 
             DisplayBuilder builder = DisplayBuilder.of(handItem.isEmpty() ?
-                    FzmmUtils.getItem(config.defaultItem()).getDefaultStack() : handItem
+                    ItemUtils.from(config.defaultItem()).getDefaultStack() : handItem
             ).setName(text.copy());
 
-            FzmmUtils.giveItem(builder.get());
+            ItemUtils.give(builder.get());
         });
         ButtonWidget randomButton = ButtonRow.setup(rootComponent, ButtonRow.getButtonId(RANDOM_ID), executeButtonsActive,
                 button -> this.getTab(selectedTab, ITextFormatTab.class).setRandomValues());

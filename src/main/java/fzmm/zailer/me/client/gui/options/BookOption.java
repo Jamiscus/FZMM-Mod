@@ -2,7 +2,7 @@ package fzmm.zailer.me.client.gui.options;
 
 import fzmm.zailer.me.builders.BookBuilder;
 import fzmm.zailer.me.client.gui.components.IMode;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
@@ -15,7 +15,7 @@ public enum BookOption implements IMode {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        return BookBuilder.of(FzmmUtils.getHandStack(Hand.MAIN_HAND)).orElse(CREATE_BOOK.bookBuilderSupplier.get());
+        return BookBuilder.of(ItemUtils.from(Hand.MAIN_HAND)).orElse(CREATE_BOOK.bookBuilderSupplier.get());
     });
 
 

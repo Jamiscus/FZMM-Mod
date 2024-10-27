@@ -2,7 +2,7 @@ package fzmm.zailer.me.mixin.social_interactions_head_button;
 
 import com.google.common.collect.ImmutableList;
 import fzmm.zailer.me.builders.HeadBuilder;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.itemgroup.Icon;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -55,7 +55,7 @@ public abstract class SocialInteractionsPlayerListEntryMixin {
         this.fzmm$headStack = HeadBuilder.of(playerListEntry.getProfile());
         this.fzmm$icon = Icon.of(this.fzmm$headStack);
 
-        this.fzmm$giveHeadButton = ButtonWidget.builder(Text.literal(""), button -> FzmmUtils.giveItem(this.fzmm$headStack))
+        this.fzmm$giveHeadButton = ButtonWidget.builder(Text.literal(""), button -> ItemUtils.give(this.fzmm$headStack))
                 .dimensions(0, 0, 20, 20)
                 .tooltip(Tooltip.of(GIVE_HEAD_TEXT))
                 .build();

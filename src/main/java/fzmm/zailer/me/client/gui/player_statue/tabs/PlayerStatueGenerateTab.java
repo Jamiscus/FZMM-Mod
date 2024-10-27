@@ -13,8 +13,8 @@ import fzmm.zailer.me.client.logic.head_generator.model.InternalModels;
 import fzmm.zailer.me.client.logic.player_statue.PlayerStatue;
 import fzmm.zailer.me.client.gui.components.image.ImageStatus;
 import fzmm.zailer.me.client.logic.player_statue.StatuePart;
-import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.item.ItemStack;
@@ -74,7 +74,7 @@ public class PlayerStatueGenerateTab implements IPlayerStatueTab {
                     .generateStatues()
                     .getStatueInContainer();
 
-            FzmmUtils.giveItem(statueGenerated);
+            ItemUtils.give(statueGenerated);
             InvisibleEntityWarning.add(true, true, Text.translatable("fzmm.snack_bar.entityDifficultToRemove.entity.playerStatue"), StatuePart.PLAYER_STATUE_TAG);
 
             this.executeButton.active = true;
