@@ -4,6 +4,7 @@ import fzmm.zailer.me.builders.BookBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.*;
 import net.minecraft.util.Hand;
@@ -19,7 +20,7 @@ public class EncryptbookLogic {
 
         BookBuilder bookBuilder = null;
         if (addPage) {
-            Optional<BookBuilder> builder = BookBuilder.of(FzmmUtils.getHandStack(Hand.MAIN_HAND));
+            Optional<BookBuilder> builder = BookBuilder.of(ItemUtils.from(Hand.MAIN_HAND));
             if (builder.isPresent()) {
                 bookBuilder = builder.get();
             }
@@ -30,7 +31,7 @@ public class EncryptbookLogic {
 
         ItemStack book = bookAddPage(bookBuilder, encryptMessageSplit, profile).get();
 
-        FzmmUtils.giveItem(book);
+        ItemUtils.give(book);
     }
 
 

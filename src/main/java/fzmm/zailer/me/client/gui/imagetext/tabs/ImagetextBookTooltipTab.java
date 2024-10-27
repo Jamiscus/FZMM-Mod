@@ -13,7 +13,7 @@ import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarComponent;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.component.TextAreaComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
@@ -73,7 +73,7 @@ public class ImagetextBookTooltipTab implements IImagetextTab {
             return;
         }
 
-        FzmmUtils.giveItem(book);
+        ItemUtils.give(book);
     }
 
     @Override

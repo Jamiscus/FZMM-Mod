@@ -26,6 +26,7 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.config.FzmmConfig;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
@@ -341,8 +342,8 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         List<Text> wrappedText = this.imagetextLogic.getWrappedText();
 
         ItemStack placeholderStack = DisplayBuilder.builder().addLore(wrappedText).get();
-        String nbtSize = FzmmUtils.getLengthInKB(FzmmUtils.getLengthInBytes(placeholderStack));
-        String textSize = FzmmUtils.getLengthInKB(Text.Serialization.toJsonString(text, FzmmUtils.getRegistryManager()).length());
+        String nbtSize = ItemUtils.getLengthInKB(ItemUtils.getLengthInBytes(placeholderStack));
+        String textSize = ItemUtils.getLengthInKB(Text.Serialization.toJsonString(text, FzmmUtils.getRegistryManager()).length());
 
         MutableText tooltipText = Text.empty().setStyle(Style.EMPTY.withColor(Formatting.GRAY));
         tooltipText.append(Text.translatable("fzmm.gui.imagetext.label.imagetextSize", nbtSize, textSize));

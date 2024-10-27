@@ -1,7 +1,7 @@
 package fzmm.zailer.me.mixin.item_stack.tooltip;
 
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -52,12 +52,12 @@ public abstract class ItemStackMixin {
     @Unique
     public Text fzmm$getSizeMessage() {
         if (this.fzmm$compoundHash != this.getComponents().hashCode()) {
-            this.fzmm$stackSize = FzmmUtils.getLengthInBytes((ItemStack) ((Object) this));
+            this.fzmm$stackSize = ItemUtils.getLengthInBytes((ItemStack) ((Object) this));
             this.fzmm$compoundHash = this.getComponents().hashCode();
         }
 
         return (this.fzmm$stackSize > 1023 ?
-                Text.translatable("fzmm.item.tooltip.size.kilobytes", FzmmUtils.getLengthInKB(this.fzmm$stackSize)) :
+                Text.translatable("fzmm.item.tooltip.size.kilobytes", ItemUtils.getLengthInKB(this.fzmm$stackSize)) :
                 Text.translatable("fzmm.item.tooltip.size.bytes", this.fzmm$stackSize)
         ).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY));
     }

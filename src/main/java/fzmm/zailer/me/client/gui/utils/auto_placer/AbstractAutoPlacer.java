@@ -2,7 +2,7 @@ package fzmm.zailer.me.client.gui.utils.auto_placer;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.client.gui.player_statue.PlayerStatuePlacerScreen;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -89,7 +89,7 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
             // Update the hand item first, this is to avoid that some servers when
             // using auto placer the first item becomes the block used to open auto placer.
             if (items.size() > 1) {
-                scheduler.schedule(() -> FzmmUtils.updateHand(items.get(0)), 0, TimeUnit.MILLISECONDS);
+                scheduler.schedule(() -> ItemUtils.updateHand(items.get(0)), 0, TimeUnit.MILLISECONDS);
             }
 
             for (int i = 1; i < containerItemsSize; i++) {
@@ -103,7 +103,7 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
             }
 
             scheduler.schedule(() -> {
-                FzmmUtils.updateHand(this.getFinalStack());
+                ItemUtils.updateHand(this.getFinalStack());
 
                 PlayerStatuePlacerScreen.isActive = false;
                 this.cancelButton.active = true;
@@ -124,7 +124,7 @@ public abstract class AbstractAutoPlacer extends BaseFzmmScreen {
 
         this.client.doItemUse();
         if (itemStack != null) {
-            FzmmUtils.updateHand(itemStack);
+            ItemUtils.updateHand(itemStack);
         }
 
         this.updateLoadingBar(index, containerItemsSize);
