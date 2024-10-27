@@ -172,7 +172,11 @@ public class PlayerStatue {
             }
         }
 
-        ItemStack nameTagStack = ArmorStandBuilder.builder().setPos(x, y, z).setAsHologram(name).getItem("Name tag");
+        ItemStack nameTagStack = ArmorStandBuilder.builder()
+                .setPos(x, y, z)
+                .setAsHologram(name)
+                .setTags(StatuePart.PLAYER_STATUE_TAG)
+                .getItem("Name tag");
         NbtCompound fzmmTag = new NbtCompound();
         NbtCompound playerStatueTag = new NbtCompound();
 
