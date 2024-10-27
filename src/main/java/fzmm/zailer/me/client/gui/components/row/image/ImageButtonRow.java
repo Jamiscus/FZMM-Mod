@@ -37,7 +37,7 @@ public class ImageButtonRow extends AbstractRow {
 
         Sizing textFieldSizing = Sizing.fixed(
                 TEXT_FIELD_WIDTH -
-                        Math.abs(textRenderer.getWidth(loadImageButtonText) - textRenderer.getWidth(resetButton.getMessage())) + 2
+                        Math.abs(textRenderer.getWidth(loadImageButtonText) - textRenderer.getWidth(resetButton.getMessage()))
         );
 
         SuggestionTextBox textField = new SuggestionTextBox(textFieldSizing, SuggestionTextBox.SuggestionPosition.BOTTOM, 5);
