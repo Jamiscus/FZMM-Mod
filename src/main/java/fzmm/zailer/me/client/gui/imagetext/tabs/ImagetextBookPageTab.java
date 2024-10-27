@@ -9,7 +9,7 @@ import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLine;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -39,7 +39,7 @@ public class ImagetextBookPageTab implements IImagetextTab {
         BookBuilder bookBuilder = this.bookMode.getBookBuilder();
         bookBuilder.addPage(logic.getText());
 
-        FzmmUtils.giveItem(bookBuilder.get());
+        ItemUtils.give(bookBuilder.get());
     }
 
     @Override

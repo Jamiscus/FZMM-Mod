@@ -10,7 +10,7 @@ import fzmm.zailer.me.client.gui.options.LoreOption;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextData;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
-import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
@@ -40,7 +40,7 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
         DisplayBuilder display = DisplayBuilder.of(stack);
         display.addLore(imagetext).get();
 
-        FzmmUtils.giveItem(display.get());
+        ItemUtils.give(display.get());
     }
 
     @Override
@@ -85,10 +85,10 @@ public class ImagetextLoreTab implements IImagetextTab, IImagetextTooltip {
 
     private ItemStack getStack(LoreOption option) {
         assert MinecraftClient.getInstance().player != null;
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         if (stack.isEmpty()) {
-            stack = FzmmUtils.getItem(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();
+            stack = ItemUtils.from(FzmmClient.CONFIG.imagetext.defaultItem()).getDefaultStack();
         }
 
         return switch (option) {

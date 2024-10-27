@@ -7,6 +7,7 @@ import fzmm.zailer.me.client.gui.components.row.TextBoxRow;
 import fzmm.zailer.me.client.logic.FzmmHistory;
 import fzmm.zailer.me.mixin.combined_inventory_getter.PlayerInventoryAccessor;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
 import io.wispforest.owo.ui.component.ItemComponent;
@@ -169,7 +170,7 @@ public class SelectItemScreen extends BaseFzmmScreen {
     private ItemComponent getItemCallback(ItemStack stack) {
         assert this.client != null;
 
-        ItemStack processedStack = FzmmUtils.processStack(stack);
+        ItemStack processedStack = ItemUtils.process(stack);
 
         ItemComponent itemComponent = (ItemComponent) Components.item(processedStack)
                 .tooltip(processedStack.getTooltip(

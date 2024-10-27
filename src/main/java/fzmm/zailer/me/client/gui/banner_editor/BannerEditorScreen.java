@@ -14,6 +14,7 @@ import fzmm.zailer.me.client.gui.components.tabs.IScreenTab;
 import fzmm.zailer.me.client.gui.utils.select_item.RequestedItem;
 import fzmm.zailer.me.client.gui.utils.select_item.SelectItemScreen;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.BoxComponent;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.Components;
@@ -67,7 +68,7 @@ public class BannerEditorScreen extends BaseFzmmScreen {
         //preview buttons
         ButtonComponent giveButton = rootComponent.childById(ButtonComponent.class, GIVE_BUTTON_ID);
         checkNull(giveButton, "button", GIVE_BUTTON_ID);
-        giveButton.onPress(buttonComponent -> FzmmUtils.giveItem(this.bannerBuilder.get()));
+        giveButton.onPress(buttonComponent -> ItemUtils.give(this.bannerBuilder.get()));
 
         ButtonComponent selectBannerButton = rootComponent.childById(ButtonComponent.class, SELECT_BANNER_BUTTON_ID);
         checkNull(selectBannerButton, "button", SELECT_BANNER_BUTTON_ID);

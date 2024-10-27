@@ -1,6 +1,7 @@
 package fzmm.zailer.me.builders;
 
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ItemUtils;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.LoreComponent;
 import net.minecraft.item.Item;
@@ -35,7 +36,7 @@ public class DisplayBuilder {
     }
 
     public static void addLoreToHandItem(MutableText text) {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         stack.apply(DataComponentTypes.LORE, LoreComponent.DEFAULT, loreComponent -> {
             List<Text> loreList = new ArrayList<>(loreComponent.lines());
@@ -43,14 +44,14 @@ public class DisplayBuilder {
             return new LoreComponent(loreList);
         });
 
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     public static void renameHandItem(MutableText text) {
-        ItemStack stack = FzmmUtils.getHandStack(Hand.MAIN_HAND);
+        ItemStack stack = ItemUtils.from(Hand.MAIN_HAND);
 
         stack.apply(DataComponentTypes.CUSTOM_NAME, null, component -> FzmmUtils.disableItalicConfig(text));
-        FzmmUtils.giveItem(stack);
+        ItemUtils.give(stack);
     }
 
     public DisplayBuilder item(Item item) {

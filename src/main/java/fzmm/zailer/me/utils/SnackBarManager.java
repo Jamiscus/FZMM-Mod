@@ -71,19 +71,20 @@ public class SnackBarManager {
         }
     }
 
-    public void remove(String id) {
+    public SnackBarManager remove(String id) {
         for (var snackBar : this.getSnackScreen().getSnackBars()) {
             if (id.equals(snackBar.id())) {
-                this.remove(snackBar);
-                return;
+                return this.remove(snackBar);
             }
         }
+        return this;
     }
 
-    public void remove(ISnackBarComponent snackBar) {
+    public SnackBarManager remove(ISnackBarComponent snackBar) {
         this.getSnackScreen()
                 .getSnackBarLayout()
                 .removeChild(snackBar);
+        return this;
     }
 
     public void removeOverflow() {
