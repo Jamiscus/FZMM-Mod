@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public abstract class AbstractRow extends StyledFlowLayout {
     protected static final int NORMAL_WIDTH = 200;
-    protected static final int TEXT_FIELD_WIDTH = NORMAL_WIDTH - 2;
+    protected static final int TEXT_FIELD_WIDTH = NORMAL_WIDTH - 1;
     public static final int ROW_HEIGHT = 22;
     public static final int VERTICAL_MARGIN = 2;
     public static final int TOTAL_HEIGHT = ROW_HEIGHT + VERTICAL_MARGIN * 2;
