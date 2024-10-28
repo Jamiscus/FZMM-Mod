@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import fzmm.zailer.me.builders.DisplayBuilder;
+import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.argument_type.VersionArgumentType;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ItemUtils;
@@ -32,16 +33,12 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Pair;
+import net.minecraft.util.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -500,14 +497,13 @@ public class FzmmCommand {
     }
 
     private static void getHead(GetSkinDecorator skinDecorator, String playerName) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
+        CompletableFuture.runAsync(() -> {
+            MinecraftClient client = MinecraftClient.getInstance();
+            assert client.player != null;
 
-        Optional<ItemStack> optionalStack = skinDecorator.getHead(playerName);
-        ItemUtils.give(optionalStack.orElseGet(() -> {
-            FzmmClient.LOGGER.warn("[FzmmCommand] Could not get head for {}", playerName);
-            return Items.PLAYER_HEAD.getDefaultStack();
-        }));
+            Optional<ItemStack> optionalStack = skinDecorator.getHead(playerName);
+            ItemUtils.give(optionalStack.orElseGet(() -> HeadBuilder.of(playerName)));
+        }, Util.getDownloadWorkerExecutor());
     }
 
     /**

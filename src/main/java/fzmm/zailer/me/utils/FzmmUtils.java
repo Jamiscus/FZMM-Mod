@@ -1,8 +1,5 @@
 package fzmm.zailer.me.utils;
 
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import fzmm.zailer.me.client.FzmmClient;
@@ -18,17 +15,11 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.text.*;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,22 +70,6 @@ public class FzmmUtils {
             disableItalicConfig(text);
         }
         return NbtString.of(Text.Serialization.toJsonString(text));
-    }
-
-    public static String fetchPlayerUuid(String name) throws IOException, JsonIOException {
-        try (var httpClient = getHttpClient()) {
-            HttpGet httpGet = new HttpGet("https://api.mojang.com/users/profiles/minecraft/" + name);
-
-            HttpResponse response = httpClient.execute(httpGet);
-            HttpEntity resEntity = response.getEntity();
-            if (((response.getStatusLine().getStatusCode() / 100) != 2) || resEntity == null) {
-                return "";
-            }
-
-            InputStream inputStream = resEntity.getContent();
-            JsonObject obj = (JsonObject) JsonParser.parseReader(new InputStreamReader(inputStream));
-            return obj.get("id").getAsString();
-        }
     }
 
     /**
