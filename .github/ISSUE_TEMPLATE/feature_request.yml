@@ -1,0 +1,15 @@
+name: Feature Request
+description: Suggest a new feature or improve an existing one
+title: "[Suggestion]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Tell us what feature you think should be added to the mod, or what currently exists that should be improved
+      placeholder: >-
+        Example: In the Imagetext GUI, I should be able to draw pixel art or modify the automatically generated ones
+    validations:
+      required: true

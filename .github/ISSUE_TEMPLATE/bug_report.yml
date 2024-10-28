@@ -1,0 +1,50 @@
+name: Bug Report
+description: Report a bug
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: checkboxes
+    id: singleplayer
+    attributes:
+      label: Is the error reproducible in singleplayer?
+      description: >-
+        This is to determine whether the bug originates from FZMM or from a plugin/mod used by the server
+      options:
+        - label: Yes, I can reproduce it in singleplayer
+          required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Tell us what you expected to happen and what happened instead
+      placeholder: >-
+        Example: When enchanting a book, it has the wrong enchantment
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        Explain step by step how to reproduce the error
+      placeholder: >-
+        Example:
+        1. Get a book from creative mode
+        2. Use `/fzmm enchant sharpness 3`
+        3. The enchantment is knockback!
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: The versions you were using
+      placeholder: >-
+        FZMM = 1.0.0
+        Minecraft = 2.0.0
+      value: >-
+        FZMM:
+        Minecraft:
+    validations:
+      required: true
