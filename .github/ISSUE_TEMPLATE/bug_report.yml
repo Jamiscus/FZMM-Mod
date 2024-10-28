@@ -30,8 +30,11 @@ body:
         Explain step by step how to reproduce the error
       placeholder: >-
         Example:
+        
         1. Get a book from creative mode
+        
         2. Use `/fzmm enchant sharpness 3`
+        
         3. The enchantment is knockback!
     validations:
       required: true
@@ -42,9 +45,11 @@ body:
       description: The versions you were using
       placeholder: >-
         FZMM = 1.0.0
+        
         Minecraft = 2.0.0
       value: >-
         FZMM:
+        
         Minecraft:
     validations:
       required: true
