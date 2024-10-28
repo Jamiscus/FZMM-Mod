@@ -39,8 +39,9 @@ public interface ISnackBarScreen {
         ParentComponent root = this.getSnackBarLayout().root();
 
         if (root instanceof FlowLayout rootLayout) {
-            rootLayout.removeChild(snackBarLayout);
             rootLayout.child(overlay);
+            // snack bar layout is always the last child
+            rootLayout.removeChild(snackBarLayout);
             rootLayout.child(snackBarLayout);
         }
     }

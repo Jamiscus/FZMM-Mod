@@ -10,7 +10,6 @@ import fzmm.zailer.me.client.gui.components.style.container.StyledFlowLayout;
 import fzmm.zailer.me.compat.symbol_chat.font.FontTextBoxComponent;
 import io.wispforest.owo.ui.component.DropdownComponent;
 import io.wispforest.owo.ui.component.LabelComponent;
-import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+// TODO: Refactor this spaghetti
 public class SuggestionTextBox extends FontTextBoxComponent {
     private static final int SUGGESTION_HEIGHT = 16;
     private final SuggestionPosition suggestionPosition;
@@ -58,16 +58,30 @@ public class SuggestionTextBox extends FontTextBoxComponent {
 
     private void openContextMenu() {
         Screen screen = MinecraftClient.getInstance().currentScreen;
-        FlowLayout parent = (FlowLayout) this.root();
-        if (this.contextMenuIsOpen() || screen == null || parent == null) {
+        ParentComponent root = this.root();
+        if (this.contextMenuIsOpen() || screen == null || !(root instanceof FlowLayout rootLayout)) {
             return;
         }
 
-        this.suggestionsContextMenu = DropdownComponent.openContextMenu(screen, parent, FlowLayout::child, this.x(), this.y(), suggestionDropdown -> {
+        this.suggestionsContextMenu = DropdownComponent.openContextMenu(screen, rootLayout, FlowLayout::child, this.x(), this.y(), suggestionDropdown -> {
             suggestionDropdown.clearChildren();
 
-            this.suggestionsLayout = StyledContainers.verticalFlow(Sizing.fill(100), Sizing.content());
-            this.suggestionsContainer = Containers.verticalScroll(Sizing.fixed(this.width()),
+            this.suggestionsLayout = new StyledFlowLayout(Sizing.fill(100), Sizing.content(), FlowLayout.Algorithm.VERTICAL) {
+                // when some components, like snack bars, are removed, the position of
+                // the context menu changes to Y 0 for some reason if suggestion is in an overlay
+                @Override
+                public void updateX(int x) {
+                    super.updateX(x);
+                    SuggestionTextBox.this.updateSuggestionsPos();
+                }
+
+                @Override
+                public void updateY(int y) {
+                    super.updateY(y);
+                    SuggestionTextBox.this.updateSuggestionsPos();
+                }
+            };
+            this.suggestionsContainer = StyledContainers.verticalScroll(Sizing.fixed(this.width()),
                     Sizing.expand(100), this.suggestionsLayout);
 
 
@@ -157,7 +171,6 @@ public class SuggestionTextBox extends FontTextBoxComponent {
         if (this.suggestionsContextMenu != null) {
             this.suggestionsContextMenu.verticalSizing(Sizing.fixed(this.getMaxSuggestionsHeight(suggestions.size())));
         }
-        this.updateSuggestionsPos();
     }
 
     private List<Suggestion> getSuggestions(String message) {
@@ -238,7 +251,7 @@ public class SuggestionTextBox extends FontTextBoxComponent {
         return (int) (SUGGESTION_HEIGHT * totalLines);
     }
 
-    private void updateSuggestionsPos() {
+    protected void updateSuggestionsPos() {
         if (this.suggestionsLayout == null || this.suggestionsContextMenu == null) {
             return;
         }
@@ -248,11 +261,15 @@ public class SuggestionTextBox extends FontTextBoxComponent {
             case BOTTOM -> this.height();
         };
         int x = this.x();
-        int y = this.y();
+        int y = this.y() + offset;
 
         assert this.suggestionsContextMenu != null;
-        this.suggestionsContextMenu.updateX(x);
-        this.suggestionsContextMenu.updateY(y + offset);
+        if (this.suggestionsContextMenu.x() != x) {
+            this.suggestionsContextMenu.updateX(x);
+        }
+        if (this.suggestionsContextMenu.y() != y) {
+            this.suggestionsContextMenu.updateY(y);
+        }
     }
 
     @Override
