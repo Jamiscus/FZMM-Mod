@@ -1,20 +1,18 @@
 package fzmm.zailer.me.utils.skin;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import fzmm.zailer.me.builders.HeadBuilder;
-import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.UserCache;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Base64;
 import java.util.Optional;
 
 public class GetSkinFromMojang extends GetSkinDecorator {
@@ -29,33 +27,55 @@ public class GetSkinFromMojang extends GetSkinDecorator {
 
     @Override
     public Optional<BufferedImage> getSkin(String playerName) throws IOException {
-        String stringUuid = FzmmUtils.fetchPlayerUuid(playerName);
-        try (var httpClient = FzmmUtils.getHttpClient()) {
-            HttpGet httpGet = new HttpGet("https://sessionserver.mojang.com/session/minecraft/profile/" + stringUuid);
-
-            httpGet.addHeader("content-statusType", "image/jpeg");
-
-            HttpResponse response = httpClient.execute(httpGet);
-            HttpEntity resEntity = response.getEntity();
-            if ((response.getStatusLine().getStatusCode() / 100) != 2) {
-                return super.getSkin(playerName);
-            }
-
-            InputStream inputStream = resEntity.getContent();
-            JsonObject obj = (JsonObject) JsonParser.parseReader(new InputStreamReader(inputStream));
-            JsonObject properties = (JsonObject) obj.getAsJsonArray("properties").get(0);
-
-            String valueJsonStr = new String(Base64.getDecoder().decode(properties.get("value").getAsString()));
-            obj = (JsonObject) JsonParser.parseString(valueJsonStr);
-            String skinUrl = obj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
-
-            return ImageUtils.getImageFromUrl(skinUrl);
+        IntegratedServer server = MinecraftClient.getInstance().getServer();
+        if (server == null || server.getSessionService() == null) {
+            return super.getSkin(playerName);
         }
+        MinecraftSessionService sessionService = server.getSessionService();
+
+        Optional<GameProfile> profile = this.getProfile(playerName);
+        if (profile.isEmpty()) {
+            return super.getSkin(playerName);
+        }
+
+        MinecraftProfileTexture skinTexture = sessionService.getTextures(profile.get()).skin();
+        if (skinTexture == null) {
+            return super.getSkin(playerName);
+        }
+
+
+        return ImageUtils.getImageFromUrl(skinTexture.getUrl());
     }
 
-    // TODO: use super.getHead(playerName) if no skin or premium player is found with that user
     @Override
     public Optional<ItemStack> getHead(String playerName) {
-        return Optional.of(HeadBuilder.of(playerName));
+        Optional<GameProfile> profile = this.getProfile(playerName);
+        return profile.map(HeadBuilder::of).or(() -> super.getHead(playerName));
+    }
+
+    /**
+     * @param playerName the name of the player
+     * @return empty {@link Optional} if no profile is found
+     */
+    public Optional<GameProfile> getProfile(String playerName) {
+        IntegratedServer server = MinecraftClient.getInstance().getServer();
+        if (server == null || server.getUserCache() == null || server.getSessionService() == null) {
+            return Optional.empty();
+        }
+
+        UserCache userCache = server.getUserCache();
+        MinecraftSessionService sessionService = server.getSessionService();
+        Optional<GameProfile> profileEntry = userCache.findByName(playerName);
+        if (profileEntry.isEmpty()) {
+            return Optional.empty();
+        }
+
+        GameProfile profileWithUuid = profileEntry.get();
+        ProfileResult result = sessionService.fetchProfile(profileWithUuid.getId(), false);
+        if (result == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(result.profile());
     }
 }
