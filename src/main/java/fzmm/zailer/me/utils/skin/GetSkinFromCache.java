@@ -62,8 +62,9 @@ public class GetSkinFromCache extends GetSkinDecorator {
         ClientPlayNetworkHandler clientPlayNetworkHandler = MinecraftClient.getInstance().player.networkHandler;
         PlayerListEntry playerListEntry = clientPlayNetworkHandler.getPlayerListEntry(playerName);
 
-        if (playerListEntry == null)
+        if (playerListEntry == null) {
             return super.getHead(playerName);
+        }
 
         return Optional.of(HeadBuilder.of(playerListEntry.getProfile()));
     }
