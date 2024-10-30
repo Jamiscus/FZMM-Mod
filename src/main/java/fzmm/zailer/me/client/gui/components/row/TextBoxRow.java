@@ -1,6 +1,5 @@
 package fzmm.zailer.me.client.gui.components.row;
 
-import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import fzmm.zailer.me.compat.symbol_chat.font.FontTextBoxComponent;
 import io.wispforest.owo.ui.component.ButtonComponent;
@@ -11,6 +10,7 @@ import io.wispforest.owo.ui.core.Sizing;
 import io.wispforest.owo.ui.parsing.UIParsing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Element;
 
@@ -80,10 +80,6 @@ public class TextBoxRow extends AbstractRow {
         boolean symbolChatButtons = UIParsing.childElements(element).containsKey("symbolChatButtons") &&
                 UIParsing.parseBool(UIParsing.childElements(element).get("symbolChatButtons"));
 
-
-        int fieldSize = UIParsing.childElements(element).containsKey("fieldSize") ? UIParsing.parseSignedInt(UIParsing.childElements(element).get("fieldSize")) : -1;
-        fieldSize = UIParsing.childElements(element).containsKey("removeHorizontalMargins") ? fieldSize : -1;
-
         TextBoxRow row = new TextBoxRow(baseTranslationKey, id, tooltipId, symbolChatButtons);
         if (removeHorizontalMargins)
             row.removeHorizontalMargins();
@@ -91,34 +87,32 @@ public class TextBoxRow extends AbstractRow {
         if (removeResetButton)
             row.removeResetButton();
 
-        if (fieldSize > 0) {
-            TextBoxComponent textBox = row.childById(TextBoxComponent.class, getTextBoxId(id));
-            if (textBox != null)
-                textBox.horizontalSizing(Sizing.fixed(fieldSize));
-        }
-
+        TextBoxComponent textBox = row.childById(TextBoxComponent.class, getTextBoxId(id));
         Screen screen = MinecraftClient.getInstance().currentScreen;
-        if (symbolChatButtons && screen instanceof BaseFzmmScreen baseFzmmScreen)
-            row.addSymbolChatButtons(baseFzmmScreen);
+
+        if (symbolChatButtons && screen instanceof BaseFzmmScreen baseFzmmScreen && textBox != null)
+            row.addSymbolChatButtons(baseFzmmScreen, textBox);
         return row;
     }
 
 
-    public void addSymbolChatButtons(BaseFzmmScreen screen) {
-        if (!FzmmClient.CONFIG.general.showSymbolButton())
+    public void addSymbolChatButtons(BaseFzmmScreen screen, TextFieldWidget textFieldWidget) {
+        List<Component> symbolChatButtons = screen.getSymbolChatCompat().getButtons(textFieldWidget);
+        if (symbolChatButtons.isEmpty()) {
             return;
+        }
 
         Optional<FlowLayout> rightLayoutOptional = this.getRightLayout();
-        if (rightLayoutOptional.isEmpty())
+        if (rightLayoutOptional.isEmpty()) {
             return;
+        }
 
         FlowLayout rightLayout = rightLayoutOptional.get();
         List<Component> componentList = List.copyOf(rightLayout.children());
-        TextBoxComponent textBoxComponent = rightLayout.childById(TextBoxComponent.class, getTextBoxId(this.getId()));
-        rightLayout.clearChildren();
 
-        rightLayout.child(screen.getSymbolChatCompat().getOpenFontSelectionDropDownButton(textBoxComponent));
-        rightLayout.child(screen.getSymbolChatCompat().getOpenSymbolChatPanelButton(textBoxComponent));
+        // sort symbol chat buttons at left and original buttons at right
+        rightLayout.clearChildren();
+        rightLayout.children(symbolChatButtons);
 
         rightLayout.children(componentList);
     }
