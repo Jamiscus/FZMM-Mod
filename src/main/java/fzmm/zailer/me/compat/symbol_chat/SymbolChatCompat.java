@@ -21,6 +21,7 @@ import net.replaceitem.symbolchat.gui.widget.DropDownWidget;
 import net.replaceitem.symbolchat.resource.FontProcessor;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -116,7 +117,21 @@ public class SymbolChatCompat {
         this.symbolSelectionPanel.visible = visible;
     }
 
-    public Component getOpenSymbolChatPanelButton(TextFieldWidget selectedComponent) {
+    /**
+     * @return empty list if config general.showSymbolButton is false
+     */
+    public List<Component> getButtons(TextFieldWidget selectedComponent) {
+        List<Component> result = new ArrayList<>();
+
+        if (FzmmClient.CONFIG.general.showSymbolButton()) {
+            result.add(this.getSymbolButton(selectedComponent));
+            result.add(this.getFontButton(selectedComponent));
+        }
+
+        return result;
+    }
+
+    protected Component getSymbolButton(TextFieldWidget selectedComponent) {
         Component result = Components.button(SYMBOL_BUTTON_TEXT, button -> {
             if (this.fontSelectionDropDown.visible)
                 this.setFontSelectionVisible(false);
@@ -148,7 +163,7 @@ public class SymbolChatCompat {
         return result;
     }
 
-    public Component getOpenFontSelectionDropDownButton(TextFieldWidget selectedComponent) {
+    protected Component getFontButton(TextFieldWidget selectedComponent) {
         Component result = Components.button(FONT_BUTTON_TEXT, button -> {
             if (this.isSelectionPanelVisible())
                 this.setSelectionPanelVisible(false);

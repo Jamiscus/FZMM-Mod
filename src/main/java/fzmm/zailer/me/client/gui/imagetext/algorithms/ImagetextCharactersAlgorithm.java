@@ -10,6 +10,7 @@ import fzmm.zailer.me.client.logic.imagetext.ImagetextLine;
 import fzmm.zailer.me.client.logic.imagetext.ImagetextLogic;
 import fzmm.zailer.me.utils.ImageUtils;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -111,14 +112,13 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
         BaseFzmmScreen.checkNull(parentLayout, "flow-layout", TextBoxRow.getTextBoxId(CHARACTERS_ID) + "-parent");
         if (screen instanceof BaseFzmmScreen baseScreen) {
             parentLayout.removeChild(this.charactersTextField);
-            parentLayout.child(baseScreen.getSymbolChatCompat()
-                    .getOpenFontSelectionDropDownButton(this.charactersTextField)
-                    .sizing(Sizing.fixed(16))
-            );
-            parentLayout.child(baseScreen.getSymbolChatCompat()
-                    .getOpenSymbolChatPanelButton(this.charactersTextField)
-                    .sizing(Sizing.fixed(16))
-            );
+
+            List<Component> buttons = baseScreen.getSymbolChatCompat().getButtons(this.charactersTextField);
+            for (var button : buttons) {
+                button.sizing(Sizing.fixed(16));
+            }
+            parentLayout.children(buttons);
+
             parentLayout.child(this.charactersTextField);
         }
     }
