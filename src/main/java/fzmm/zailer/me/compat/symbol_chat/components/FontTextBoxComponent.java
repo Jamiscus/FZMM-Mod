@@ -1,4 +1,4 @@
-package fzmm.zailer.me.compat.symbol_chat.font;
+package fzmm.zailer.me.compat.symbol_chat.components;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;

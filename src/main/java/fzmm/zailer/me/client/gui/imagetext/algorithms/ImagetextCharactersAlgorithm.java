@@ -13,7 +13,6 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.MutableText;
 
 import java.awt.image.BufferedImage;
@@ -108,12 +107,11 @@ public class ImagetextCharactersAlgorithm implements IImagetextAlgorithm {
         this.charactersTextField.enableFontProcess(true);
 
         FlowLayout parentLayout = rootComponent.childById(FlowLayout.class, TextBoxRow.getTextBoxId(CHARACTERS_ID) + "-parent");
-        Screen screen = MinecraftClient.getInstance().currentScreen;
         BaseFzmmScreen.checkNull(parentLayout, "flow-layout", TextBoxRow.getTextBoxId(CHARACTERS_ID) + "-parent");
-        if (screen instanceof BaseFzmmScreen baseScreen) {
+        if (MinecraftClient.getInstance().currentScreen instanceof BaseFzmmScreen baseScreen) {
             parentLayout.removeChild(this.charactersTextField);
 
-            List<Component> buttons = baseScreen.getSymbolChatCompat().getButtons(this.charactersTextField);
+            List<Component> buttons = baseScreen.getSymbolChatCompat().getButtons(baseScreen, this.charactersTextField);
             for (var button : buttons) {
                 button.sizing(Sizing.fixed(16));
             }
