@@ -19,9 +19,8 @@ import fzmm.zailer.me.client.gui.components.snack_bar.ISnackBarScreen;
 import fzmm.zailer.me.client.gui.utils.memento.IMemento;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoObject;
 import fzmm.zailer.me.client.gui.utils.memento.IMementoScreen;
-import fzmm.zailer.me.client.gui.components.BooleanButton;
-import fzmm.zailer.me.compat.symbol_chat.font.FontTextBoxComponent;
 import fzmm.zailer.me.compat.symbol_chat.SymbolChatCompat;
+import fzmm.zailer.me.compat.symbol_chat.components.FontTextBoxComponent;
 import io.wispforest.owo.config.ui.component.ConfigTextBox;
 import io.wispforest.owo.ui.base.BaseUIModelScreen;
 import io.wispforest.owo.ui.component.ButtonComponent;
@@ -69,8 +68,6 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
         if (backButton != null) {
             backButton.onPress(button -> this.close());
         }
-
-        this.symbolChatCompat.addSymbolChatComponents(this);
 
         this.setup(rootComponent);
         rootComponent.child(this.snackBarLayout);
@@ -223,13 +220,15 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            if (this.symbolChatCompat.isSelectionPanelVisible()) {
-                this.symbolChatCompat.setSelectionPanelVisible(false);
+            if (this.symbolChatCompat.symbol().isMounted()) {
+                this.symbolChatCompat.symbol().remove();
+                this.symbolChatCompat.selectedComponent(null);
                 return true;
             }
 
-            if (this.symbolChatCompat.isFontSelectionVisible()) {
-                this.symbolChatCompat.setFontSelectionVisible(false);
+            if (this.symbolChatCompat.font().isMounted()) {
+                this.symbolChatCompat.font().remove();
+                this.symbolChatCompat.selectedComponent(null);
                 return true;
             }
         }
