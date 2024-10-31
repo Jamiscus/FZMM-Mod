@@ -1,7 +1,7 @@
 package fzmm.zailer.me.client.gui.components.row;
 
 import fzmm.zailer.me.client.gui.BaseFzmmScreen;
-import fzmm.zailer.me.compat.symbol_chat.font.FontTextBoxComponent;
+import fzmm.zailer.me.compat.symbol_chat.components.FontTextBoxComponent;
 import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -97,7 +97,7 @@ public class TextBoxRow extends AbstractRow {
 
 
     public void addSymbolChatButtons(BaseFzmmScreen screen, TextFieldWidget textFieldWidget) {
-        List<Component> symbolChatButtons = screen.getSymbolChatCompat().getButtons(textFieldWidget);
+        List<Component> symbolChatButtons = screen.getSymbolChatCompat().getButtons(screen, textFieldWidget);
         if (symbolChatButtons.isEmpty()) {
             return;
         }
