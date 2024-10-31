@@ -95,6 +95,14 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     public void removed() {
         this.clearSnackBars();
 
+        if (FzmmClient.CONFIG.history.automaticallyRecoverScreens() && this instanceof IMementoScreen mementoScreen) {
+            try {
+                mementoScreen.setMemento(mementoScreen.createMemento());
+            } catch (NullPointerException e) {
+                FzmmClient.LOGGER.error("[BaseFzmmScreen] Failed to create memento", e);
+            }
+        }
+
         super.removed();
     }
 
@@ -102,14 +110,6 @@ public abstract class BaseFzmmScreen extends BaseUIModelScreen<StyledFlowLayout>
     public void close() {
         assert this.client != null;
         this.setScreen(this.parent);
-
-        if (FzmmClient.CONFIG.history.automaticallyRecoverScreens() && this instanceof IMementoScreen mementoScreen) {
-            try {
-                mementoScreen.setMemento(mementoScreen.createMemento());
-            } catch (NullPointerException e) {
-                FzmmClient.LOGGER.error("Failed to create memento", e);
-            }
-        }
     }
 
     protected void setTabs(Enum<? extends ITabsEnum> tabs) {
