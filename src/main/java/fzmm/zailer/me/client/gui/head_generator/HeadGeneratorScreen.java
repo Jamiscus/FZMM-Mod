@@ -269,23 +269,32 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         boolean editingBody = this.headCompoundComponentEntries.stream()
                 .anyMatch(entry -> entry.getValue().isEditingSkinBody());
 
+        // generate pre-edit textures for all entries
         SkinPreEditOption skinPreEditOption = this.skinPreEdit();
         boolean forcePreEditNone = FzmmClient.CONFIG.headGenerator.forcePreEditNoneInModels();
-        BufferedImage selectedPreEdit = this.skinPreEdit(this.baseSkin, skinPreEditOption, editingBody);
-        BufferedImage nonePreEdit = this.skinPreEdit(this.baseSkin, SkinPreEditOption.NONE, editingBody);
         boolean isSlim = ImageUtils.isSlimSimpleCheck(this.baseSkin);
-        this.addCompoundEntries(selectedPreEdit, isSlim, editingBody);
+        BufferedImage selectedPreEdit = this.skinPreEdit(this.baseSkin, skinPreEditOption, isSlim, editingBody);
+        BufferedImage bodyTexturePreEdit = editingBody ? selectedPreEdit : this.skinPreEdit(this.baseSkin, skinPreEditOption, isSlim, true);
+        BufferedImage nonePreEdit = this.skinPreEdit(this.baseSkin, SkinPreEditOption.NONE, isSlim, editingBody);
 
+        // generate textures for head entries in scheduler thread
         scheduler.schedule(() -> {
             for (int i = 0; i != this.headComponentEntries.size(); i++) {
                 HeadComponentEntry entry = this.headComponentEntries.get(i);
-                boolean useForceConfig = forcePreEditNone && entry.getValue() instanceof HeadModelEntry;
-                // Update head BufferedImage, it does not need to use MinecraftClient#execute as it does not update the GUI
+                BufferedImage baseTexture;
+                if (forcePreEditNone && entry.getValue() instanceof HeadModelEntry) {
+                    baseTexture = nonePreEdit;
+                } else if (entry.getValue().isEditingSkinBody()) {
+                    baseTexture = bodyTexturePreEdit;
+                } else {
+                    baseTexture = selectedPreEdit;
+                }
                 // FIXME: ConcurrentModificationException: in INestedParameters.getNestedParameters(INestedParameters.java:21)
-                entry.updateHead(useForceConfig ? nonePreEdit : selectedPreEdit, this.hasUnusedPixels);
+                entry.updateHead(baseTexture, this.hasUnusedPixels);
             }
         }, 0, TimeUnit.MILLISECONDS);
 
+        // update head previews in client thread with 1ms of delay between each
         AtomicInteger index = new AtomicInteger(1);
         for (int i = 0; i != this.headComponentEntries.size(); i++) {
             HeadComponentEntry entry = this.headComponentEntries.get(i);
@@ -296,29 +305,31 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
             }, (long) HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS * index.getAndIncrement(), TimeUnit.MILLISECONDS);
         }
 
-        scheduler.schedule(selectedPreEdit::flush, (this.headComponentEntries.size() + 2) * HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        scheduler.schedule(() -> {
+            selectedPreEdit.flush();
+            bodyTexturePreEdit.flush();
+            nonePreEdit.flush();
+        }, (this.headComponentEntries.size() + 2) * HEAD_PREVIEW_SCHEDULE_DELAY_MILLIS, TimeUnit.MILLISECONDS);
         scheduler.shutdown();
     }
 
-    private void addCompoundEntries(BufferedImage selectedPreEdit, boolean isSlim, boolean editBody) {
-        Graphics2D graphics = selectedPreEdit.createGraphics();
+    private void addCompoundEntriesToTexture(Graphics2D graphics, BufferedImage texture, boolean isSlim, boolean editBody) {
         ISkinPreEdit none = SkinPreEditOption.NONE.getPreEdit();
         ISkinPreEdit overlap = SkinPreEditOption.OVERLAP.getPreEdit();
 
-        for (var headEntry : this.getHeadComponentEntries()) {
-            headEntry.update(selectedPreEdit, isSlim);
+        for (var headEntry : this.getHeadCompoundEntries()) {
+            headEntry.update(texture, isSlim);
 
             none.apply(graphics, headEntry.getPreview());
-            overlap.apply(graphics, selectedPreEdit, editBody);
+            overlap.apply(graphics, texture, editBody);
         }
-        graphics.dispose();
     }
 
     public BufferedImage skinPreEdit(SkinPreEditOption skinPreEditOption, boolean editBody) {
-        return this.skinPreEdit(this.baseSkin, skinPreEditOption, editBody);
+        return this.skinPreEdit(this.baseSkin, skinPreEditOption, ImageUtils.isSlimSimpleCheck(this.baseSkin), editBody);
     }
 
-    public BufferedImage skinPreEdit(BufferedImage preview, SkinPreEditOption skinPreEditOption, boolean editBody) {
+    public BufferedImage skinPreEdit(BufferedImage preview, SkinPreEditOption skinPreEditOption, boolean isSlim, boolean editBody) {
         BufferedImage result = new BufferedImage(SkinPart.MAX_WIDTH, SkinPart.MAX_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = result.createGraphics();
 
@@ -328,6 +339,8 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         if (this.hasUnusedPixels) {
             ImageUtils.copyUnusedPixels(preview, graphics);
         }
+
+        this.addCompoundEntriesToTexture(graphics, result, isSlim, editBody);
 
         graphics.dispose();
         return result;
@@ -361,7 +374,7 @@ public class HeadGeneratorScreen extends BaseFzmmScreen implements IMementoScree
         preEditLayout.child(preEditButton);
     }
 
-    public List<HeadCompoundComponentEntry> getHeadComponentEntries() {
+    public List<HeadCompoundComponentEntry> getHeadCompoundEntries() {
         return this.headCompoundComponentEntries;
     }
 
