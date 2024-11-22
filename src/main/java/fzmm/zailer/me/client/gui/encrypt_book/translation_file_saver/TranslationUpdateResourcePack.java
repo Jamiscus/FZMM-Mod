@@ -27,10 +27,10 @@ public class TranslationUpdateResourcePack implements ITranslationFileSaver{
                 filterPatterns.flip();
 
                 String resourcePackPath = TinyFileDialogs.tinyfd_openFileDialog(
-                        Text.translatable("fzmm.gui.resourcePackBuilder.dialog.updateResourcePack.title").getString(),
+                        "Choose resource pack",
                         MinecraftClient.getInstance().getResourcePackDir().toString() + "/",
                         filterPatterns,
-                        Text.translatable("fzmm.gui.resourcePackBuilder.dialog.updateResourcePack.filter").getString(),
+                        "Resource pack (ZIP)",
                         false
                 );
                 boolean cancelled = resourcePackPath == null;

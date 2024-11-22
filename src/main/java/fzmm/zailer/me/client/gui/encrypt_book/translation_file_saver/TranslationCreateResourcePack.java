@@ -20,7 +20,7 @@ public class TranslationCreateResourcePack implements ITranslationFileSaver{
     public CompletableFuture<Boolean> save(TranslationEncryptProfile profile) {
         return CompletableFuture.supplyAsync(() -> {
             String resourcePackPath = TinyFileDialogs.tinyfd_saveFileDialog(
-                    Text.translatable("fzmm.gui.resourcePackBuilder.dialog.newResourcePack.title").getString(),
+                    "Save resource pack",
                     MinecraftClient.getInstance().getResourcePackDir().resolve("resourcepack.zip").toString(),
                     null,
                     null

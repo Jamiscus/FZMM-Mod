@@ -1,7 +1,6 @@
 package fzmm.zailer.me.client.gui.components.image.source;
 
 import fzmm.zailer.me.client.FzmmClient;
-import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -37,10 +36,10 @@ public class ImageFileDialogSource implements IInteractiveImageLoader {
                 filterPatterns.flip();
 
                 String imagePath = TinyFileDialogs.tinyfd_openFileDialog(
-                        Text.translatable("fzmm.gui.fileDialog.image.title").getString(),
+                        "Choose image file",
                         null,
                         filterPatterns,
-                        Text.translatable("fzmm.gui.fileDialog.image.filter").getString(),
+                        "Image files (JPG, PNG, GIF, BMP)",
                         false
                 );
                 if (imagePath != null) {
