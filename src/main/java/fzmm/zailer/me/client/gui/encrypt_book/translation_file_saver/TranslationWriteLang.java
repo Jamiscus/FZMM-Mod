@@ -22,7 +22,7 @@ public class TranslationWriteLang implements ITranslationFileSaver{
     public CompletableFuture<Boolean> save(TranslationEncryptProfile profile) {
         return CompletableFuture.supplyAsync(() -> {
             String langPath = TinyFileDialogs.tinyfd_saveFileDialog(
-                    Text.translatable("fzmm.gui.encryptbook.getDecryptor.option.writeLang.dialog.title").getString(),
+                    "Save language file",
                     MinecraftClient.getInstance().getResourcePackDir().resolve("en_us.json").toString(),
                     null,
                     null
