@@ -12,8 +12,6 @@ import net.replaceitem.symbolchat.gui.widget.SymbolSearchBar;
 import net.replaceitem.symbolchat.gui.widget.SymbolTabWidget;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class SymbolComponentAdapter extends VanillaWidgetComponent {
     protected final SymbolSelectionPanel widget;
     @Nullable
@@ -39,13 +37,11 @@ public class SymbolComponentAdapter extends VanillaWidgetComponent {
     @Nullable
     private ClickableWidget findSearchBar() {
         try {
-            Optional<SymbolTabWidget> tabWidgetOptional = this.widget.getCurrentTab();
+            SymbolTabWidget tabWidgetOptional = this.widget.getCurrentTab();
 
-            if (tabWidgetOptional.isPresent()) {
-                for (var child : tabWidgetOptional.get().children()) {
-                    if (child instanceof SymbolSearchBar symbolSearchBar) {
-                        return symbolSearchBar;
-                    }
+            for (var child : tabWidgetOptional.children()) {
+                if (child instanceof SymbolSearchBar symbolSearchBar) {
+                    return symbolSearchBar;
                 }
             }
         } catch (NoClassDefFoundError | NoSuchMethodError e) {
