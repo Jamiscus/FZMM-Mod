@@ -24,6 +24,7 @@ import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Identifier;
 
 import java.awt.image.BufferedImage;
 
@@ -37,6 +38,7 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
     protected final HeadGeneratorScreen parentScreen;
     protected OverlayContainer<FlowLayout> overlayContainer;
     private boolean isBodyPreview;
+    private Identifier dynamicTexture = null;
 
     public AbstractHeadComponentEntry(AbstractHeadEntry entry, Sizing horizontalSizing, Sizing verticalSizing, HeadGeneratorScreen parent) {
         super(horizontalSizing, verticalSizing, Algorithm.VERTICAL);
@@ -144,7 +146,8 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
         NativeImage nativeImage = ImageUtils.toNativeImage(previewSkin);
         nativeImage.untrack();
         this.previewTexture = new NativeImageBackedTexture(nativeImage);
-        previewEntity.setSkin(textureManager.registerDynamicTexture("fzmm_head", this.previewTexture), isSlim);
+        this.dynamicTexture = textureManager.registerDynamicTexture("fzmm_head", this.previewTexture);
+        previewEntity.setSkin(this.dynamicTexture, isSlim);
     }
 
     protected EntityComponent<Entity> copyCustomHeadEntity() {
@@ -152,11 +155,12 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
     }
 
     public void close() {
-        if (this.previewTexture == null) {
+        if (this.previewTexture == null || this.dynamicTexture == null) {
             return;
         }
 
-        this.previewTexture.close();
+        MinecraftClient.getInstance().getTextureManager().destroyTexture(this.dynamicTexture);
+        this.dynamicTexture = null;
         this.previewTexture = null;
 
         if (this.previewHead == null) {
