@@ -28,6 +28,7 @@ import fzmm.zailer.me.config.FzmmConfig;
 import fzmm.zailer.me.utils.ItemUtils;
 import io.wispforest.owo.ui.component.*;
 import io.wispforest.owo.ui.container.FlowLayout;
+import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
 import io.wispforest.owo.ui.util.FocusHandler;
 import net.minecraft.client.MinecraftClient;
@@ -44,6 +45,7 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
@@ -196,15 +198,15 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
             }
         });
 
-        // animation
+        // animation of small gui
         FlowLayout imageOptionsLayout = rootComponent.childById(FlowLayout.class, "image-options-layout");
-        BaseFzmmScreen.checkNull(imageOptionsLayout, "layout", "image-options-layout");
+        BaseFzmmScreen.checkNull(imageOptionsLayout, "flow-layout", "image-options-layout");
 
         FlowLayout algorithmOptionsLayout = rootComponent.childById(FlowLayout.class, "algorithm-options-layout");
-        BaseFzmmScreen.checkNull(algorithmOptionsLayout, "layout", "algorithm-options-layout");
+        BaseFzmmScreen.checkNull(algorithmOptionsLayout, "flow-layout", "algorithm-options-layout");
 
         FlowLayout imageModeLayout = rootComponent.childById(FlowLayout.class, "image-mode-layout");
-        BaseFzmmScreen.checkNull(imageModeLayout, "layout", "image-mode-layout");
+        BaseFzmmScreen.checkNull(imageModeLayout, "flow-layout", "image-mode-layout");
 
         Animation<Sizing> imageLayoutAnimation = imageOptionsLayout.horizontalSizing().animate(100, Easing.LINEAR, Sizing.expand(100));
         Animation<Sizing> algorithmLayoutAnimationHorizontal = algorithmOptionsLayout.horizontalSizing().animate(100, Easing.LINEAR, Sizing.expand(100));
@@ -212,6 +214,25 @@ public class ImagetextScreen extends BaseFzmmScreen implements IMementoScreen {
         // workaround to fix alignment issue (owo-lib sizing rounds up related)
         Animation<Sizing> imageModeFixAnimation = imageModeLayout.horizontalSizing().animate(100, Easing.LINEAR, Sizing.expand(100));
         this.smallGuiAnimation = Animation.compose(imageLayoutAnimation, algorithmLayoutAnimationHorizontal, algorithmLayoutAnimationVertical, imageModeFixAnimation);
+
+        // animation of expand preview
+        ScrollContainer<?> leftOptionsScroll =  rootComponent.childById(ScrollContainer.class, "left-options-scroll");
+        BaseFzmmScreen.checkNull(leftOptionsScroll, "scroll", "left-options-scroll");
+
+        ButtonComponent expandPreviewButton = rootComponent.childById(ButtonComponent.class, "expand-preview-button");
+        BaseFzmmScreen.checkNull(expandPreviewButton, "button", "expand-preview-button");
+
+        Animation<Sizing> leftOptionsAnimation = leftOptionsScroll.horizontalSizing().animate(100, Easing.CUBIC, Sizing.expand(0));
+        AtomicBoolean isExpanded = new AtomicBoolean(false);
+        expandPreviewButton.onPress(buttonComponent -> {
+            if (isExpanded.getAndSet(!isExpanded.get())) {
+                leftOptionsAnimation.reverse();
+                expandPreviewButton.setMessage(Text.translatable("fzmm.gui.button.arrow2.left"));
+            } else {
+                leftOptionsAnimation.forwards();
+                expandPreviewButton.setMessage(Text.translatable("fzmm.gui.button.arrow2.right"));
+            }
+        });
 
         this.setSmallGuiAnimation(this.width);
     }

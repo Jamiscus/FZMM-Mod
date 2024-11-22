@@ -1,5 +1,5 @@
 <owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21/owo-ui.xsd">
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21.2/owo-ui.xsd">
     <components>
         <fzmm.styled-flow-layout direction="vertical">
             <children>
@@ -10,7 +10,7 @@
 
                 <fzmm.styled-flow-layout direction="horizontal">
                     <children>
-                        <fzmm.styled-scroll direction="vertical">
+                        <fzmm.styled-scroll direction="vertical" id="left-options-scroll">
                             <!-- options left to preview -->
                             <fzmm.styled-flow-layout direction="ltr-text-flow">
                                 <children>
@@ -373,6 +373,18 @@
                         <!-- preview -->
                         <fzmm.styled-flow-layout direction="vertical">
                             <children>
+                                <button id="expand-preview-button">
+                                    <text translate="true">fzmm.gui.button.arrow2.left</text>
+
+                                    <sizing>
+                                        <vertical method="fixed">16</vertical>
+                                    </sizing>
+
+                                    <margins>
+                                        <bottom>2</bottom>
+                                        <left>5</left>
+                                    </margins>
+                                </button>
 
                                 <fzmm.styled-scroll direction="horizontal">
                                     <fzmm.styled-scroll direction="vertical" flip-scroll="true">
