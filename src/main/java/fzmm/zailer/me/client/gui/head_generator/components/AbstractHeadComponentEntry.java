@@ -23,6 +23,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.texture.TextureManager;
+import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 
@@ -159,8 +160,13 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
             return;
         }
 
+        this.dynamicTexture = DefaultSkinHelper.getTexture();
         MinecraftClient.getInstance().getTextureManager().destroyTexture(this.dynamicTexture);
-        this.dynamicTexture = null;
+
+        if (this.previewComponent.entity() instanceof ISkinMutable previewEntity) {
+            previewEntity.setSkin(this.dynamicTexture, this.isBodyPreview);
+        }
+
         this.previewTexture = null;
 
         if (this.previewHead == null) {
