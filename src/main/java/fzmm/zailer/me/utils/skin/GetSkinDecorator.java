@@ -30,14 +30,10 @@ public class GetSkinDecorator {
     }
 
     public Optional<BufferedImage> getSkin(String value) throws IOException {
-        Optional<BufferedImage> skin = this.next.getSkin(value);
-
-        return skin.isEmpty() ? this.next.getSkin(value) : skin;
+        return this.next.getSkin(value);
     }
 
     public Optional<ItemStack> getHead(String value) {
-        Optional<ItemStack> stack = this.next.getHead(value);
-
-        return stack.isEmpty() ? this.next.getHead(value): stack;
+        return this.next.getHead(value);
     }
 }
