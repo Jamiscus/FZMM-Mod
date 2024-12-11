@@ -1,4 +1,4 @@
-package fzmm.zailer.me.client.argument_type;
+package fzmm.zailer.me.client.command.argument_type;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
