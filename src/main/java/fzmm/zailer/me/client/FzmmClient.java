@@ -1,5 +1,6 @@
 package fzmm.zailer.me.client;
 
+import fzmm.zailer.me.client.command.FzmmCommand;
 import fzmm.zailer.me.client.gui.components.image.source.ScreenshotSource;
 import fzmm.zailer.me.client.gui.main.MainScreen;
 import fzmm.zailer.me.client.gui.utils.auto_placer.AutoPlacerHud;
