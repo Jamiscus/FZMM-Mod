@@ -13,11 +13,11 @@ import fzmm.zailer.me.client.argument_type.VersionArgumentType;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ItemUtils;
 import fzmm.zailer.me.utils.InventoryUtils;
+import fzmm.zailer.me.utils.HeadUtils;
 import fzmm.zailer.me.utils.TagsConstant;
-import fzmm.zailer.me.utils.skin.GetSkinDecorator;
-import fzmm.zailer.me.utils.skin.GetSkinFromCache;
-import fzmm.zailer.me.utils.skin.GetSkinFromMineskin;
-import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
+import fzmm.zailer.me.utils.skin.SkinGetterDecorator;
+import fzmm.zailer.me.utils.skin.CacheSkinGetter;
+import fzmm.zailer.me.utils.skin.VanillaSkinGetter;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
@@ -220,28 +220,32 @@ public class FzmmCommand {
                         .executes(ctx -> {
 
                             String skullOwner = ctx.getArgument("skull owner", String.class);
-                            getHead(new GetSkinFromCache(new GetSkinFromMojang()), skullOwner);
-                            return 1;
+                            getHead(new CacheSkinGetter(new VanillaSkinGetter()), skullOwner)
+                                    .whenComplete((stack, throwable) -> ItemUtils.give(stack));
 
+                            return 1;
                         }).then(ClientCommandManager.literal("cache")
                                 .executes(ctx -> {
 
                                     String skullOwner = ctx.getArgument("skull owner", String.class);
-                                    getHead(new GetSkinFromCache(), skullOwner);
+                                    getHead(new CacheSkinGetter(), skullOwner)
+                                            .whenComplete((stack, throwable) -> ItemUtils.give(stack));
 
                                     return 1;
                                 })).then(ClientCommandManager.literal("mineskin")
                                 .executes(ctx -> {
 
                                     String skullOwner = ctx.getArgument("skull owner", String.class);
-                                    getHead(new GetSkinFromMineskin().setCacheSkin(skullOwner), skullOwner);
+                                    CompletableFuture.runAsync(() -> HeadUtils.uploadAndGetHead(skullOwner)
+                                            .ifPresent(ItemUtils::give), Util.getMainWorkerExecutor());
 
                                     return 1;
                                 })).then(ClientCommandManager.literal("mojang")
                                 .executes(ctx -> {
 
                                     String skullOwner = ctx.getArgument("skull owner", String.class);
-                                    getHead(new GetSkinFromMojang(), skullOwner);
+                                    getHead(new VanillaSkinGetter(), skullOwner)
+                                            .whenComplete((stack, throwable) -> ItemUtils.give(stack));
 
                                     return 1;
                                 }))
@@ -496,14 +500,11 @@ public class FzmmCommand {
         ItemUtils.updateHand(stack);
     }
 
-    private static void getHead(GetSkinDecorator skinDecorator, String playerName) {
-        CompletableFuture.runAsync(() -> {
-            MinecraftClient client = MinecraftClient.getInstance();
-            assert client.player != null;
-
-            Optional<ItemStack> optionalStack = skinDecorator.getHead(playerName);
-            ItemUtils.give(optionalStack.orElseGet(() -> HeadBuilder.of(playerName)));
-        }, Util.getDownloadWorkerExecutor());
+    private static CompletableFuture<ItemStack> getHead(SkinGetterDecorator skinDecorator, String playerName) {
+        return CompletableFuture.supplyAsync(() -> skinDecorator.getHead(playerName)
+                        .orElseGet(() -> HeadBuilder.of(playerName)),
+                Util.getMainWorkerExecutor()
+        );
     }
 
     /**

@@ -1,8 +1,7 @@
 package fzmm.zailer.me.utils;
 
-import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
-import fzmm.zailer.me.utils.skin.GetSkinDecorator;
+import fzmm.zailer.me.utils.skin.SkinGetterDecorator;
 import net.minecraft.client.texture.NativeImage;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -35,8 +34,8 @@ public class ImageUtils {
     }
 
 
-    public static Optional<BufferedImage> getPlayerSkin(String name, GetSkinDecorator getSkinDecorator) throws NullPointerException, JsonIOException, IOException {
-        Optional<BufferedImage> skin = getSkinDecorator.getSkin(name);
+    public static Optional<BufferedImage> getPlayerSkin(String name, SkinGetterDecorator skinGetterDecorator) {
+        Optional<BufferedImage> skin = skinGetterDecorator.getSkin(name);
 
         if (skin.isEmpty()) {
             FzmmClient.LOGGER.warn("[ImageUtils] skin of '{}' was not found", name);

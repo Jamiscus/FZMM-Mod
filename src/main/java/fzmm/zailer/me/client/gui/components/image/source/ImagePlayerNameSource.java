@@ -5,11 +5,9 @@ import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.client.gui.components.image.ImageStatus;
 import fzmm.zailer.me.utils.FzmmUtils;
 import fzmm.zailer.me.utils.ImageUtils;
-import fzmm.zailer.me.utils.skin.GetSkinDecorator;
-import fzmm.zailer.me.utils.skin.GetSkinFromCache;
-import fzmm.zailer.me.utils.skin.GetSkinFromMojang;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import fzmm.zailer.me.utils.skin.SkinGetterDecorator;
+import fzmm.zailer.me.utils.skin.CacheSkinGetter;
+import fzmm.zailer.me.utils.skin.VanillaSkinGetter;
 
 import java.awt.image.BufferedImage;
 import java.util.Optional;
@@ -30,17 +28,15 @@ public class ImagePlayerNameSource implements IImageLoaderFromText, IImageSugges
         this.image = null;
 
         try {
-            boolean isInvalidName = !this.predicateRegex(value);
-            GetSkinDecorator getSkinDecorator;
-            if (isInvalidName && this.predicateOnlinePlayer(value)) {
-                getSkinDecorator = new GetSkinFromCache();
-            } else if (isInvalidName) {
+            SkinGetterDecorator skinGetter = new VanillaSkinGetter();
+
+            if (this.predicateOnlinePlayer(value)) {
+                skinGetter = new CacheSkinGetter(skinGetter);
+            } else if (!this.isValidName(value)) {
                 return ImageStatus.INVALID_USERNAME;
-            } else {
-                getSkinDecorator = new GetSkinFromCache(new GetSkinFromMojang());
             }
 
-            Optional<BufferedImage> optionalImage = ImageUtils.getPlayerSkin(value, getSkinDecorator);
+            Optional<BufferedImage> optionalImage = ImageUtils.getPlayerSkin(value, skinGetter);
             optionalImage.ifPresent(image -> this.image = image);
             if (optionalImage.isEmpty()) {
                 return this.predicateOnlinePlayer(value) ? ImageStatus.PLAYER_HAS_NO_SKIN : ImageStatus.PLAYER_NOT_FOUND;
@@ -60,21 +56,16 @@ public class ImagePlayerNameSource implements IImageLoaderFromText, IImageSugges
 
     @Override
     public boolean predicate(String value) {
-        return this.predicateRegex(value) || this.predicateOnlinePlayer(value);
+        return this.isValidName(value) || this.predicateOnlinePlayer(value);
     }
 
-    private boolean predicateRegex(String value) {
+    private boolean isValidName(String value) {
         return value.matches(REGEX);
     }
 
     private boolean predicateOnlinePlayer(String value) {
         // supports users that are not allowed by the regex, as long as that player is online
-        ClientPlayNetworkHandler networkHandler = MinecraftClient.getInstance().getNetworkHandler();
-        if (networkHandler == null) {
-            return false;
-        }
-
-        return networkHandler.getPlayerListEntry(value) != null;
+        return FzmmUtils.getOnlinePlayer(value) != null;
     }
 
     @Override
