@@ -5,7 +5,7 @@ import com.google.gson.JsonParser;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.config.FzmmConfig;
-import fzmm.zailer.me.utils.skin.GetSkinFromCache;
+import fzmm.zailer.me.utils.skin.CacheSkinGetter;
 import io.wispforest.owo.Owo;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.SkinTextures;
@@ -23,8 +23,10 @@ import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+//TODO: update to mineskin 2.0
 public class HeadUtils {
     public static final String MINESKIN_API = "https://api.mineskin.org/";
     private static final String BOUNDARY = UUID.randomUUID().toString();
@@ -162,7 +164,7 @@ public class HeadUtils {
             return Optional.empty();
         }
 
-        return new GetSkinFromCache().getSkin(profileComponent.gameProfile());
+        return new CacheSkinGetter().getSkin(profileComponent.gameProfile());
     }
 
     public static Optional<SkinTextures> getSkinTextures(ItemStack stack) {
@@ -175,5 +177,24 @@ public class HeadUtils {
                 .getSkinProvider()
                 .getSkinTextures(profileComponent.gameProfile())
         );
+    }
+
+    public static Optional<ItemStack> uploadAndGetHead(String playerName) {
+        Optional<BufferedImage> skinOptional = new CacheSkinGetter().getSkin(playerName);
+        if (skinOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ItemStack stack = null;
+        try {
+            stack = new HeadUtils().uploadHead(skinOptional.get(), playerName).get()
+                    .getBuilder()
+                    .headName(playerName)
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
+            FzmmClient.LOGGER.error("[HeadUtils] Error uploading head in mineskin", e);
+        }
+
+        return Optional.ofNullable(stack);
     }
 }

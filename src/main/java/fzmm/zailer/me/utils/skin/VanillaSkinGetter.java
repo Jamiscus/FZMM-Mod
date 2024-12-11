@@ -15,18 +15,18 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-public class GetSkinFromMojang extends GetSkinDecorator {
+public class VanillaSkinGetter extends SkinGetterDecorator {
 
-    public GetSkinFromMojang(GetSkinDecorator getSkinDecorator) {
-        super(getSkinDecorator);
+    public VanillaSkinGetter(SkinGetterDecorator skinGetterDecorator) {
+        super(skinGetterDecorator);
     }
 
-    public GetSkinFromMojang() {
-        super(null);
+    public VanillaSkinGetter() {
+        super();
     }
 
     @Override
-    public Optional<BufferedImage> getSkin(String playerName) throws IOException {
+    public Optional<BufferedImage> getSkin(String playerName) {
         Optional<GameProfile> profile = this.getProfile(playerName);
         if (profile.isEmpty()) {
             return super.getSkin(playerName);
@@ -39,7 +39,15 @@ public class GetSkinFromMojang extends GetSkinDecorator {
             return super.getSkin(playerName);
         }
 
-        return ImageUtils.getImageFromUrl(skinTexture.getUrl());
+        try {
+            Optional<BufferedImage> result = ImageUtils.getImageFromUrl(skinTexture.getUrl());
+            if (result.isPresent()) {
+                return result;
+            }
+        } catch (IOException ignored) {
+        }
+
+        return super.getSkin(playerName);
     }
 
     @Override
@@ -48,10 +56,7 @@ public class GetSkinFromMojang extends GetSkinDecorator {
         return profile.map(HeadBuilder::of).or(() -> super.getHead(playerName));
     }
 
-    /**
-     * @param playerName the name of the player
-     * @return empty {@link Optional} if no profile is found
-     */
+    @Override
     public Optional<GameProfile> getProfile(String playerName) {
         try {
             return Optional.of(new ProfileComponent(
@@ -62,7 +67,7 @@ public class GetSkinFromMojang extends GetSkinDecorator {
                     .get()
                     .gameProfile());
         } catch (InterruptedException | ExecutionException e) {
-            FzmmClient.LOGGER.error("[GetSkinFromMojang] Failed to get profile for player '{}'", playerName, e);
+            FzmmClient.LOGGER.error("[VanillaSkinGetter] Failed to get profile for player '{}'", playerName, e);
         }
 
         return Optional.empty();
