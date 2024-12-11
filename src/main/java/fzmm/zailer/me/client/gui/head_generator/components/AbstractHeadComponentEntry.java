@@ -162,8 +162,8 @@ public abstract class AbstractHeadComponentEntry extends StyledFlowLayout implem
             return;
         }
 
-        this.dynamicTexture = DefaultSkinHelper.getTexture();
         MinecraftClient.getInstance().getTextureManager().destroyTexture(this.dynamicTexture);
+        this.dynamicTexture = DefaultSkinHelper.getTexture();
 
         if (this.previewComponent.entity() instanceof ISkinMutable previewEntity) {
             previewEntity.setSkin(this.dynamicTexture, this.isBodyPreview);
