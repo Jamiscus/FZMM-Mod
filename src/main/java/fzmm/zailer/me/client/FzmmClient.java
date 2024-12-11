@@ -1,5 +1,6 @@
 package fzmm.zailer.me.client;
 
+import fzmm.zailer.me.client.command.FzmmCommand;
 import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntity;
 import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntityModel;
 import fzmm.zailer.me.client.entity.custom_skin.CustomHeadEntityRenderer;
