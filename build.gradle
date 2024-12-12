@@ -50,12 +50,15 @@ dependencies {
     // Mod Menu
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-    // Symbol chat
-    modImplementation "maven.modrinth:symbol-chat:${project.symbol_chat_version}"
-
     // PlacerholderAPI
     modImplementation(include("maven.modrinth:placeholder-api:${project.placeholder_api_version}"))
 
+    // Optional dependencies
+    // Symbol chat
+    modImplementation "maven.modrinth:symbol-chat:${project.symbol_chat_version}"
+
+    // Test dependencies
+    testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 }
 
 processResources {
@@ -77,6 +80,10 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}"}
     }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 publishing {
