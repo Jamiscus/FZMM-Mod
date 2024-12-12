@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import fzmm.zailer.me.client.FzmmClient;
+import fzmm.zailer.me.client.command.argument_type.ComponentArgumentType;
 import fzmm.zailer.me.client.command.argument_type.VersionArgumentType;
 import fzmm.zailer.me.client.command.ISubCommand;
 import fzmm.zailer.me.utils.FzmmUtils;
@@ -16,7 +17,6 @@ import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.option.HotbarStorageEntry;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.IdentifierArgumentType;
-import net.minecraft.command.argument.NbtCompoundArgumentType;
 import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.datafixer.Schemas;
 import net.minecraft.item.ItemStack;
@@ -53,16 +53,16 @@ public class OldGiveCommand implements ISubCommand {
         return builder.then(ClientCommandManager.argument("item", IdentifierArgumentType.identifier()).executes((ctx) -> {
                     ctx.getSource().sendError(Text.translatable("commands.fzmm.old_give.nbt_required").formatted(Formatting.RED));
                     return 1;
-                }).then(ClientCommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound()).executes((ctx) -> {
+                }).then(ClientCommandManager.argument("nbt", ComponentArgumentType.component()).executes((ctx) -> {
 
                     Identifier item = ctx.getArgument("item", Identifier.class);
-                    NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+                    NbtCompound nbt = ComponentArgumentType.getNbtCompound(ctx, "nbt");
 
                     oldGiveItem(item, nbt, VersionArgumentType.VERSIONS.get(0));
                     return 1;
                 }).then(ClientCommandManager.argument("item_version", VersionArgumentType.version()).executes(ctx -> {
                     Identifier item = ctx.getArgument("item", Identifier.class);
-                    NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+                    NbtCompound nbt = ComponentArgumentType.getNbtCompound(ctx, "nbt");
                     Pair<String, Integer> version = VersionArgumentType.getVersion(ctx, "item_version");
 
                     oldGiveItem(item, nbt, version);
@@ -71,18 +71,18 @@ public class OldGiveCommand implements ISubCommand {
                     ctx.getSource().sendError(Text.translatable("commands.fzmm.old_give.nbt_required").formatted(Formatting.RED));
 
                     return 1;
-                }).then(ClientCommandManager.argument("nbt", NbtCompoundArgumentType.nbtCompound()).executes((ctx) -> {
+                }).then(ClientCommandManager.argument("nbt", ComponentArgumentType.component()).executes((ctx) -> {
 
                     Identifier item = ctx.getArgument("item", Identifier.class);
                     int damage = IntegerArgumentType.getInteger(ctx, "damage");
-                    NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+                    NbtCompound nbt = ComponentArgumentType.getNbtCompound(ctx, "nbt");
 
                     oldGiveItem(item, damage, nbt, VersionArgumentType.VERSIONS.get(0));
                     return 1;
                 }).then(ClientCommandManager.argument("item_version", VersionArgumentType.version()).executes(ctx -> {
                     Identifier item = ctx.getArgument("item", Identifier.class);
                     int damage = IntegerArgumentType.getInteger(ctx, "damage");
-                    NbtCompound nbt = NbtCompoundArgumentType.getNbtCompound(ctx, "nbt");
+                    NbtCompound nbt = ComponentArgumentType.getNbtCompound(ctx, "nbt");
                     Pair<String, Integer> version = VersionArgumentType.getVersion(ctx, "item_version");
 
                     oldGiveItem(item, damage, nbt, version);
