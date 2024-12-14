@@ -2,16 +2,17 @@ package fzmm.zailer.me.utils.skin;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
 import fzmm.zailer.me.builders.HeadBuilder;
 import fzmm.zailer.me.utils.ImageUtils;
+import net.minecraft.block.entity.SkullBlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.item.ItemStack;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 public class VanillaSkinGetter extends SkinGetterDecorator {
 
@@ -25,14 +26,14 @@ public class VanillaSkinGetter extends SkinGetterDecorator {
 
     @Override
     public Optional<BufferedImage> getSkin(String playerName) {
+        MinecraftSessionService sessionService = MinecraftClient.getInstance().getSessionService();
+
         Optional<GameProfile> profile = this.getProfile(playerName);
         if (profile.isEmpty()) {
             return super.getSkin(playerName);
         }
 
-        MinecraftProfileTexture skinTexture = MinecraftClient.getInstance().getSessionService()
-                .getTextures(profile.get())
-                .skin();
+        MinecraftProfileTexture skinTexture = sessionService.getTextures(profile.get()).skin();
         if (skinTexture == null) {
             return super.getSkin(playerName);
         }
@@ -56,17 +57,10 @@ public class VanillaSkinGetter extends SkinGetterDecorator {
 
     @Override
     public Optional<GameProfile> getProfile(String playerName) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        assert client.player != null;
-        ClientPlayNetworkHandler networkHandler = client.getNetworkHandler();
-
-        if (networkHandler == null) {
+        try {
+            return SkullBlockEntity.fetchProfile(playerName).get();
+        } catch (ExecutionException | InterruptedException ignored) {
             return Optional.empty();
         }
-
-        // implementation from in 1.20.5 branch fixes issue with case-sensitive
-        PlayerListEntry playerListEntry = networkHandler.getPlayerListEntry(playerName);
-
-        return playerListEntry == null ? Optional.empty() : Optional.of(playerListEntry.getProfile());
     }
 }
