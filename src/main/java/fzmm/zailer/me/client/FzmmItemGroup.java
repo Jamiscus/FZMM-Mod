@@ -306,14 +306,16 @@ public class FzmmItemGroup {
 
     private static void addTallFlowers(ItemGroup.Entries entries) {
         String suffix = "tallFlowerSelfDestructs";
-        ItemPredicate predicate = itemPredicate(ItemTags.TALL_FLOWERS);
-        for (var item : Registries.ITEM) {
-            if (predicate.test(new ItemStack(item))) {
-                addHalfUpper(entries, item, suffix);
-            }
-        }
+        // TallFlowerBlock
+        addHalfUpper(entries, Items.SUNFLOWER, suffix);
+        addHalfUpper(entries, Items.LILAC, suffix);
+        addHalfUpper(entries, Items.ROSE_BUSH, suffix);
+        addHalfUpper(entries, Items.PEONY, suffix);
+        // TallPlantBlock
         addHalfUpper(entries, Items.TALL_GRASS, suffix);
         addHalfUpper(entries, Items.LARGE_FERN, suffix);
+        addHalfUpper(entries, Items.PITCHER_PLANT, suffix);
+        // SmallDripleafBlock
         addHalfUpper(entries, Items.SMALL_DRIPLEAF, suffix);
     }
 

@@ -2,19 +2,17 @@ package fzmm.zailer.me.utils.skin;
 
 import com.mojang.authlib.GameProfile;
 import fzmm.zailer.me.builders.HeadBuilder;
-import fzmm.zailer.me.mixin.cache_skin_getter.PlayerSkinTextureAccessor;
 import fzmm.zailer.me.utils.FzmmUtils;
+import fzmm.zailer.me.utils.ImageUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.client.texture.PlayerSkinTexture;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.item.ItemStack;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -44,7 +42,7 @@ public class CacheSkinGetter extends SkinGetterDecorator {
         MinecraftClient client = MinecraftClient.getInstance();
         assert client.player != null;
 
-        SkinTextures textures;
+        Optional<SkinTextures> textures;
         try {
             // if the list of players was not loaded, fetch it and gets the skin from there,
             // which can give a skin provided by the server
@@ -52,19 +50,22 @@ public class CacheSkinGetter extends SkinGetterDecorator {
         } catch (ExecutionException | InterruptedException ignored) {
             return Optional.empty();
         }
-        AbstractTexture texture = client.getTextureManager().getTexture(textures.texture());
-        // if the player is invisible the texture is not an instance of PlayerSkinTexture
-        if (!(texture instanceof PlayerSkinTexture skinTexture)) {
+
+        if (textures.isEmpty()) {
             return Optional.empty();
         }
 
-        File skinFile = ((PlayerSkinTextureAccessor) skinTexture).getCacheFile();
-
-        try {
-            return Optional.of(ImageIO.read(skinFile));
-        } catch (IOException ignored) {
+        AbstractTexture texture = client.getTextureManager().getTexture(textures.get().texture());
+        if (!(texture instanceof NativeImageBackedTexture nativeTexture)) {
             return Optional.empty();
         }
+
+        NativeImage nativeImage = nativeTexture.getImage();
+        if (nativeImage == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(ImageUtils.getBufferedImgFromNativeImg(nativeImage));
     }
 
     @Override

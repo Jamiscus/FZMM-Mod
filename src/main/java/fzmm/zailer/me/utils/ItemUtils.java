@@ -76,10 +76,15 @@ public class ItemUtils {
         if (FzmmClient.CONFIG.general.giveClientSide()) {
             client.player.equipStack(EquipmentSlot.MAINHAND, stack);
         } else {
-            assert client.interactionManager != null;
             PlayerInventory playerInventory = client.player.getInventory();
 
-            playerInventory.addPickBlock(stack);
+            int slot = playerInventory.getSlotWithStack(stack);
+            if (PlayerInventory.isValidHotbarIndex(slot)) {
+                    playerInventory.selectedSlot = slot;
+            } else {
+                playerInventory.swapStackWithHotbar(stack);
+            }
+
             updateHand(stack);
         }
 

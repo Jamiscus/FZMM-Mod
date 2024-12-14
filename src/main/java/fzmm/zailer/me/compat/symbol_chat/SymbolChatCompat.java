@@ -11,7 +11,6 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.replaceitem.symbolchat.SymbolChat;
 import net.replaceitem.symbolchat.gui.SymbolSelectionPanel;
-import net.replaceitem.symbolchat.gui.widget.DropDownWidget;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -65,21 +64,23 @@ public class SymbolChatCompat {
             }
         }));
     }
-    
+
     private FontComponentAdapter getFontComponent() {
-        return new FontComponentAdapter(new DropDownWidget<>(0, 0, 180, 15,
-                SymbolChat.fontManager.getFontProcessors(), SymbolChat.selectedFont)
-        );
+        FontComponentAdapter.CustomDropDownWidget widget = new FontComponentAdapter.CustomDropDownWidget(0, 0, 180, 15,
+                SymbolChat.fontManager.getFontProcessors(), SymbolChat.selectedFont);
+        int expandedHeight = 150 + widget.getHeight(); // 150 is hardcoded in DropDownWidget
+        widget.setHeight(expandedHeight);
+        return new FontComponentAdapter(widget, expandedHeight);
     }
 
     public TextFieldWidget selectedComponent() {
         return this.selectedComponent;
     }
-    
+
     public SymbolChatComponentHandler<SymbolComponentAdapter> symbol() {
         return this.symbolHandler;
     }
-    
+
     public SymbolChatComponentHandler<FontComponentAdapter> font() {
         return this.fontHandler;
     }
@@ -103,8 +104,7 @@ public class SymbolChatCompat {
 
         return this.symbolHandler.keyPressed(keyCode, scanCode, modifiers) || this.fontHandler.keyPressed(keyCode, scanCode, modifiers);
     }
-    
-    
+
     public void processFont(TextFieldWidget widget, String text, Consumer<String> writeConsumer) {
         if (!CompatMods.SYMBOL_CHAT_PRESENT || this.selectedComponent != widget || !this.fontHandler.isMounted()) {
             writeConsumer.accept(text);

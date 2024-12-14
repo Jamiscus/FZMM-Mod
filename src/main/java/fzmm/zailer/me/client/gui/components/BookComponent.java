@@ -19,16 +19,16 @@ public class BookComponent extends TextAreaComponent {
         // vanilla book screen parity
 
         // rightWidgetOffset = 9
-        // text widget width diff = this.getScrollerWidth() = 8
+        // text widget width diff = SCROLLBAR_WIDTH + 2 = 8
         // bottomWidgetOffset = displayCharCount offset = 4
-        super(Sizing.fixed(BookScreen.MAX_TEXT_WIDTH + 8 + 9), Sizing.fixed(BookScreen.MAX_TEXT_HEIGHT + 4));
+        super(Sizing.fixed(BookScreen.MAX_TEXT_WIDTH + 9 + 8), Sizing.fixed(BookScreen.MAX_TEXT_HEIGHT + 4));
 
         int rightWidgetOffset = 9;
         int bottomWidgetOffset = 4;
         int top = 26; // matching vanilla
         int bottom = BookScreen.HEIGHT - BookScreen.MAX_TEXT_HEIGHT - top - bottomWidgetOffset;
         int left = 32; // matching vanilla
-        int right = BookScreen.WIDTH - BookScreen.MAX_TEXT_WIDTH - left - this.getScrollerWidth() - rightWidgetOffset;
+        int right = BookScreen.WIDTH - BookScreen.MAX_TEXT_WIDTH - left - SCROLLBAR_WIDTH - 2 - rightWidgetOffset;
         // 192x192 and align text with texture
         this.margins(Insets.of(top, bottom, left, right));
 
@@ -39,7 +39,7 @@ public class BookComponent extends TextAreaComponent {
     }
 
     @Override
-    public void drawBox(DrawContext context, int x, int y, int width, int height) {
+    protected void drawBox(DrawContext context) {
         Insets margins = this.margins().get();
         context.drawTexture(RenderLayer::getGuiTextured, BookScreen.BOOK_TEXTURE, this.x() - margins.left(), this.y() - margins.top(), 0, 0, BookScreen.WIDTH, BookScreen.HEIGHT, 256, 256);
     }

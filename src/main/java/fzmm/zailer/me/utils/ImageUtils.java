@@ -1,6 +1,5 @@
 package fzmm.zailer.me.utils;
 
-import com.google.gson.JsonIOException;
 import fzmm.zailer.me.client.FzmmClient;
 import fzmm.zailer.me.utils.skin.SkinGetterDecorator;
 import net.minecraft.client.texture.NativeImage;

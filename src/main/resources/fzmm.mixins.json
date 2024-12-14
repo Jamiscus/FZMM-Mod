@@ -4,7 +4,6 @@
   "package": "fzmm.zailer.me.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "cache_skin_getter.PlayerSkinTextureAccessor",
     "combined_inventory_getter.PlayerInventoryAccessor",
     "component.book.EditBoxAccessor",
     "component.book.EditBoxWidgetMixin",

@@ -1,9 +1,9 @@
 package fzmm.zailer.me.client.gui.components.image;
 
-import blue.endless.jankson.annotation.Nullable;
 import fzmm.zailer.me.client.gui.components.style.FzmmStyles;
 import io.wispforest.owo.ui.core.Color;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 public record ImageStatus(String titleId, @Nullable String detailsId, boolean isError) {
     private static final String BASE_TRANSLATION_KEY = "fzmm.snack_bar.image.";

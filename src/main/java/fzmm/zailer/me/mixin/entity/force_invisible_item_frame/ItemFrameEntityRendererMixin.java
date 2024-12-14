@@ -17,7 +17,7 @@ public class ItemFrameEntityRendererMixin<T extends ItemFrameEntity> {
             at = @At("RETURN")
     )
     private void fzmm$disableItemFrameFrameRendering(T itemFrameEntity, ItemFrameEntityRenderState state, float f, CallbackInfo ci) {
-        if ((FzmmClient.CONFIG.general.forceInvisibleItemFrame() && !state.contents.isEmpty())) {
+        if ((FzmmClient.CONFIG.general.forceInvisibleItemFrame() && !state.itemRenderState.isEmpty())) {
             state.invisible = true;
         }
     }

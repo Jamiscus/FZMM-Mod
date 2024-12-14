@@ -1,12 +1,12 @@
 package fzmm.zailer.me.client.gui.components.snack_bar;
 
-import blue.endless.jankson.annotation.Nullable;
 import fzmm.zailer.me.utils.SnackBarManager;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Component;
 import io.wispforest.owo.ui.core.ParentComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -42,6 +42,7 @@ public class SuggestionTextBox extends FontTextBoxComponent {
     private ScrollContainer<FlowLayout> suggestionsContainer = null;
     @Nullable
     private FlowLayout suggestionsLayout = null;
+    private int suggestionsAdditionalZIndex = 100;
 
     public SuggestionTextBox() {
         this(Sizing.content(), SuggestionPosition.BOTTOM, 5);
@@ -88,7 +89,7 @@ public class SuggestionTextBox extends FontTextBoxComponent {
             suggestionDropdown.child(this.suggestionsContainer);
         });
 
-        this.suggestionsContextMenu.zIndex(this.zIndex() + 100);
+        this.suggestionsContextMenu.zIndex(this.zIndex() + this.suggestionsAdditionalZIndex);
         this.updateSuggestions(this.getText());
     }
 
@@ -303,6 +304,11 @@ public class SuggestionTextBox extends FontTextBoxComponent {
 
     public void setSuggestionSelectedCallback(@Nullable Runnable suggestionSelectedCallback) {
         this.suggestionSelectedCallback = suggestionSelectedCallback;
+    }
+
+    public SuggestionTextBox suggestionsZIndex(int zIndex) {
+        this.suggestionsAdditionalZIndex = zIndex;
+        return this;
     }
 
     @Override
