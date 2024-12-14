@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import me.zailer.testmod.client.test_command.HeadGeneratorTest;
+import me.zailer.testmod.client.test_command.ParityComponentTest;
 import me.zailer.testmod.client.test_command.SnackBarTest;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -80,6 +81,13 @@ public class TestCommands {
         testCommand.then(ClientCommandManager.literal("snack_bar:button")
                 .executes(ctx -> {
                     SnackBarTest.showButton();
+                    return 0;
+                })
+        );
+
+        testCommand.then(ClientCommandManager.literal("parity_component")
+                .executes(ctx -> {
+                    ParityComponentTest.testAll();
                     return 0;
                 })
         );
