@@ -7,10 +7,14 @@ import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextHandler;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.EditBox;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.client.input.CursorMovement;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookComponent extends TextAreaComponent {
 
@@ -35,6 +39,8 @@ public class BookComponent extends TextAreaComponent {
 
         this.editBox.setMaxLength(Integer.MAX_VALUE); // remove display of max length (EditBoxWidget#renderOverlay)
         this.editBox.setChangeListener(this::textChange);
+
+        this.setMaxLength(1023);
     }
 
     @Override
@@ -127,5 +133,19 @@ public class BookComponent extends TextAreaComponent {
     @Override
     public boolean onMouseScroll(double mouseX, double mouseY, double amount) {
         return false;
+    }
+
+    public List<String> getWrappedText() {
+        List<String> result = new ArrayList<>();
+        String text = this.editBox.getText();
+        int count = this.editBox.getLineCount();
+
+        for (int i = 0; i < count; i++) {
+            EditBox.Substring substring = this.editBox.getLine(i);
+            String line = text.substring(substring.beginIndex(), substring.endIndex());
+            result.add(line.replaceAll("\\s+$", "")); // remove spaces at the end
+        }
+
+        return result;
     }
 }
